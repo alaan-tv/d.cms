@@ -19,6 +19,7 @@ package media.dee.dcms.web.launcher.bridge;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
 import org.apache.felix.framework.util.Util;
+import org.osgi.framework.BundleContext;
 
 import javax.servlet.ServletContext;
 import java.util.Arrays;
@@ -79,5 +80,9 @@ public final class FrameworkService {
 
     private void log(String message, Throwable cause) {
         this.context.log(message, cause);
+    }
+
+    public BundleContext getBundleContext() {
+        return this.felix.getBundleContext();
     }
 }

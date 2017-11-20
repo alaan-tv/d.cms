@@ -9,7 +9,6 @@
     <artifactId>json-osgi</artifactId>
 	<name>JSON OSGI Module</name>
 	<packaging>bundle</packaging>
-	<version>2009.02.11</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

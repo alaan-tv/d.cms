@@ -11,55 +11,51 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-		<asm.wrapper>3.3.1</asm.wrapper>
 		<commons.fileupload>1.3.3</commons.fileupload>
 		<commons.io>2.6</commons.io>
-		<felix.bundleRepository>1.6.6</felix.bundleRepository>
-		<felix.configAdmin>1.6.0</felix.configAdmin>
-		<felix.eventAdmin>1.3.2</felix.eventAdmin>
-		<felix.fileinstall>3.2.6</felix.fileinstall>
 		<felix.framework>5.6.10</felix.framework>
 		<felix.httpBundles>3.0.0</felix.httpBundles>
-		<felix.log>1.0.1</felix.log>
+        <felix.http.proxy>3.0.2</felix.http.proxy>
+        <felix.http.birdge>3.0.2</felix.http.birdge>
 		<felix.webconsole>4.3.4</felix.webconsole>
-		<felix.webconsole.event>1.0.2</felix.webconsole.event>
-		<felix.webconsole.memory>1.0.4</felix.webconsole.memory>
-		<felix.webconsole.obr>1.0.0</felix.webconsole.obr>
-		<felix.webconsole.packageAdmin>1.0.0</felix.webconsole.packageAdmin>
-		<javax.servlet>3.0.1</javax.servlet>
-		<json.wrapper>2009.02.11</json.wrapper>
-		<logback.core>1.0.13</logback.core>
-		<logback.classic>${logback.core}</logback.classic>
+		<javax.servlet>3.1.0</javax.servlet>
+		<json.osgi>${project.version}</json.osgi>
 		<osgi.cmpn>5.0.0</osgi.cmpn>
-		<osgi.obr>1.0.2</osgi.obr>
-		<pax.web.api>3.0.2</pax.web.api>
-		<pax.web.extender.war>${pax.web.api}</pax.web.extender.war>
-		<pax.web.spi>${pax.web.api}</pax.web.spi>
-		<pax.web.whiteboard>${pax.web.api}</pax.web.whiteboard>
-		<slf4j.api>1.7.5</slf4j.api>
-		<xbean.finder>3.13</xbean.finder>
-		<xbean.bundleutils>${xbean.finder}</xbean.bundleutils>
+        <tomcatHost>localhost:8080</tomcatHost>
 	</properties>
 
 	<dependencies>
 		<!-- Needed for the servlet bridge itself, goes to WEB-INF/lib -->
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework</artifactId>
-			<version>${felix.framework}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.proxy</artifactId>
-			<version>${felix.httpBundles}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-			<version>${osgi.cmpn}</version>
-		</dependency>
-
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.cmpn</artifactId>
+            <version>${osgi.cmpn}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <version>${felix.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.http.proxy</artifactId>
+            <version>${felix.http.proxy}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.http.bridge</artifactId>
+            <version>${felix.http.birdge}</version>
+            <scope>provided</scope>
+        </dependency>
 		<!-- Bundles that should be deployed into the embedded OSGi container, 
 			goes to WEB-INF/bundles -->
 		<!-- Felix Webconsole + dependencies -->
@@ -84,16 +80,16 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>json-osgi</artifactId>
-			<version>${json.wrapper}</version>
+			<version>${json.osgi}</version>
 			<scope>provided</scope>
 		</dependency>
 
-        <dependency>
+       <!-- <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.http.bundle</artifactId>
             <version>${felix.httpBundles}</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency>-->
 	</dependencies>
 
 	<build>
@@ -128,12 +124,12 @@
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
-						<phase>package</phase>
+						<phase>generate-resources</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/bundles</outputDirectory>
+                            <outputDirectory>${project.build.directory}/bundles</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
@@ -143,6 +139,39 @@
 					</execution>
 				</executions>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>${project.build.directory}/bundles</directory>
+                            <targetPath>WEB-INF/bundles</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>.</directory>
+                            <targetPath>META-INF</targetPath>
+                            <includes>
+                                <include>LICENSE</include>
+                                <include>NOTICE</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>

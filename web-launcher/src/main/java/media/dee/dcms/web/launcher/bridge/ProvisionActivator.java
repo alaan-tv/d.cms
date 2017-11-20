@@ -34,7 +34,7 @@ public final class ProvisionActivator implements BundleActivator {
 
     public void start(BundleContext context) throws Exception {
         servletContext.setAttribute(BundleContext.class.getName(), context);
-        ArrayList<Bundle> installed = new ArrayList<Bundle>();
+        ArrayList<Bundle> installed = new ArrayList<>();
         for (URL url : findBundles()) {
             this.servletContext.log("Installing bundle [" + url + "]");
             Bundle bundle = context.installBundle(url.toExternalForm());
