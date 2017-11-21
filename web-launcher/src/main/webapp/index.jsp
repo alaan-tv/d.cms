@@ -154,7 +154,7 @@
 
 <script type="text/javascript">
     window.onload = init;
-    var socket = new WebSocket("websocket://localhost:8080/chat");
+    var socket = new WebSocket("ws://localhost:8080/chat");
     socket.onmessage = onMessage;
 
     function onMessage(event) {

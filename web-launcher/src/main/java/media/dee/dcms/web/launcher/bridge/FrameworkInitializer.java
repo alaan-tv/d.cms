@@ -16,6 +16,8 @@
  */
 package media.dee.dcms.web.launcher.bridge;
 
+import org.osgi.framework.BundleContext;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -25,6 +27,9 @@ public final class FrameworkInitializer implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent event) {
 		this.service = new FrameworkService(event.getServletContext());
 		this.service.start();
+
+		ThreadLocal<BundleContext> threadLocal = new ThreadLocal<>();
+		threadLocal.set(this.service.getBundleContext());
 	}
 
 	public void contextDestroyed(ServletContextEvent event) {

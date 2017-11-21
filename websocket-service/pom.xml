@@ -76,7 +76,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>transport.WSTransportActivator</Bundle-Activator>
+                        <Bundle-Activator>transport.WebSocketBridgeActivator</Bundle-Activator>
+                        <Export-Package>media.dee.dcms.websocket</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

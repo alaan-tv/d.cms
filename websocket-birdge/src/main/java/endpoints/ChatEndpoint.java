@@ -8,7 +8,7 @@ import org.osgi.service.log.LogService;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/*")
+@ServerEndpoint("chat")
 public class ChatEndpoint {
 
     private void log(int level, String message){

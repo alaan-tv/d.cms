@@ -3,12 +3,8 @@ package media.dee.dcms.websocket;
 import javax.websocket.*;
 
 public interface WebSocketDispatcher {
-    @OnOpen
-    void open(Session session);
-    @OnClose
-    void close(Session session);
-    @OnError
-    void onError(Throwable error);
-    @OnMessage
-    void handleMessage(String message, Session session);
+    void open(String path, Session session);
+    void close(String path, Session session);
+    void onError(String path, Throwable error);
+    void handleMessage(String path, String message, Session session);
 }

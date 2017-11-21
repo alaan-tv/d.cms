@@ -8,7 +8,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import java.util.LinkedList;
 import java.util.List;
 
-public class WebSocketDispatcherTracker extends ServiceTracker<WebSocketDispatcher, WebSocketDispatcher>{
+public class WebSocketDispatcherTracker extends ServiceTracker<WebSocketDispatcher, WebSocketDispatcher> {
     private List<WebSocketDispatcher> dispatchers = new LinkedList<>();
 
     public WebSocketDispatcherTracker(BundleContext context) {
