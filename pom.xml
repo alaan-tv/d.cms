@@ -9,10 +9,13 @@
 		<module>json-osgi</module>
 		<module>asm-osgi</module>
 		<module>web-launcher</module>
+        <module>websocket-birdge</module>
+        <module>websocket-service</module>
 	</modules>
 
     <properties>
         <jdk.version>1.8</jdk.version>
+        <osgi.version>5.0.0</osgi.version>
     </properties>
 
 	<build>

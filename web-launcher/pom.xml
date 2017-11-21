@@ -20,8 +20,12 @@
 		<felix.webconsole>4.3.4</felix.webconsole>
 		<javax.servlet>3.1.0</javax.servlet>
 		<json.osgi>${project.version}</json.osgi>
-		<osgi.cmpn>5.0.0</osgi.cmpn>
         <tomcatHost>localhost:8080</tomcatHost>
+        <felix.log>1.0.1</felix.log>
+        <slf4j.api>1.7.25</slf4j.api>
+        <logback.core>1.2.3</logback.core>
+        <logback.classic>${logback.core}</logback.classic>
+        <websocket.api>1.1</websocket.api>
 	</properties>
 
 	<dependencies>
@@ -34,9 +38,9 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>osgi.cmpn</artifactId>
-            <version>${osgi.cmpn}</version>
-            <scope>compile</scope>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -50,6 +54,9 @@
             <version>${felix.http.proxy}</version>
             <scope>compile</scope>
         </dependency>
+        <!--
+            http bridge provides HttpService from container, it should be installed withing osgi framework as bundle
+        -->
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.http.bridge</artifactId>
@@ -84,13 +91,52 @@
 			<scope>provided</scope>
 		</dependency>
 
-       <!-- <dependency>
+       <!-- OSGI LOG modules -->
+
+        <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.http.bundle</artifactId>
-            <version>${felix.httpBundles}</version>
+            <artifactId>org.apache.felix.log</artifactId>
+            <version>${felix.log}</version>
             <scope>provided</scope>
-        </dependency>-->
-	</dependencies>
+        </dependency>
+
+        <!-- SLF4J + Logback -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.api}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.core}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.classic}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Websocket service provided via container -->
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>${websocket.api}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>websocket-service</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -134,7 +180,8 @@
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
 							<excludeTransitive>true</excludeTransitive>
-							<excludeArtifactIds>org.apache.felix.framework,org.apache.felix.http.proxy,javax.servlet-api</excludeArtifactIds>
+                            <includeScope>provided</includeScope>
+							<excludeArtifactIds>org.osgi.core,org.apache.felix.framework,javax.servlet-api,javax.websocket-api</excludeArtifactIds>
 						</configuration>
 					</execution>
 				</executions>
