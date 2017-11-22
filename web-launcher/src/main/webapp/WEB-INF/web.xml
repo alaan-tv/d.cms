@@ -4,6 +4,13 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+
+
+    <context-param>
+        <param-name>deecms.bundle.manager.url</param-name>
+        <param-value>file:///work/projects/d.cms/file-bundle-manager/target/file-bundle-manager-0.0.1-SNAPSHOT.jar</param-value>
+    </context-param>
+
     <listener>
         <listener-class>media.dee.dcms.web.launcher.bridge.FrameworkInitializer</listener-class>
     </listener>

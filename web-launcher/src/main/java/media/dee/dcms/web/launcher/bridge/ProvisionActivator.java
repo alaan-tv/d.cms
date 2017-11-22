@@ -59,6 +59,12 @@ public final class ProvisionActivator implements BundleActivator {
                 }
             }
         }
+
+        //add bundle manager url to bundles to be installed
+        String mangerPath = servletContext.getInitParameter("deecms.bundle.manager.url");
+        if( mangerPath != null)
+            list.add(new URL(mangerPath));
+
         return list;
     }
 }

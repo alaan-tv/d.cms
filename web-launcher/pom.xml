@@ -11,20 +11,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<commons.fileupload>1.3.3</commons.fileupload>
-		<commons.io>2.6</commons.io>
-		<felix.framework>5.6.10</felix.framework>
-		<felix.httpBundles>3.0.0</felix.httpBundles>
+        <javax.servlet>3.1.0</javax.servlet>
+        <felix.framework>5.6.10</felix.framework>
         <felix.http.proxy>3.0.2</felix.http.proxy>
-        <felix.http.birdge>3.0.2</felix.http.birdge>
-		<felix.webconsole>4.3.4</felix.webconsole>
-		<javax.servlet>3.1.0</javax.servlet>
-		<json.osgi>${project.version}</json.osgi>
-        <tomcatHost>localhost:8080</tomcatHost>
-        <felix.log>1.0.1</felix.log>
-        <slf4j.api>1.7.25</slf4j.api>
-        <logback.core>1.2.3</logback.core>
-        <logback.classic>${logback.core}</logback.classic>
         <websocket.api>1.1</websocket.api>
 	</properties>
 
@@ -54,71 +43,6 @@
             <version>${felix.http.proxy}</version>
             <scope>compile</scope>
         </dependency>
-        <!--
-            http bridge provides HttpService from container, it should be installed withing osgi framework as bundle
-        -->
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.http.bridge</artifactId>
-            <version>${felix.http.birdge}</version>
-            <scope>provided</scope>
-        </dependency>
-		<!-- Bundles that should be deployed into the embedded OSGi container, 
-			goes to WEB-INF/bundles -->
-		<!-- Felix Webconsole + dependencies -->
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.webconsole</artifactId>
-			<version>${felix.webconsole}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>${commons.fileupload}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons.io}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>json-osgi</artifactId>
-			<version>${json.osgi}</version>
-			<scope>provided</scope>
-		</dependency>
-
-       <!-- OSGI LOG modules -->
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.log</artifactId>
-            <version>${felix.log}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- SLF4J + Logback -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.api}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.core}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.classic}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Websocket service provided via container -->
         <dependency>
@@ -135,9 +59,10 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- core dee cms specs and interfaces -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>websocket-bridge</artifactId>
+            <artifactId>core</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

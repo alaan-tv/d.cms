@@ -6,11 +6,13 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<modules>
+        <module>core</module>
 		<module>json-osgi</module>
 		<module>asm-osgi</module>
 		<module>web-launcher</module>
         <module>websocket-birdge</module>
         <module>websocket-service</module>
+        <module>file-bundle-manager</module>
 	</modules>
 
     <properties>

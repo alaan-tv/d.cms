@@ -84,7 +84,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Service-Component>OSGI-INF/services.xml</Service-Component>
+                        <Bundle-Activator>media.dee.dcms.websocket.birdge.WebSocketBridgeActivator</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>

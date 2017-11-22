@@ -23,8 +23,8 @@ public class WebSocketBridgeActivator implements BundleActivator {
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-        bundleContext.ungetService(webSocketDispatcherServiceRegistration.getReference());
-        bundleContext.ungetService(webSocketServiceServiceRegistration.getReference());
+        webSocketDispatcherServiceRegistration.unregister();
+        webSocketServiceServiceRegistration.unregister();
         webSocketServiceServiceTracker.close();
     }
 }

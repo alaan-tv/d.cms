@@ -16,6 +16,7 @@
  */
 package media.dee.dcms.web.launcher.bridge;
 
+import media.dee.dcms.CoreConstants;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
 import org.apache.felix.framework.util.Util;
@@ -73,8 +74,8 @@ public final class FrameworkService {
         for (Object key : props.keySet()) {
             map.put(key.toString(), Util.substVars(props.getProperty((String)key), (String)key, null, props));
         }
-
         map.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, Arrays.asList(new ProvisionActivator(this.context)));
+        map.put(CoreConstants.BASE_URI_PROPERTY, this.context.getResource(".").toURI().getPath());
         return map;
     }
 
