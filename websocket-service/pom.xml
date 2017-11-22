@@ -76,7 +76,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>transport.WebSocketBridgeActivator</Bundle-Activator>
+                        <Bundle-Activator>media.dee.dcms.websocket.birdge.WebSocketBridgeActivator</Bundle-Activator>
                         <Export-Package>media.dee.dcms.websocket</Export-Package>
                     </instructions>
                 </configuration>

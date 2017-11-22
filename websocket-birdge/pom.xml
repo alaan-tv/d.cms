@@ -84,7 +84,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>transport.WebSocketBridgeActivator</Bundle-Activator>
+                        <Service-Component>OSGI-INF/services.xml</Service-Component>
                     </instructions>
                 </configuration>
             </plugin>

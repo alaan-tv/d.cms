@@ -1,0 +1,7 @@
+<component name="RegisteryWebSocketDispatcher">
+    <implementation class="media.dee.dcms.websocket.birdge.WebSocketServiceDispatcher"/>
+    <service>
+        <provide interface="media.dee.dcms.websocket.WebSocketDispatcher"/>
+        <provide interface="media.dee.dcms.websocket.WebSocketService"/>
+    </service>
+</component>

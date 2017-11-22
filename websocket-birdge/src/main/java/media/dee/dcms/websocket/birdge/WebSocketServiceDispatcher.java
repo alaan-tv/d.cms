@@ -1,4 +1,4 @@
-package transport.internal;
+package media.dee.dcms.websocket.birdge;
 
 import media.dee.dcms.websocket.WebSocketDispatcher;
 import media.dee.dcms.websocket.WebSocketService;
@@ -12,7 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RegisteryWebSocketDispatcher implements WebSocketDispatcher, WebSocketService {
+public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocketService {
 
     private final ConcurrentHashMap<String, Class<?>> endpoints = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Class<?>, Object> instances = new ConcurrentHashMap<>();

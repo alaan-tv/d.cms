@@ -175,6 +175,8 @@
                 statusText.innerHTML = "Status: " + device.status + " (<a href=\"#\" OnClick=toggleDevice(" + device.id + ")>Turn on</a>)";
             }
         }
+        if( device.action ==="greetings")
+            console.log("Greetings!");
     }
 
     function addDevice(name, type, description) {

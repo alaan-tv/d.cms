@@ -7,6 +7,7 @@ import org.osgi.service.log.LogService;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
 
 @ServerEndpoint("chat")
 public class ChatEndpoint {
@@ -22,6 +23,11 @@ public class ChatEndpoint {
     @OnOpen
     public void open(Session session) {
         log(LogService.LOG_INFO, String.format("[WS] new session with id: %s", session.getId()));
+        try {
+            session.getBasicRemote().sendText("{\"action\": \"greetings\"}");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @OnClose
