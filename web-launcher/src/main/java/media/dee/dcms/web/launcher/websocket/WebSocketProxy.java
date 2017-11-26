@@ -13,9 +13,10 @@ import static media.dee.dcms.web.launcher.bridge.BundleContextFilter.BUNDLE_CONT
 public class WebSocketProxy {
 
     private WebSocketDispatcherTracker dispatcherTracker;
+    private BundleContext bundleContext;
 
     public WebSocketProxy(){
-        BundleContext bundleContext = BUNDLE_CONTEXT_THREAD_LOCAL.get();
+        bundleContext = BUNDLE_CONTEXT_THREAD_LOCAL.get();
         dispatcherTracker = new WebSocketDispatcherTracker(bundleContext);
         dispatcherTracker.open();
     }

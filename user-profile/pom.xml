@@ -6,8 +6,8 @@
         <artifactId>dee-cms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>cms-web-app</artifactId>
-    <name>DeeCMS CMS Web Application</name>
+	<artifactId>user-profile</artifactId>
+    <name>DeeCMS User Profile</name>
 	<packaging>bundle</packaging>
 
 	<properties>
@@ -47,18 +47,9 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Websocket service provided via container -->
-        <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-            <version>${websocket.api}</version>
-            <scope>provided</scope>
-        </dependency>
-
-
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>websocket-service</artifactId>
+            <artifactId>cms-web-app</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -99,8 +90,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-Category>d.CMS</Bundle-Category>
-                        <Bundle-Activator>media.dee.dcms.webapp.cms.CMSApplicationActivator</Bundle-Activator>
-                        <Export-Package>media.dee.dcms.webapp.cms.*;version="${project.version}"</Export-Package>
+                        <Bundle-Activator>media.dee.dcms.webapp.userprofile.UserProfileActivator</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>

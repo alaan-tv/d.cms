@@ -3,11 +3,10 @@ package media.dee.dcms.websocket.birdge;
 import media.dee.dcms.websocket.WebSocketDispatcher;
 import media.dee.dcms.websocket.WebSocketService;
 
-import javax.websocket.DeploymentException;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
+import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,11 +38,10 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
         endpoints.remove(serverEndpoint.value());
     }
 
-    @Override
-    public void open(String path, Session session) {
+    private Object getEndpointInstance(String path){
         Class<?> endpointClass = endpoints.get(path);
         if( endpointClass == null )
-            return;
+            return null;
         //instate object
         Object instance = null;
         synchronized (instances) {
@@ -52,35 +50,56 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
                 try {
                     instance = endpointClass.newInstance();
                     instances.put(endpointClass, instance);
+                    return instance;
                 } catch (IllegalAccessException |InstantiationException e) {
                     e.printStackTrace(System.err);
-                    return;
+                    return null;
                 }
             }
+            return instance;
         }
+    }
+
+    private <T extends Annotation> Method getEndpointMethod(Class endpointClass, Class<T> annotationClass){
         for(Method method : endpointClass.getMethods()){
-            OnOpen onOpen = method.getAnnotation(OnOpen.class);
-            if( onOpen != null )
-                try {
-                    method.invoke(instance, session);
-                } catch (InvocationTargetException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+            T annotation = method.getAnnotation(annotationClass);
+            if( annotation != null )
+                return method;
         }
+        return null;
+    }
+
+    private void proxyCall(String path, Class<? extends  Annotation> annotation, Object... args){
+        Object instance = getEndpointInstance(path);
+        if( instance == null )
+            return;
+        Method method = getEndpointMethod(instance.getClass(), annotation);
+        if( method == null )
+            return;
+        try {
+            method.invoke(instance, args);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void open(String path, Session session) {
+        proxyCall(path, OnOpen.class, session);
     }
 
     @Override
     public void close(String path, Session session) {
-
+        proxyCall(path, OnClose.class, session);
     }
 
     @Override
     public void onError(String path, Throwable error) {
-
+        proxyCall(path, OnError.class, error);
     }
 
     @Override
     public void handleMessage(String path, String message, Session session) {
-
+        proxyCall(path, OnMessage.class, message, session);
     }
 }

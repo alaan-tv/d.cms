@@ -1,4 +1,4 @@
-package endpoints;
+package media.dee.dcms.webapp.cms;
 
 import media.dee.dcms.websocket.WebSocketService;
 import org.osgi.framework.BundleContext;
