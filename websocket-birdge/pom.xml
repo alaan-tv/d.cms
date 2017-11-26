@@ -84,6 +84,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Bundle-Category>d.CMS</Bundle-Category>
                         <Bundle-Activator>media.dee.dcms.websocket.birdge.WebSocketBridgeActivator</Bundle-Activator>
                     </instructions>
                 </configuration>

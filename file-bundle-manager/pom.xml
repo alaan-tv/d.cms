@@ -24,6 +24,10 @@
         <slf4j.api>1.7.25</slf4j.api>
         <logback.core>1.2.3</logback.core>
         <logback.classic>${logback.core}</logback.classic>
+        <osgi.obr>1.0.2</osgi.obr>
+        <felix.bundleRepository>2.0.10</felix.bundleRepository>
+        <felix.webconsole.obr>1.0.4</felix.webconsole.obr>
+        <felix.webconsole.memory>1.0.6</felix.webconsole.memory>
 	</properties>
 
 	<dependencies>
@@ -74,6 +78,20 @@
             <version>${felix.webconsole}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.webconsole.plugins.obr</artifactId>
+            <version>${felix.webconsole.obr}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.webconsole.plugins.memoryusage</artifactId>
+            <version>${felix.webconsole.memory}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
@@ -104,6 +122,20 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.classic}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.service.obr</artifactId>
+            <version>${osgi.obr}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.bundlerepository</artifactId>
+            <version>${felix.bundleRepository}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -164,6 +196,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Bundle-Category>d.CMS</Bundle-Category>
                         <Bundle-Activator>media.dee.dcms.filebundles.FileBundleActivator</Bundle-Activator>
                         <Service-Component>OSGI-INF/services.xml</Service-Component>
                     </instructions>

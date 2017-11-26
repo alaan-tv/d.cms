@@ -67,6 +67,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Bundle-Category>d.CMS</Bundle-Category>
                         <Export-Package>media.dee.dcms.*;version="${project.version}"</Export-Package>
                     </instructions>
                 </configuration>
