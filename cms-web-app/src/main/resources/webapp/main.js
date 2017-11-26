@@ -1,4 +1,3 @@
-<script type="text/javascript">
 let socket = new WebSocket("ws://localhost:8080/chat");
 socket.onmessage = onMessage;
 
@@ -14,9 +13,18 @@ function isFunction(functionToCheck) {
 }
 
 class BundleContext{
-    constructor(){
+    constructor(context){
+        this.context = context;
+        this.childContexts = {};
         this.services = {};
         this.bundles = {};
+    }
+
+    installBundle(bundlePath, callback){
+        requireModule(bundlePath, (module)=>{
+            let bundleContext = new BundleContext(this);
+            module.activator(bundleContext);
+        });
     }
 
     registerService(cls, instance, bundle, props){
@@ -59,6 +67,31 @@ class BundleContext{
                 window.dispatchEvent(event);
             }
         }, serviceReference);
+    }
+
+    getServiceReferences(cls, filter){
+        return (this.services[cls] || [])
+            .map( (entry, serviceIndex) => {
+                return {
+                    bundleIndex: null,
+                    serviceIndex: serviceIndex,
+                    bundle: entry.bundle,
+                    props: entry.props,
+                    cls: cls,
+                    getService: (context, ...args)=> {
+                        entry.usage += 1;
+                        return isFunction(entry.instance)? instance(context || this, ...args) : entry.instance
+                    }
+                };
+            } )
+            .filter( serviceReference => {
+                let serviceReference = serviceReferenceEvent.serviceReference;
+                let props = serviceReference.props;
+                let match = true;
+                for( filterKey in filter )
+                    match = props.hasOwnProperty(filterKey) && props[filterKey] === filter[filterKey] ;
+                return match;
+            });
     }
 }
 
@@ -177,4 +210,3 @@ requireModule(["react", "https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.1.1
 
     }, 3000);
 });
-</script>

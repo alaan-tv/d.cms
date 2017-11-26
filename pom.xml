@@ -13,11 +13,13 @@
         <module>websocket-birdge</module>
         <module>websocket-service</module>
         <module>file-bundle-manager</module>
+        <module>cms-web-app</module>
 	</modules>
 
     <properties>
         <jdk.version>1.8</jdk.version>
         <osgi.version>5.0.0</osgi.version>
+        <org.osgi.service.http>1.2.1</org.osgi.service.http>
     </properties>
 
 	<build>
