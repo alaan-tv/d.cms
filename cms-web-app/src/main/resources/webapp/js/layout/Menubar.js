@@ -1,15 +1,15 @@
-defineModule(()=> {
+defineModule(['react'],(React)=> {
 
-    class Menubar extends React.Component {
+    class SettingsMenuItem extends React.Component {
         constructor(props) {
             super(props);
         }
 
         render() {
             return React.createElement(
-                'h1',
-                null,
-                "Menu Item by Module"
+                'span',
+                { className: 'settings-menu-item menu-item' },
+                null
             );
         }
     }
@@ -20,9 +20,13 @@ defineModule(()=> {
         activator: {
             start: (context)=>{
                 console.info('Menubar Activated');
-                serviceRegistry = context.registerService('d.cms.ui.component.essential', (context, props)=>{
-                    return React.createElement(Menubar, props , null);
-                }, 'default', {});
+                serviceRegistry = context.registerService(
+                    'd.cms.ui.component.essential',
+                    (context, props)=>{
+                        return React.createElement(SettingsMenuItem, props , null);
+                    },
+                    {cateogry: 'Essential Components'}
+                );
             },
             stop: (context)=>{
                 console.info('Menubar Deactivated');

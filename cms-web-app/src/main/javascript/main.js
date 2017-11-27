@@ -3,8 +3,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Application} from './react/Application';
 
-window.React = React;
-
 defineModule("react", [], () => {
     return React;
 });

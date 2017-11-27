@@ -13,5 +13,8 @@ function onMessage(event) {
         bundleContext.removeBundle(command.bundle, ()=>{
             console.info(`Bundle: ${command.bundle} Uninstalled.`);
         });
+    } else if( command.action ){
+        let event = new CustomEvent(`ws:${command.action}`, {detail: command});
+        window.dispatchEvent(event);
     }
 }

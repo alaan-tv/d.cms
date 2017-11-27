@@ -1,7 +1,6 @@
 'use strict';
 
 const gulp = require('gulp');
-const sass = require('gulp-sass');
 const sourcemaps = require("gulp-sourcemaps");
 const babel = require("gulp-babel");
 const rm = require( 'gulp-rm' );
@@ -9,27 +8,15 @@ const gutil = require('gulp-util');
 const webpack = require('webpack-stream');
 const webpackConfig = require('./webpack-config');
 
-gulp.task('sass', function () {
-    return gulp.src('./sass/**/*.scss')
-        .pipe(sass.sync({outputStyle: 'compressed'}).on('error', sass.logError))
-        .pipe(gulp.dest('./resources/webapp/css/', {overwrite : true}));
-});
-
-gulp.task('sass:dev', function () {
-    return gulp.src('./sass/**/*.scss')
-        .pipe(sass.sync().on('error', sass.logError))
-        .pipe(gulp.dest('./resources/webapp/css/', {overwrite : true}));
-});
-
 gulp.task('app', function() {
     return gulp.src('./javascript/**/*.js')
         .pipe(webpack(Object.assign(webpackConfig, {
             devtool: 'source-map',
             output: {
-                filename: 'main.js'
+                filename: 'userprofile.js'
             }
         })))
-        .pipe(gulp.dest('./resources/webapp/js'));
+        .pipe(gulp.dest('./resources/webapp/js/layout/userprofile'));
 });
 
 gulp.task('app:dev', function() {
@@ -37,16 +24,15 @@ gulp.task('app:dev', function() {
         .pipe(webpack(Object.assign(webpackConfig, {
             devtool: 'source-map',
             output: {
-                filename: 'main.js'
+                filename: 'userprofile.js'
             },
             plugins: []
         } )).on('error', gutil.log))
-        .pipe(gulp.dest('./resources/webapp/js'));
+        .pipe(gulp.dest('./resources/webapp/js/layout/userprofile'));
 });
 
 
-gulp.task('watch', ['clean', 'app:dev', 'sass:dev'] , function (cb) {
-    gulp.watch(['./sass/**/*'], ['sass:dev']);
+gulp.task('watch', ['clean', 'app:dev'] , function (cb) {
     gulp.watch(['./javascript/**/*'], ['app:dev']);
     cb();
     console.log(gutil.colors.blue.bold('Go ahead, we are watching you :)'));
@@ -54,9 +40,8 @@ gulp.task('watch', ['clean', 'app:dev', 'sass:dev'] , function (cb) {
 
 gulp.task('clean', function () {
     return gulp.src([
-        './resources/webapp/css/**/*',
-        './resources/webapp/js/main.js'
+        './resources/webapp/js/layout/userprofile/userprofile.js'
     ],{read: false}).pipe(rm());
 });
 
-gulp.task('default', ['clean', 'sass', 'app']);
+gulp.task('default', ['clean', 'app']);
