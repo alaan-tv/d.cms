@@ -1,5 +1,6 @@
 import React from 'react';
 import {ServiceTracker} from "../service/ServiceTracker";
+import './application.scss';
 
 
 class Application extends React.Component {
@@ -47,11 +48,9 @@ class Application extends React.Component {
     }
 
     render() {
-        return React.createElement(
-            'ul',
-            null,
-            this.state.components
-        );
+        return <div className="menu-bar">
+            {this.state.components}
+        </div>;
     }
 }
 
