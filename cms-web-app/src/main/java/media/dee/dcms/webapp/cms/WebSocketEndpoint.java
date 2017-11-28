@@ -11,14 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ServerEndpoint("cms")
-public class ChatEndpoint {
+public class WebSocketEndpoint {
 
     private Map<String, Session> sessionMap = new HashMap<>();
     private ServiceTracker<MenuItem, MenuItem> serviceTracker;
     final Bundle bundle;
     final BundleContext bundleContext;
 
-    public ChatEndpoint(){
+    public WebSocketEndpoint(){
         bundle = FrameworkUtil.getBundle(this.getClass());
         bundleContext = bundle.getBundleContext();
         serviceTracker = new ServiceTracker<MenuItem, MenuItem>(bundleContext, MenuItem.class, null){
@@ -55,7 +55,7 @@ public class ChatEndpoint {
     }
 
     private void log(int level, String message){
-        BundleContext context = FrameworkUtil.getBundle(ChatEndpoint.class).getBundleContext();
+        BundleContext context = FrameworkUtil.getBundle(WebSocketEndpoint.class).getBundleContext();
         ServiceReference<LogService> ref = context.getServiceReference(LogService.class);
         if (ref != null) {
             LogService log = context.getService(ref);

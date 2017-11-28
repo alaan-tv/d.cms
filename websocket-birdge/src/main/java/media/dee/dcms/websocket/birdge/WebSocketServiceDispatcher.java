@@ -22,12 +22,14 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
         if( serverEndpoint == null )
             throw new IllegalArgumentException(String.format("class %s should be annotated with @ServerEndpoint annotation", endpoint.getName()));
         endpoints.put(serverEndpoint.value(), endpoint);
+        instateEndpointInstance(serverEndpoint.value());
     }
 
     @Override
     public void addEndpoint(ServerEndpointConfig config) throws DeploymentException {
         Class<?> endpoint = config.getEndpointClass();
         endpoints.put(config.getPath(), endpoint);
+        instateEndpointInstance(config.getPath());
     }
 
     @Override
@@ -36,27 +38,22 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
         if( serverEndpoint == null )
             throw new IllegalArgumentException(String.format("class %s should be annotated with @ServerEndpoint annotation", endpoint.getName()));
         endpoints.remove(serverEndpoint.value());
+        instances.remove(endpoint);
     }
 
-    private Object getEndpointInstance(String path){
+    private void instateEndpointInstance(String path){
         Class<?> endpointClass = endpoints.get(path);
         if( endpointClass == null )
-            return null;
+            return;
         //instate object
-        Object instance = null;
-        synchronized (instances) {
-            instance = instances.get(endpointClass);
-            if (instance == null) {
-                try {
-                    instance = endpointClass.newInstance();
-                    instances.put(endpointClass, instance);
-                    return instance;
-                } catch (IllegalAccessException |InstantiationException e) {
-                    e.printStackTrace(System.err);
-                    return null;
-                }
+        Object instance = instances.get(endpointClass);
+        if (instance == null) {
+            try {
+                instance = endpointClass.newInstance();
+                instances.put(endpointClass, instance);
+            } catch (IllegalAccessException |InstantiationException e) {
+                e.printStackTrace(System.err);
             }
-            return instance;
         }
     }
 
@@ -70,7 +67,8 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
     }
 
     private void proxyCall(String path, Class<? extends  Annotation> annotation, Object... args){
-        Object instance = getEndpointInstance(path);
+        Class<?> endpoint = endpoints.get(path);
+        Object instance = instances.get(endpoint);
         if( instance == null )
             return;
         Method method = getEndpointMethod(instance.getClass(), annotation);

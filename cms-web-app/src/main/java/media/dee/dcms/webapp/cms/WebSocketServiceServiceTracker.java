@@ -15,7 +15,7 @@ public class WebSocketServiceServiceTracker extends ServiceTracker<WebSocketServ
     @Override
     public WebSocketService addingService(ServiceReference<WebSocketService> reference) {
         try {
-            context.getService(reference).addEndpoint(ChatEndpoint.class);
+            context.getService(reference).addEndpoint(WebSocketEndpoint.class);
         } catch (DeploymentException e) {
             e.printStackTrace(System.err);
         }
@@ -24,7 +24,7 @@ public class WebSocketServiceServiceTracker extends ServiceTracker<WebSocketServ
 
     @Override
     public void removedService(ServiceReference<WebSocketService> reference, WebSocketService service) {
-        service.removeEndpoint(ChatEndpoint.class);
+        service.removeEndpoint(WebSocketEndpoint.class);
         super.removedService(reference, service);
     }
 }
