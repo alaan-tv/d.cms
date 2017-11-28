@@ -7,6 +7,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchService;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -16,20 +20,28 @@ public class FileBundleActivator implements BundleActivator{
 
     private ResourceBundle resourceBundle = ResourceBundle.getBundle("bundle");
     private List<Bundle> bundleList = new LinkedList<>();
+    private WatchThread watchTread;
+    private WatchService watcherService;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
+        watcherService = FileSystems.getDefault().newWatchService();
+        watchTread = new WatchThread(watcherService);
+
         File baseDir = new File(bundleContext.getProperty(CoreConstants.BASE_URI_PROPERTY));
 
         String bundles = resourceBundle.getString("bundles");
         StringTokenizer tokenizer = new StringTokenizer(bundles,";");
         while(tokenizer.hasMoreTokens()){
-            String bundlePath = tokenizer.nextToken();
-            File bundleFile = new File(baseDir, bundlePath);
+            File bundleFile = new File(baseDir, tokenizer.nextToken() ).getCanonicalFile();
             Bundle bundle = bundleContext.installBundle(bundleFile.toURI().toString());
             bundleList.add(bundle);
-        }
 
+            Path bundlePath = FileSystems.getDefault().getPath(bundleFile.getParentFile().getCanonicalPath());
+            System.out.printf("Watching file: %s%n", bundlePath.toString());
+            bundlePath.register(watcherService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.OVERFLOW);bundlePath.register(watcherService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.OVERFLOW);
+            watchTread.watchBundle(bundle);
+        }
 
         bundleList.forEach( bundle -> {
             try {
@@ -38,17 +50,13 @@ public class FileBundleActivator implements BundleActivator{
               e.printStackTrace(System.err);
             }
         } );
+
+        watchTread.start();
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-       /* bundleList.forEach( bundle -> {
-            try {
-                bundle.stop();
-                bundle.uninstall();
-            } catch (BundleException e){
-                e.printStackTrace(System.err);
-            }
-        } );*/
+       watchTread.interrupt();
+        watcherService.close();
     }
 }
