@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@ServerEndpoint("echo")
+@ServerEndpoint("cms")
 public class ChatEndpoint {
 
     private Map<String, Session> sessionMap = new HashMap<>();

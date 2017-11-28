@@ -6,6 +6,23 @@ class BundleContext{
         this.childContexts = {};
         this.serviceInstances = {};
         this.activiators = activators || [];
+
+        //if main context then register bundle.install and bundle.uninstall listeners
+        if( !context ){
+            window.addEventListener('ws:bundle.install', (event)=>{
+                let command = event.detail;
+                bundleContext.installBundle(command.bundle, (bundleContext, exports)=>{
+                    console.info(`Bundle: ${command.bundle} installed.`);
+                });
+            });
+            window.addEventListener('ws:bundle.uninstall', (event)=>{
+                let command = event.detail;
+                console.info(`Uninstall Bundle ${command.bundle}`);
+                bundleContext.removeBundle(command.bundle, ()=>{
+                    console.info(`Bundle: ${command.bundle} Uninstalled.`);
+                });
+            });
+        }
     }
 
     addServiceListener(event, listener){
@@ -136,4 +153,5 @@ BundleContext.ServiceReferences = {};
 BundleContext.ServiceListeners = {};
 
 window.BundleContext = BundleContext;
+
 export {BundleContext};
