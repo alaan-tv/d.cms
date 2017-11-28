@@ -18,9 +18,6 @@ class Application extends React.Component {
     }
 
     addingMenu(context, serviceReference){
-        if (serviceReference.cls !== 'd.cms.ui.component.essential')
-            return;
-
         this.setState((prevState, props) => {
             console.info('prevState is: ', prevState);
             let colst = prevState.components.slice();
@@ -32,9 +29,6 @@ class Application extends React.Component {
     }
 
     removingMenu(context, serviceReference, service){
-        if (serviceReference.cls !== 'd.cms.ui.component.essential')
-            return;
-
         this.setState((prevState, props) => {
             console.info('prevState is: ', prevState);
             let colst = prevState.components.slice();

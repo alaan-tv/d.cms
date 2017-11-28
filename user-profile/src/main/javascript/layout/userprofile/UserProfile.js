@@ -8,7 +8,7 @@ defineModule(['react'], (React)=> {
     return {
         activator: {
             start: (context)=>{
-                console.info('Profile Components Activated');
+                console.info('User-Profile Components Activated');
 
                 serviceRegistry.push(
                     context.registerService('d.cms.ui.component.essential', (context, props)=>{
@@ -23,7 +23,7 @@ defineModule(['react'], (React)=> {
                 );
             },
             stop: (context)=>{
-                console.info('Profile Components Deactivated');
+                console.info('User-Profile Components Deactivated');
                 serviceRegistry.forEach( r => r.unregister() );
             }
         },

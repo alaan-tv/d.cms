@@ -72,6 +72,7 @@ class BundleContext{
         });
     }
 
+
     removeBundle(bundlePath, callback){
         let bundle = BundleContext.Bundles[bundlePath];
         if( bundle ) {
@@ -84,12 +85,14 @@ class BundleContext{
         callback();
     }
 
+
     registerService(cls, instance, props){
         BundleContext.ServiceReferences[cls] = BundleContext.ServiceReferences[cls] || [];
+        let serviceProps = Object.assign({cls: cls}, props);
 
         let serviceReference = {
             context: this,
-            props: props,
+            props: serviceProps,
             cls: cls,
             instance : instance,
             usage: 0,

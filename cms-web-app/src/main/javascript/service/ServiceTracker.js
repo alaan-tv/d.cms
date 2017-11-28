@@ -2,7 +2,7 @@ class ServiceTracker{
     constructor(context, cls, filter, addingService, removingService){
         this.context = context;
         this.cls = cls;
-        this.filter = filter;
+        this.filter = Object.assign({cls: cls}, filter);
         this.addingService = addingService;
         this.removingService = removingService;
 
@@ -19,6 +19,9 @@ class ServiceTracker{
 
         this.context.addServiceListener('osgi:service:registered', this.serviceRegistered);
         this.context.addServiceListener('osgi:service:unregistered',  this.serviceUnRegistered );
+
+        this.context.getServiceReferences(cls)
+            .forEach( (serviceReference => this.addingService(this.context, serviceReference) ))
     }
 
     stop(){
