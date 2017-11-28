@@ -1,16 +1,16 @@
 import React from 'react';
 import {ServiceTracker} from "../service/ServiceTracker";
-import './application.scss';
 
-
-class Application extends React.Component {
-    constructor(props) {
+class Container extends React.Component {
+    constructor(bundleContext, service, props) {
         super(props);
+        this.bundleContext = bundleContext;
+        this.service = service;
         this.state = {components: []};
     }
 
     componentWillMount(){
-        this.serviceTracker = new ServiceTracker(bundleContext, 'd.cms.ui.component.essential', {}, this.addingMenu.bind(this), this.removingMenu.bind(this) );
+        this.serviceTracker = new ServiceTracker(this.bundleContext, this.service, {}, this.addingMenu.bind(this), this.removingMenu.bind(this) );
     }
 
     componentWillUnmount(){
@@ -19,9 +19,8 @@ class Application extends React.Component {
 
     addingMenu(context, serviceReference){
         this.setState((prevState, props) => {
-            console.info('prevState is: ', prevState);
             let colst = prevState.components.slice();
-            colst.push(serviceReference.getService(bundleContext, {key: colst.length}));
+            colst.push(serviceReference.getService(context, {key: colst.length}));
             return {
                 components: colst
             };
@@ -30,7 +29,6 @@ class Application extends React.Component {
 
     removingMenu(context, serviceReference, service){
         this.setState((prevState, props) => {
-            console.info('prevState is: ', prevState);
             let colst = prevState.components.slice();
             let indx = colst.indexOf(service);
             if (indx)
@@ -40,12 +38,12 @@ class Application extends React.Component {
             };
         });
     }
-
-    render() {
-        return <div className="menu-bar">
-            {this.state.components}
-        </div>;
-    }
 }
 
-export {Application};
+//define the container module to be used by plugins.
+
+defineModule('components/Container', [], ()=> {
+    return Container;
+});
+
+export {Container};

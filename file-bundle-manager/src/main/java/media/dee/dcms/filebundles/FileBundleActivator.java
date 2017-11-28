@@ -38,7 +38,6 @@ public class FileBundleActivator implements BundleActivator{
             bundleList.add(bundle);
 
             Path bundlePath = FileSystems.getDefault().getPath(bundleFile.getParentFile().getCanonicalPath());
-            System.out.printf("Watching file: %s%n", bundlePath.toString());
             bundlePath.register(watcherService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.OVERFLOW);bundlePath.register(watcherService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.OVERFLOW);
             watchTread.watchBundle(bundle);
         }

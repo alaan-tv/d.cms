@@ -1,7 +1,7 @@
 import {BundleContext} from './service/BundleContext';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Application} from './react/Application';
+import {Application} from './Application';
 
 defineModule("react", [], () => {
     return React;

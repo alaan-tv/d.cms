@@ -1,15 +1,15 @@
-defineModule(['react'],(React)=> {
+defineModule(['react', 'components/Container'],(React, Container)=> {
 
-    class SettingsMenuItem extends React.Component {
+    class SettingsMenuItem extends Container {
         constructor(props) {
-            super(props);
+            super(props.context, 'd.cms.ui.component.menuItem', props);
         }
 
         render() {
             return React.createElement(
-                'span',
-                { className: 'settings-menu-item menu-item' },
-                null
+                'div',
+                { className: 'menu-bar' },
+                this.state.components
             );
         }
     }
@@ -23,7 +23,7 @@ defineModule(['react'],(React)=> {
                 serviceRegistry = context.registerService(
                     'd.cms.ui.component.essential',
                     (context, props)=>{
-                        return React.createElement(SettingsMenuItem, props , null);
+                        return React.createElement(SettingsMenuItem, Object.assign({context: context}, props) , null);
                     },
                     {cateogry: 'Essential Components'}
                 );

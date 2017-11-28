@@ -7,10 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.nio.file.*;
 import java.util.HashMap;
 
 public class WatchThread extends Thread {
@@ -29,10 +26,10 @@ public class WatchThread extends Thread {
                     //we only register "ENTRY_MODIFY" so the context is always a Path.
                     final Path changed = (Path) event.context();
                     Bundle bundle = bundles.get(changed.toFile().getName());
-                    System.out.printf("File Changed: %s%n", changed.toFile().getName() );
-                    if( bundle != null )
+                    if( bundle != null && event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
                         try {
                             bundle.update();
+                            System.out.printf("Bundle `%s-%s` is updated%n", bundle.getSymbolicName(), bundle.getVersion().toString() );
                         } catch (BundleException e) {
                             e.printStackTrace(System.err);
                         }

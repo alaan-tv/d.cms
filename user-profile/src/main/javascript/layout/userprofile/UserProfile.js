@@ -11,13 +11,13 @@ defineModule(['react'], (React)=> {
                 console.info('User-Profile Components Activated');
 
                 serviceRegistry.push(
-                    context.registerService('d.cms.ui.component.essential', (context, props)=>{
+                    context.registerService('d.cms.ui.component.menuItem', (context, props)=>{
                         return React.createElement(LogoutMenuItem, props , null);
                     }, {service: 'userprofile.logout.menuitem'})
                 );
 
                 serviceRegistry.push(
-                    context.registerService('d.cms.ui.component.essential', (context, props)=>{
+                    context.registerService('d.cms.ui.component.menuItem', (context, props)=>{
                         return React.createElement(ProfileMenuItem, props , null);
                     }, {service: 'userprofile.menuitem'})
                 );
