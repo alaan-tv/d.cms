@@ -1,5 +1,6 @@
-package media.dee.dcms.webapp.cms;
+package media.dee.dcms.webapp.cms.internal;
 
+import media.dee.dcms.webapp.cms.MenuItem;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
