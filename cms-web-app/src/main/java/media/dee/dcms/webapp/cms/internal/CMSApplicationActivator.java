@@ -1,4 +1,4 @@
-package media.dee.dcms.webapp.cms;
+package media.dee.dcms.webapp.cms.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

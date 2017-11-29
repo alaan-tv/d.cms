@@ -1,5 +1,6 @@
-package media.dee.dcms.webapp.cms;
+package media.dee.dcms.webapp.cms.internal;
 
+import media.dee.dcms.webapp.cms.internal.WebSocketEndpoint;
 import media.dee.dcms.websocket.WebSocketService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
