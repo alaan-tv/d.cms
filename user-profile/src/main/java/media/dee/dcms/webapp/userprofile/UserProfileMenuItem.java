@@ -5,6 +5,7 @@ import media.dee.dcms.webapp.cms.MenuItem;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class UserProfileMenuItem implements MenuItem{
     @Override
     public List<String> getJavascriptModules() {

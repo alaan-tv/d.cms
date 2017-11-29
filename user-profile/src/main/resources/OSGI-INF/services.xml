@@ -1,0 +1,6 @@
+<component name="FileBundleManager">
+    <implementation class="media.dee.dcms.webapp.userprofile.UserProfileMenuItem"/>
+    <service>
+        <provide interface="media.dee.dcms.webapp.cms.MenuItem"/>
+    </service>
+</component>
