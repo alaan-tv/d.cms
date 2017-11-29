@@ -17,6 +17,8 @@
         <commons.io>2.6</commons.io>
         <felix.httpBundles>3.0.0</felix.httpBundles>
         <felix.dependencymanager>4.4.1</felix.dependencymanager>
+        <felix.configadmin>1.8.16</felix.configadmin>
+        <felix.metatype>1.1.6</felix.metatype>
         <felix.http.birdge>3.0.2</felix.http.birdge>
         <felix.webconsole>4.3.4</felix.webconsole>
         <json.osgi>${project.version}</json.osgi>
@@ -67,6 +69,22 @@
             <version>${felix.dependencymanager}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.metatype</artifactId>
+            <version>${felix.metatype}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+            <version>${felix.configadmin}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <!--
            http bridge provides HttpService from container, it should be installed withing osgi framework as bundle
