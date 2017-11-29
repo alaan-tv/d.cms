@@ -1,6 +1,0 @@
-<component name="FileBundleManager">
-    <implementation class="media.dee.dcms.filebundles.FileBundleManager"/>
-    <service>
-        <provide interface="media.dee.dcms.bundle.BundleManager"/>
-    </service>
-</component>

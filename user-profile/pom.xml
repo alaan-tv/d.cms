@@ -22,9 +22,18 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>${osgi.version}</version>
+            <scope>provided</scope>
         </dependency>
 
-       <!-- OSGI LOG modules -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>${org.osgi.service.component.annotations}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <!-- OSGI LOG modules -->
 
         <dependency>
             <groupId>org.apache.felix</groupId>

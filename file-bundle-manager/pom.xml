@@ -165,6 +165,23 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.felix/org.apache.felix.scr -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr</artifactId>
+            <version>2.0.12</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.felix/org.apache.felix.shell -->
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.shell</artifactId>
+            <version>1.4.3</version>
+            <scope>provided</scope>
+        </dependency>
+
+
     </dependencies>
 
 	<build>
@@ -224,7 +241,6 @@
                     <instructions>
                         <Bundle-Category>d.CMS</Bundle-Category>
                         <Bundle-Activator>media.dee.dcms.filebundles.FileBundleActivator</Bundle-Activator>
-                        <Service-Component>OSGI-INF/services.xml</Service-Component>
                     </instructions>
                 </configuration>
             </plugin>
