@@ -1,13 +1,17 @@
-var webpack = require('webpack-stream');
-var webpackCore = require('webpack');
-const config = {
+const webpackCore = require('webpack');
+const plugins = [
+];
+const production = {
     bail: true,
     devtool: 'source-map',
+    output: {
+        filename: 'main.js'
+    },
     module: {
         loaders: [
             {
                 test: /.jsx?$/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 exclude: /node_modules/,
                 query: {
                     babelrc: false,
@@ -16,7 +20,7 @@ const config = {
             },
             {
                 test: /\.scss$/,
-                loaders: [ 'style', 'css', 'sass' ]
+                loaders: [ 'style-loader', 'css-loader', 'sass-loader' ]
             }
         ]
     },
@@ -39,12 +43,19 @@ const config = {
                 comments: false,
                 screw_ie8: true
             }
-        })
-    ],
+        }),
+    ].push(...plugins),
     node: {
         fs: 'empty',
         net: 'empty',
         tls: 'empty'
     }
 };
-module.exports = config;
+
+const development = Object.assign(production, {
+    plugins: plugins
+});
+module.exports = {
+    production: production,
+    development: development
+};

@@ -1,6 +1,7 @@
 import './Profile.scss';
-
-let React = requireModule('react');
+import React from 'react';
+const ReactDOM = require('react-dom');
+import {ButtonGroup, DropdownButton, MenuItem, Button} from "react-bootstrap";
 
 class ProfileMenuItem extends React.Component {
     constructor(props) {
@@ -24,10 +25,14 @@ class ProfileMenuItem extends React.Component {
     }
 
     render() {
-        return <div className="menu-item">
-            <span className="user-profile-menu-item">&nbsp;</span>
-            {this.state.username ? <span>{this.state.username} Profile</span> : <span>Profile!</span>}
-        </div>;
+        return  <ButtonGroup className="menu-item">
+            <DropdownButton id="dropdown-btn-menu" bsStyle="success" title="Dropdown">
+                <MenuItem key="1">Dropdown link</MenuItem>
+                <MenuItem key="2">Dropdown link</MenuItem>
+            </DropdownButton>
+            <Button bsStyle="info">Middle</Button>
+            <Button bsStyle="info">Right</Button>
+        </ButtonGroup>;
     }
 }
 

@@ -1,6 +1,5 @@
 import './Profile.scss';
-
-let React = requireModule('react');
+import React from 'react';
 
 class LogoutMenuItem extends React.Component {
     constructor(props) {

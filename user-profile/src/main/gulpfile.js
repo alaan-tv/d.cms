@@ -1,33 +1,30 @@
 'use strict';
 
 const gulp = require('gulp');
-const sourcemaps = require("gulp-sourcemaps");
-const babel = require("gulp-babel");
+const sass = require('gulp-sass');
 const rm = require( 'gulp-rm' );
 const gutil = require('gulp-util');
-const webpack = require('webpack-stream');
+const webpackStream = require('webpack-stream');
+const webpack = require('webpack');
 const webpackConfig = require('./webpack-config');
 
 gulp.task('app', function() {
     return gulp.src('./javascript/**/*.js')
-        .pipe(webpack(Object.assign(webpackConfig, {
-            devtool: 'source-map',
-            output: {
-                filename: 'userprofile.js'
-            }
-        })))
+        .pipe(webpackStream(webpackConfig.production))
+        .on('error', function handleError(err) {
+            gutil.log(err);
+            this.emit('end'); // Recover from errors
+        })
         .pipe(gulp.dest('./resources/webapp/js/layout/userprofile'));
 });
 
 gulp.task('app:dev', function() {
     return gulp.src('./javascript/**/*.js')
-        .pipe(webpack(Object.assign(webpackConfig, {
-            devtool: 'source-map',
-            output: {
-                filename: 'userprofile.js'
-            },
-            plugins: []
-        } )).on('error', gutil.log))
+        .pipe(webpackStream(webpackConfig.development))
+        .on('error', function handleError(err) {
+            gutil.log(err);
+            this.emit('end'); // Recover from errors
+        })
         .pipe(gulp.dest('./resources/webapp/js/layout/userprofile'));
 });
 
