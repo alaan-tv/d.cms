@@ -1,7 +1,7 @@
 import './Profile.scss';
 import React from 'react';
 const ReactDOM = require('react-dom');
-import {ButtonGroup, DropdownButton, MenuItem, Button} from "react-bootstrap";
+
 
 class ProfileMenuItem extends React.Component {
     constructor(props) {

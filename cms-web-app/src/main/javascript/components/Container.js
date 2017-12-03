@@ -31,7 +31,7 @@ class Container extends React.Component {
         this.setState((prevState, props) => {
             let colst = prevState.components.slice();
             let indx = colst.indexOf(service);
-            if (indx)
+            if (indx >= 0)
                 colst.splice(indx,1);
             return {
                 components: colst

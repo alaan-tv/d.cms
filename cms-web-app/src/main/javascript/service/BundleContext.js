@@ -87,7 +87,9 @@ class BundleContext{
 
 
     registerService(cls, instance, props){
-        BundleContext.ServiceReferences[cls] = BundleContext.ServiceReferences[cls] || [];
+        BundleContext.ServiceReferences[cls] = BundleContext.ServiceReferences[cls] || {
+            lastIndex: 0
+        };
         let serviceProps = Object.assign({cls: cls}, props);
 
         let serviceReference = {
@@ -119,15 +121,21 @@ class BundleContext{
             }
         };
 
-        serviceReference.serviceIndex = BundleContext.ServiceReferences[cls].push(serviceReference) -1;
+        /**
+         * BundleContext.ServiceReferences[dc.menuItem] is dict
+         * lastIndex?
+         * 0 => ServiceReference
+         * 1 => ServiceReference
+         */
+
+        let serviceReferenceDict = BundleContext.ServiceReferences[cls];
+        serviceReference.serviceIndex = ++serviceReferenceDict.lastIndex;
+        serviceReferenceDict[serviceReference.serviceIndex] = serviceReference;
         this.triggerServiceEvent('osgi:service:registered', serviceReference);
 
         return Object.assign({
             unregister: ()=>{
-                BundleContext.ServiceReferences[cls].splice(serviceReference.serviceIndex, 1);
-                BundleContext.ServiceReferences[cls].slice(serviceReference.serviceIndex)
-                    .forEach( sref => { --sref.serviceIndex } );
-
+                delete serviceReferenceDict[serviceReference.serviceIndex];
                 this.triggerServiceEvent('osgi:service:unregistered', serviceReference);
             }
         }, serviceReference);
@@ -146,7 +154,10 @@ class BundleContext{
     }
 
     getServiceReferences(cls, filter){
-        return (BundleContext.ServiceReferences[cls] || [])
+        let serviceReferenceDict = BundleContext.ServiceReferences[cls] || {};
+        return Object.keys(serviceReferenceDict)
+            .filter( key => key !== 'lastIndex' )
+            .map( key =>  serviceReferenceDict[key] )
             .filter( serviceReference => serviceReference.applyFilter(filter) );
     }
 }
