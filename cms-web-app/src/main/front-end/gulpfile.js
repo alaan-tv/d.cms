@@ -11,13 +11,13 @@ const webpackConfig = require('./webpack-config');
 gulp.task('sass', function () {
     return gulp.src('./sass/**/*.scss')
         .pipe(sass.sync({outputStyle: 'compressed'}).on('error', sass.logError))
-        .pipe(gulp.dest('./resources/webapp/css/', {overwrite : true}));
+        .pipe(gulp.dest('../../../target/generated-resources/webapp/css/', {overwrite : true}));
 });
 
 gulp.task('sass:dev', function () {
     return gulp.src('./sass/**/*.scss')
         .pipe(sass.sync().on('error', sass.logError))
-        .pipe(gulp.dest('./resources/webapp/css/', {overwrite : true}));
+        .pipe(gulp.dest('../../../target/generated-resources/webapp/css/', {overwrite : true}));
 });
 
 gulp.task('app', function() {
@@ -27,7 +27,7 @@ gulp.task('app', function() {
             gutil.log(err);
             this.emit('end'); // Recover from errors
         })
-        .pipe(gulp.dest('./resources/webapp/js'));
+        .pipe(gulp.dest('../../../target/generated-resources/webapp/js'));
 });
 
 gulp.task('app:dev', function() {
@@ -37,7 +37,7 @@ gulp.task('app:dev', function() {
             gutil.log(err);
             this.emit('end'); // Recover from errors
         })
-        .pipe(gulp.dest('./resources/webapp/js'));
+        .pipe(gulp.dest('../../../target/generated-resources/webapp/js'));
 });
 
 
@@ -50,8 +50,8 @@ gulp.task('watch', ['clean', 'app:dev', 'sass:dev'] , function (cb) {
 
 gulp.task('clean', function () {
     return gulp.src([
-        './resources/webapp/css/**/*',
-        './resources/webapp/js/main.js'
+        '.../../../target/generated-resources/webapp/css/**/*',
+        '../../../target/generated-resources/webapp/js/main.js'
     ],{read: false}).pipe(rm());
 });
 

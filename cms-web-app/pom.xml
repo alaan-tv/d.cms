@@ -79,6 +79,14 @@
     </dependencies>
 
 	<build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-resources</directory>
+            </resource>
+        </resources>
 		<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -104,6 +112,27 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>pl.allegro</groupId>
+                <artifactId>grunt-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>npm</goal>
+                            <goal>grunt</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <gruntBuildDirectory>src/main/front-end</gruntBuildDirectory>
+                    <gruntOptions>
+                        <gruntOption>--force</gruntOption>
+                    </gruntOptions>
+                    <gruntExecutable>node_modules/gulp/bin/gulp.js</gruntExecutable>
+                    <runGruntWithNode>true</runGruntWithNode>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>

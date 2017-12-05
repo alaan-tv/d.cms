@@ -5,7 +5,7 @@ const production = {
     bail: true,
     devtool: 'source-map',
     output: {
-        filename: 'main.js'
+        filename: '[name].js'
     },
     module: {
         loaders: [
