@@ -7,14 +7,14 @@
 	<packaging>pom</packaging>
 	<modules>
         <module>core</module>
-		<module>json-osgi</module>
-		<module>asm-osgi</module>
+		<module>osgi-support/asm-osgi</module>
+		<module>osgi-support/json-osgi</module>
 		<module>web-launcher</module>
-        <module>websocket-birdge</module>
-        <module>websocket-service</module>
+        <module>osgi-support/websocket-birdge</module>
+        <module>osgi-support/websocket-service</module>
         <module>file-bundle-manager</module>
         <module>cms-web-app</module>
-        <module>user-profile</module>
+        <module>plugins/user-profile</module>
 	</modules>
 
     <properties>

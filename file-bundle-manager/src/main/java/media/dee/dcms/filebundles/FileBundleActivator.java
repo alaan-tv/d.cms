@@ -28,7 +28,10 @@ public class FileBundleActivator implements BundleActivator{
         watcherService = FileSystems.getDefault().newWatchService();
         watchTread = new WatchThread(watcherService);
 
-        File baseDir = new File(bundleContext.getProperty(CoreConstants.BASE_URI_PROPERTY));
+        /**
+         * baseDir is the root directory of the project.
+         */
+        File baseDir = new File(bundleContext.getProperty(CoreConstants.BASE_URI_PROPERTY)).getParentFile().getParentFile().getParentFile();
 
         String bundles = resourceBundle.getString("bundles");
         StringTokenizer tokenizer = new StringTokenizer(bundles,";");
