@@ -1,6 +1,7 @@
 package media.dee.dcms.webapp.cms.internal;
 
-import media.dee.dcms.webapp.cms.components.EssentialComponent;
+import media.dee.dcms.components.AdminModule;
+import media.dee.dcms.webapp.cms.components.GUIComponent;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.service.component.ComponentContext;
@@ -14,24 +15,24 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ComponentConnector {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private WebSocketEndpoint wsEndpoint;
-    private List<EssentialComponent> essentialComponentList = new LinkedList<>();
+    private List<GUIComponent> GUIComponentList = new LinkedList<>();
 
-    public static JSONObject getInstallCommand(EssentialComponent component){
+    public static JSONObject getInstallCommand(GUIComponent component){
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("action", "bundle.install");
-            jsonObject.put("bundle", component.getJavascriptModules());
+            jsonObject.put("bundle", component.getClass().getAnnotation(AdminModule.class).value());
         } catch (JSONException e) {
             //error
         }
         return jsonObject;
     }
 
-    public static JSONObject getUnInstallCommand(EssentialComponent component){
+    public static JSONObject getUnInstallCommand(GUIComponent component){
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("action", "bundle.uninstall");
-            jsonObject.put("bundle", component.getJavascriptModules());
+            jsonObject.put("bundle", component.getClass().getAnnotation(AdminModule.class).value() );
         } catch (JSONException e) {
             //error
         }
@@ -62,18 +63,18 @@ public class ComponentConnector {
             this.wsEndpoint = null;
     }
 
-    public void bindEssentialComponent(EssentialComponent component) {
-        essentialComponentList.add(component);
+    public void bindEssentialComponent(GUIComponent component) {
+        GUIComponentList.add(component);
         wsEndpoint.sendAll(getInstallCommand(component));
     }
 
-    public void unbindEssentialComponent( EssentialComponent component ) {
-        essentialComponentList.remove(component);
+    public void unbindEssentialComponent( GUIComponent component ) {
+        GUIComponentList.remove(component);
         wsEndpoint.sendAll(getUnInstallCommand(component));
     }
 
     public void newSession(Session session) {
-        essentialComponentList.stream()
+        GUIComponentList.stream()
                 .map(ComponentConnector::getInstallCommand)
                 .forEach( msg -> wsEndpoint.sendMessage(session, msg));
     }

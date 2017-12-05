@@ -19,6 +19,6 @@
     />
 
     <service>
-        <provide interface="media.dee.dcms.webapp.cms.components.EssentialComponent"/>
+        <provide interface="media.dee.dcms.webapp.cms.components.GUIComponent"/>
     </service>
 </component>

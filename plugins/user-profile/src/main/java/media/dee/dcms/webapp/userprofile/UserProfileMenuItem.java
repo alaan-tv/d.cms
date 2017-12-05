@@ -1,16 +1,16 @@
 package media.dee.dcms.webapp.userprofile;
 
-import media.dee.dcms.webapp.cms.components.EssentialComponent;
+import media.dee.dcms.components.AdminModule;
+import media.dee.dcms.webapp.cms.components.GUIComponent;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-public class UserProfileMenuItem implements EssentialComponent {
+@AdminModule("js/layout/userprofile/userprofile")
+public class UserProfileMenuItem implements GUIComponent {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
 
 
@@ -20,11 +20,6 @@ public class UserProfileMenuItem implements EssentialComponent {
 
     public void unbindLong( LogService log ) {
         logRef.compareAndSet(log, null);
-    }
-
-    @Override
-    public List<String> getJavascriptModules() {
-        return Arrays.asList("js/layout/userprofile/userprofile");
     }
 
     public void activate(ComponentContext ctx) {
