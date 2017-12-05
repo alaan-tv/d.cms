@@ -4,7 +4,7 @@ import media.dee.dcms.components.AdminModule;
 import org.osgi.service.component.ComponentContext;
 
 
-@AdminModule("js/layout/Menubar")
+@AdminModule("/webapp/js/layout/Menubar")
 public class NavigationMenu implements GUIComponent {
     public void activate(ComponentContext ctx) {
         System.out.println("NavigationMenu Activated.");

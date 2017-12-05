@@ -28,6 +28,14 @@
                unbind="unbindLong"
     />
 
+    <reference name="httpService"
+               interface="org.osgi.service.http.HttpService"
+               cardinality="0..n"
+               policy="dynamic"
+               bind="bindHttpService"
+               unbind="unbindHttpService"
+    />
+
     <service>
         <provide interface="media.dee.dcms.webapp.cms.internal.ComponentConnector"/>
     </service>
