@@ -11,8 +11,11 @@ class BundleContext{
         if( !context ){
             window.addEventListener('ws:bundle.install', (event)=>{
                 let command = event.detail;
-                bundleContext.installBundle(command.bundle, (bundleContext, exports)=>{
-                    console.info(`Bundle: ${command.bundle} installed.`);
+                let bundles = Array.isArray(command.bundle) ? command.bundle : [command.bundle];
+                bundles.forEach( (bundle)=>{
+                    bundleContext.installBundle( bundle, (bundleContext, exports)=>{
+                        console.info(`Bundle: ${command.bundle} installed.`);
+                    });
                 });
             });
             window.addEventListener('ws:bundle.uninstall', (event)=>{

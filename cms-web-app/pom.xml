@@ -70,6 +70,8 @@
             <scope>provided</scope>
         </dependency>
 
+
+
     </dependencies>
 
 	<build>
@@ -109,6 +111,7 @@
                         <Bundle-Activator>media.dee.dcms.webapp.cms.internal.CMSApplicationActivator</Bundle-Activator>
                         <Export-Package>media.dee.dcms.webapp.cms.*;version="${project.version}"</Export-Package>
                         <Private-Package>media.dee.dcms.webapp.cms.internal</Private-Package>
+                        <Service-Component>OSGI-INF/NavigationMenu.xml,OSGI-INF/WebSocketEndpoint.xml,OSGI-INF/ComponentConnector.xml</Service-Component>
                     </instructions>
                 </configuration>
             </plugin>

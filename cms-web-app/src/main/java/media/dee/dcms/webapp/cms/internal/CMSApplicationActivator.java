@@ -8,7 +8,6 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class CMSApplicationActivator implements BundleActivator {
     private ServiceTracker httpTracker;
-    private WebSocketServiceServiceTracker webSocketServiceServiceTracker;
 
     public void start(BundleContext context) throws Exception {
         httpTracker = new ServiceTracker<HttpService,HttpService>(context, HttpService.class.getName(), null) {
@@ -35,13 +34,10 @@ public class CMSApplicationActivator implements BundleActivator {
         // start tracking all HTTP ServiceReferences...
         httpTracker.open();
 
-        webSocketServiceServiceTracker = new WebSocketServiceServiceTracker(context);
-        webSocketServiceServiceTracker.open();
     }
 
     public void stop(BundleContext context) throws Exception {
         // stop tracking all HTTP ServiceReferences...
         httpTracker.close();
-        webSocketServiceServiceTracker.close();
     }
 }

@@ -1,7 +1,7 @@
 package media.dee.dcms.webapp.userprofile;
 
-import media.dee.dcms.webapp.cms.MenuItem;
-import org.osgi.service.component.annotations.*;
+import media.dee.dcms.webapp.cms.components.EssentialComponent;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
@@ -10,19 +10,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-@Component
-public class UserProfileMenuItem implements MenuItem{
+public class UserProfileMenuItem implements EssentialComponent {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
 
-    @Reference(
-            cardinality=ReferenceCardinality.MULTIPLE,
-            policy=ReferencePolicy.DYNAMIC
-    )
-    public void setLog( LogService log ) {
+
+    public void bindLong( LogService log ) {
         logRef.set(log);
     }
 
-    public void unsetLog( LogService log ) {
+    public void unbindLong( LogService log ) {
         logRef.compareAndSet(log, null);
     }
 
@@ -31,17 +27,13 @@ public class UserProfileMenuItem implements MenuItem{
         return Arrays.asList("js/layout/userprofile/userprofile");
     }
 
-    @Activate
-    void activate() {
+    public void activate(ComponentContext ctx) {
         LogService log = logRef.get();
         log.log(LogService.LOG_INFO, "UserProfileMenuItem Activated");
     }
 
-    @Reference(
-            cardinality= ReferenceCardinality.MULTIPLE,
-            policy= ReferencePolicy.DYNAMIC
-    )
-    void setHttpService( HttpService httpService) {
+
+    public void bindHttpService( HttpService httpService ) {
         try {
             httpService.registerResources("/cms/js/layout/userprofile", "/webapp/js/layout/userprofile", null);
         } catch (Exception exception) {
@@ -49,7 +41,7 @@ public class UserProfileMenuItem implements MenuItem{
         }
     }
 
-    void unsetHttpService(HttpService httpService){
+    public void unbindHttpService(HttpService httpService){
         try {
             httpService.unregister("/cms/js/layout/userprofile");
         } catch (IllegalArgumentException exception) {

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="CMSComponetConnector" immediate="true">
+    <implementation class="media.dee.dcms.webapp.cms.internal.ComponentConnector" activate="activate"/>
+    <property name="service.description" value="Component Connector to Websocket" />
+    <property name="service.vendor" value="d.CMS" />
+
+    <reference name="cmsEndpoint"
+               interface="media.dee.dcms.websocket.WebSocketEndpoint"
+               cardinality="1..1"
+               policy="dynamic"
+               bind="bindWebSocketEndpoint"
+               unbind="unbindWebSocketEndpoint"
+    />
+
+    <reference name="EssentialComponent"
+               interface="media.dee.dcms.webapp.cms.components.EssentialComponent"
+               cardinality="0..n"
+               policy="dynamic"
+               bind="bindEssentialComponent"
+               unbind="unbindEssentialComponent"
+    />
+
+    <reference name="log"
+               interface="org.osgi.service.log.LogService"
+               cardinality="0..n"
+               policy="dynamic"
+               bind="bindLong"
+               unbind="unbindLong"
+    />
+
+    <service>
+        <provide interface="media.dee.dcms.webapp.cms.internal.ComponentConnector"/>
+    </service>
+</component>

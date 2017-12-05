@@ -1,8 +1,8 @@
 package media.dee.dcms.websocket;
 
-import javax.websocket.Session;
+import javax.websocket.*;
 
-public interface WebSocketDispatcher {
+public interface WebSocketEndpoint {
     void open(String path, Session session);
     void close(String path, Session session);
     void onError(String path, Throwable error);
