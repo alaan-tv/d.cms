@@ -172,17 +172,10 @@ BundleContext.ServiceListeners = {};
 
 window.BundleContext = BundleContext;
 
-const requireLib = requirejs.config({
-    context: "v1.0",
-    baseUrl: "version1",
-    waitSeconds: 10
-});
 
 window.defineModule = define;
-window.requireModule = requireLib;
-window.unDefineModule = requireLib.undef;
-
-console.log('defineModule is defined.');
+window.requireModule = requirejs;
+window.unDefineModule = requirejs.undef;
 
 requirejs.onError = function (err) {
     console.error(`[BundleContext] ${err.requireType}`, err);
