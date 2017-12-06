@@ -1,3 +1,4 @@
+import {requirejs, define} from "./requirejs";
 import {isFunction} from "./utils";
 
 class BundleContext{
@@ -170,5 +171,26 @@ BundleContext.ServiceReferences = {};
 BundleContext.ServiceListeners = {};
 
 window.BundleContext = BundleContext;
+
+const requireLib = requirejs.config({
+    context: "v1.0",
+    baseUrl: "version1",
+    waitSeconds: 10
+});
+
+window.defineModule = define;
+window.requireModule = requireLib;
+window.unDefineModule = requireLib.undef;
+
+console.log('defineModule is defined.');
+
+requirejs.onError = function (err) {
+    console.error(`[BundleContext] ${err.requireType}`, err);
+    if (err.requireType === 'timeout') {
+        console.error(`[BundleContext] timeout loading bundle ${err.requireModules}`);
+        console.log('modules: ' + err.requireModules);
+    }
+    throw err;
+};
 
 export {BundleContext};

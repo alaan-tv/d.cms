@@ -1,3 +1,5 @@
+import {BundleContext} from "./BundleContext";
+
 class ServiceTracker{
     constructor(context, cls, filter, addingService, removingService){
         this.context = context;
