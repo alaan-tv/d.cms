@@ -1,7 +1,8 @@
 import {BundleContext} from './service/BundleContext';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Application} from './Application';
+import {init} from './Application';
+import {init as transportInit} from "./transport/WebSocket";
 
 
 window.React = React; //export as global variable
@@ -20,4 +21,5 @@ defineModule('bundleContext', [], ()=>{
     return window.bundleContext;
 });
 
-ReactDOM.render(React.createElement(Application, null), document.getElementById('root'));
+init();
+transportInit();

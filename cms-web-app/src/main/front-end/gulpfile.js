@@ -21,8 +21,8 @@ gulp.task('sass:dev', function () {
 });
 
 gulp.task('app', function() {
-    return gulp.src('./javascript/**/*.js')
-        .pipe(webpackStream(webpackConfig.production))
+    return gulp.src('./javascript/main.js')
+        .pipe(webpackStream(webpackConfig.production, webpack))
         .on('error', function handleError(err) {
             gutil.log(err);
             this.emit('end'); // Recover from errors
@@ -31,8 +31,8 @@ gulp.task('app', function() {
 });
 
 gulp.task('app:dev', function() {
-    return gulp.src('./javascript/**/*.js')
-        .pipe(webpackStream(webpackConfig.development))
+    return gulp.src('./javascript/main.js')
+        .pipe(webpackStream(webpackConfig.development, webpack))
         .on('error', function handleError(err) {
             gutil.log(err);
             this.emit('end'); // Recover from errors
