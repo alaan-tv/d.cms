@@ -52,7 +52,8 @@ class App extends Component {
   }
 
   render() {
-    return <div id="app">{this.props.children}</div>;
+    // console.log('\n********\n', this.props, '\n********12334\n');
+    return this.props.children;
   }
 
 }

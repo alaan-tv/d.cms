@@ -8,7 +8,7 @@ import {
   LineChart, Tooltip,
   Line, XAxis, YAxis, Area,
   CartesianGrid, AreaChart, Bar, BarChart,
-  ResponsiveContainer } from 'recharts';
+  ResponsiveContainer } from '../../../vendor/recharts';
 // ResponsiveContainer is broken so we have customise the ResponsiveContainer
 
 const title = 'MorrisjsCharts';

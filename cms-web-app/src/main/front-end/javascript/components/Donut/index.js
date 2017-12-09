@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { PieCharts, Pie, Sector, ResponsiveContainer } from 'recharts';
+// import { PieCharts, Pie, Sector, ResponsiveContainer } from '../../vendor/recharts';
+import PieCharts from '../../vendor/recharts/lib/chart/PieChart';
+import Pie from '../../vendor/recharts/lib/polar/Pie';
+import Sector from '../../vendor/recharts/lib/shape/Sector';
+import ResponsiveContainer from '../../vendor/recharts/lib/component/ResponsiveContainer';
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;

@@ -17,7 +17,7 @@ import {
   Tooltip,
   XAxis, YAxis, Area,
   CartesianGrid, AreaChart, Bar, BarChart,
-  ResponsiveContainer } from 'recharts';
+  ResponsiveContainer } from '../../vendor/recharts';
 
 const title = 'Sb Admin React';
 

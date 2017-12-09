@@ -6,7 +6,7 @@ import {
   LineChart, Tooltip, PieChart, Pie,
   Line, XAxis, YAxis, Legend,
   CartesianGrid, Bar, BarChart,
-  ResponsiveContainer } from 'recharts';
+  ResponsiveContainer } from '../../../vendor/recharts';
 
 const title = 'Flot Charts';
 
