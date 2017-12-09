@@ -100,6 +100,13 @@ function render(container, location, component) {
 function run() {
   const container = document.getElementById('app');
   let currentLocation = history.getCurrentLocation();
+    const router = new UniversalRouter(routes, {
+        context: {
+            render: (a)=> a,
+            context: context
+        },
+        baseUrl: '/cms'
+    });
 
   // Make taps on links and buttons work fast on mobiles
   FastClick.attach(document.body);
@@ -116,12 +123,10 @@ function run() {
     }
     currentLocation = location;
 
-    UniversalRouter.resolve(routes, {
-      path: location.pathname,
-      query: location.query,
-      state: location.state,
-      context,
-      render: render.bind(undefined, container, location), // eslint-disable-line react/jsx-no-bind, max-len
+    router.resolve(
+      location.pathname
+    ).then( (component)=>{
+          render(container, location, component);
     }).catch(err => console.error(err)); // eslint-disable-line no-console
   }
 

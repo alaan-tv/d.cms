@@ -14,7 +14,7 @@ public class CMSApplicationActivator implements BundleActivator {
             public void removedService(ServiceReference<HttpService> reference, HttpService service) {
                 // HTTP service is no longer available, unregister our resources...
                 try {
-                    service.unregister("/cms/*");
+                    service.unregister("/cms");
                     service.unregister("/cms/fe");
                 } catch (IllegalArgumentException exception) {
                     // Ignore; servlet registration probably failed earlier on...
@@ -25,7 +25,7 @@ public class CMSApplicationActivator implements BundleActivator {
                 // HTTP service is available, register our resources...
                 HttpService httpService = this.context.getService(reference);
                 try {
-                    httpService.registerServlet("/cms/*", new IndexServlet(), null, null);
+                    httpService.registerServlet("/cms", new IndexServlet(), null, null);
                     httpService.registerResources("/cms/fe", "/webapp", null);
                 } catch (Exception exception) {
                     exception.printStackTrace();

@@ -32,7 +32,7 @@
     "react-chartjs": "^0.8.0",
     "react-dom": "^15.4.2",
     "recharts": "^0.15.1",
-    "universal-router": "1.2.2"
+    "universal-router": "^5.0.0"
   },
   "devDependencies": {
     "assets-webpack-plugin": "^3.4.0",
