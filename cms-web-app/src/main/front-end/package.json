@@ -22,7 +22,7 @@
     "enzyme": "^2.4.1",
     "eventemitter3": "1.2.0",
     "fastclick": "1.0.6",
-    "history": "3.0.0",
+    "history": "^4.7.2",
     "jquery": "^3.1.1",
     "normalize.css": "^7.0.0",
     "react": "^15.4.2",

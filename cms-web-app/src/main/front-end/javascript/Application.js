@@ -11,7 +11,6 @@ import 'babel-polyfill';
 import ReactDOM from 'react-dom';
 import FastClick from 'fastclick';
 import UniversalRouter from 'universal-router';
-import { readState, saveState } from 'history/lib/DOMStateStorage';
 import routes from './routes';
 import history from './core/history';
 import {
@@ -99,13 +98,13 @@ function render(container, location, component) {
 
 function run() {
   const container = document.getElementById('app');
-  let currentLocation = history.getCurrentLocation();
+  let currentLocation = history.location;
     const router = new UniversalRouter(routes, {
         context: {
             render: (a)=> a,
             context: context
         },
-        baseUrl: '/cms'
+        //baseUrl: '/cms'
     });
 
   // Make taps on links and buttons work fast on mobiles
@@ -113,14 +112,6 @@ function run() {
 
   // Re-render the app when window.location changes
   function onLocationChange(location) {
-    // Save the page scroll position into the current location's state
-    if (currentLocation.key) {
-      saveState(currentLocation.key, {
-        ...readState(currentLocation.key),
-        scrollX: windowScrollX(),
-        scrollY: windowScrollY(),
-      });
-    }
     currentLocation = location;
 
     router.resolve(
@@ -132,7 +123,7 @@ function run() {
 
   // Add History API listener and trigger initial change
   const removeHistoryListener = history.listen(onLocationChange);
-  history.replace(currentLocation);
+  history.push(currentLocation, {init: 'yes'});
 
   // https://developers.google.com/web/updates/2015/09/history-api-scroll-restoration
   let originalScrollRestoration;
