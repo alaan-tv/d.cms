@@ -10,36 +10,9 @@
 import 'babel-polyfill';
 import ReactDOM from 'react-dom';
 import FastClick from 'fastclick';
-import UniversalRouter from 'universal-router';
-import routes from './routes';
-import history from './core/history';
 import {addEventListener, removeEventListener, windowScrollY,} from './core/DOMUtils';
+import {ApplicationBase} from './components/ApplicatoinBase';
 
-const context = {
-    insertCss: (...styles) => {
-        const removeCss = styles.map(style => style._insertCss()); // eslint-disable-line no-underscore-dangle, max-len
-        return () => {
-            removeCss.forEach(f => f());
-        };
-    },
-    setTitle: value => (document.title = value),
-    setMeta: (name, content) => {
-        // Remove and create a new <meta /> tag in order to make it work
-        // with bookmarks in Safari
-        const elements = document.getElementsByTagName('meta');
-        Array.from(elements).forEach((element) => {
-            if (element.getAttribute('name') === name) {
-                element.parentNode.removeChild(element);
-            }
-        });
-        const meta = document.createElement('meta');
-        meta.setAttribute('name', name);
-        meta.setAttribute('content', content);
-        document
-            .getElementsByTagName('head')[0]
-            .appendChild(meta);
-    },
-};
 
 // Restore the scroll position if it was saved into the state
 function restoreScrollPosition({state, hash}) {
@@ -92,32 +65,13 @@ function render(container, location, component) {
 }
 
 function run() {
+    const applicationBase = React.createElement(ApplicationBase, {}, null);
     const container = document.getElementById('app');
-    let currentLocation = history.location;
-    const router = new UniversalRouter(routes, {
-        context: {
-            render: (a) => a,
-            context: context
-        },
-    });
+
+    ReactDOM.render(applicationBase, container, renderComplete.bind(undefined, location, ()=>{}));
 
     // Make taps on links and buttons work fast on mobiles
     FastClick.attach(document.body);
-
-    // Re-render the app when window.location changes
-    function onLocationChange(location) {
-        currentLocation = location;
-
-        router.resolve(
-            location.pathname
-        ).then((component) => {
-            render(container, location, component);
-        }).catch(err => console.error(err)); // eslint-disable-line no-console
-    }
-
-    // Add History API listener and trigger initial change
-    const removeHistoryListener = history.listen(onLocationChange);
-    history.push(currentLocation, {init: 'yes'});
 
     // https://developers.google.com/web/updates/2015/09/history-api-scroll-restoration
     let originalScrollRestoration;
@@ -126,7 +80,7 @@ function run() {
         window.history.scrollRestoration = 'manual';
     }
 
-    // Prevent listeners collisions during history navigation
+    /*// Prevent listeners collisions during history navigation
     addEventListener(window, 'pagehide', function onPageHide() {
         removeEventListener(window, 'pagehide', onPageHide);
         removeHistoryListener();
@@ -134,7 +88,7 @@ function run() {
             window.history.scrollRestoration = originalScrollRestoration;
             originalScrollRestoration = undefined;
         }
-    });
+    });*/
 }
 
 function init() {
