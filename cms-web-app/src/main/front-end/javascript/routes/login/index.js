@@ -13,7 +13,7 @@ import Login from './Login';
 
 export default {
 
-  path: '/',
+  path: '',
 
   action() {
     return <Login />;
