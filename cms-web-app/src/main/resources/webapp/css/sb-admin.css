@@ -553,3 +553,16 @@ table.dataTable thead .sorting:after {
         border-left-width: 0;
     }
 }
+
+.navbar-default{
+    background: #207cca;
+    color: white;
+    box-shadow: 0px 5px 5px grey;
+}
+
+.navbar-default .navbar-brand,
+.navbar-default .navbar-brand a,
+ul.navbar-top-links > li > a,
+.sidebar-nav ul li a{
+    color: white;
+}

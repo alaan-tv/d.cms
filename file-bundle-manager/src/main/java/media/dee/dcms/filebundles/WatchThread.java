@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 public class WatchThread extends Thread {
@@ -29,7 +30,7 @@ public class WatchThread extends Thread {
                     if( bundle != null && event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
                         try {
                             bundle.update();
-                            System.out.printf("Bundle `%s-%s` is updated%n", bundle.getSymbolicName(), bundle.getVersion().toString() );
+                            System.out.printf("[%s] Bundle `%s-%s` is updated%n", LocalDateTime.now() , bundle.getSymbolicName(), bundle.getVersion().toString() );
                         } catch (BundleException e) {
                             e.printStackTrace(System.err);
                         }
