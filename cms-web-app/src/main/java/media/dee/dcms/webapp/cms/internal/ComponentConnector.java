@@ -13,7 +13,6 @@ import org.osgi.service.log.LogService;
 
 import javax.websocket.Session;
 import java.io.File;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
