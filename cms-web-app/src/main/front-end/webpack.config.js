@@ -87,7 +87,7 @@ function config(DEBUG, VERBOSE) {
         new HtmlWebpackPlugin(
             {
                 inject: true,
-                template: '../../resources/index.html'
+                template: '../public/index.html'
             }
         ),
         // Assign the module and chunk ids by occurrence count
