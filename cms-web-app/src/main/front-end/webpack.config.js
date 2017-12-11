@@ -3,12 +3,10 @@ const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const extractCSS = new ExtractTextPlugin('[name].fonts.[hash].css', {publicPath: '/fe/'});
-const extractSCSS = new ExtractTextPlugin('[name].styles.[hash].css', {publicPath: '/fe/'});
-
-
 function config(DEBUG, VERBOSE) {
 
+    const extractCSS = new ExtractTextPlugin(DEBUG ? '[name].fonts.css' : '[name].fonts.[hash].css', {publicPath: '/fe/'});
+    const extractSCSS = new ExtractTextPlugin(DEBUG ? '[name].styles.css' : '[name].styles.[hash].css', {publicPath: '/fe/'});
     const config = {
         context: path.resolve(__dirname, './javascript'),
 
@@ -63,7 +61,7 @@ function config(DEBUG, VERBOSE) {
                             // loader: 'url-loader'
                             loader: 'file-loader',
                             options: {
-                                name: './img/[name].[hash].[ext]'
+                                name: DEBUG ? './img/[name].[ext]' : './img/[name].[hash].[ext]'
                             }
                         }
                     ]
@@ -72,7 +70,7 @@ function config(DEBUG, VERBOSE) {
                     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
                     loader: 'file-loader',
                     options: {
-                        name: './fonts/[name].[hash].[ext]'
+                        name: DEBUG ? './fonts/[name].[ext]' : './fonts/[name].[hash].[ext]'
                     }
                 }
             ]
@@ -87,6 +85,7 @@ function config(DEBUG, VERBOSE) {
         new HtmlWebpackPlugin(
             {
                 inject: true,
+                cache: false,
                 template: '../public/index.html'
             }
         ),
@@ -116,7 +115,7 @@ function config(DEBUG, VERBOSE) {
         entry: './main.js',
 
         output: {
-            filename: '[name].[hash].js',
+            filename: DEBUG ? '[name].js' : '[name].[hash].js',
             chunkFilename: DEBUG ? '[name].[id].js?[chunkhash]' : '[name].[id].[chunkhash].js',
             publicPath: '/cms/fe/'
         },
