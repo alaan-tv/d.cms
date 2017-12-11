@@ -1,6 +1,7 @@
 import './Profile.scss';
 import React from 'react';
-import {ButtonGroup, DropdownButton, MenuItem, Button} from "react-bootstrap";
+import {Badge, Nav, NavItem, NavLink} from 'reactstrap';
+import HeaderDropdown from './HeaderDropdown';
 
 
 class ProfileMenuItem extends React.Component {
@@ -11,7 +12,7 @@ class ProfileMenuItem extends React.Component {
         };
     }
 
-    componentWillMount(){
+    componentWillMount() {
         this.authListener = (event) => {
             this.setState({
                 username: event.detail.username
@@ -20,19 +21,23 @@ class ProfileMenuItem extends React.Component {
         window.addEventListener('ws:auth:user:authenticated', this.authListener);
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         window.removeEventListener('ws:auth:user:authenticated', this.authListener);
     }
 
     render() {
-        return  <ButtonGroup className="menu-item">
-            <DropdownButton id="dropdown-btn-menu" bsStyle="success" title="Dropdown">
-                <MenuItem key="1">Dropdown link</MenuItem>
-                <MenuItem key="2">Dropdown link</MenuItem>
-            </DropdownButton>
-            <Button bsStyle="info">Middle</Button>
-            <Button bsStyle="info">Right</Button>
-        </ButtonGroup>;
+        return <Nav className="ml-auto" navbar>
+            <NavItem className="d-md-down-none">
+                <NavLink href="#"><i className="icon-bell"></i><Badge pill color="danger">5</Badge></NavLink>
+            </NavItem>
+            <NavItem className="d-md-down-none">
+                <NavLink href="#"><i className="icon-list"></i></NavLink>
+            </NavItem>
+            <NavItem className="d-md-down-none">
+                <NavLink href="#"><i className="icon-location-pin"></i></NavLink>
+            </NavItem>
+            <HeaderDropdown/>
+        </Nav>;
     }
 }
 

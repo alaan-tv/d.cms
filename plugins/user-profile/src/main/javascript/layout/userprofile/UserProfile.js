@@ -1,4 +1,3 @@
-import {LogoutMenuItem} from './LogoutMenuItem';
 import {ProfileMenuItem} from './ProfileMenuItem';
 
 defineModule(['react'], (React)=> {
@@ -11,15 +10,9 @@ defineModule(['react'], (React)=> {
                 console.info('User-Profile Components Activated');
 
                 serviceRegistry.push(
-                    context.registerService('d.cms.ui.component.menuItem', (context, props)=>{
-                        return React.createElement(LogoutMenuItem, props , null);
-                    }, {service: 'userprofile.logout.menuitem'})
-                );
-
-                serviceRegistry.push(
-                    context.registerService('d.cms.ui.component.menuItem', (context, props)=>{
+                    context.registerService('d.cms.ui.component.NavigationMenuItem', (context, props)=>{
                         return React.createElement(ProfileMenuItem, props , null);
-                    }, {service: 'userprofile.menuitem'})
+                    }, {service: 'userprofile.NavigationMenuItem'})
                 );
             },
             stop: (context)=>{

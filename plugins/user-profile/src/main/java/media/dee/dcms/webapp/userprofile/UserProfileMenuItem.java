@@ -8,7 +8,7 @@ import org.osgi.service.log.LogService;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-@AdminModule("/webapp/js/layout/userprofile/userprofile")
+@AdminModule("/webapp/userprofile")
 public class UserProfileMenuItem implements GUIComponent {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
 

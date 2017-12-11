@@ -1,5 +1,5 @@
 import React from 'react';
-import {ServiceTracker} from "../service/ServiceTracker";
+import {ServiceTracker} from '../service/ServiceTracker';
 
 class Container extends React.Component {
     constructor(bundleContext, service, props) {
@@ -46,4 +46,4 @@ defineModule('components/Container', [], ()=> {
     return Container;
 });
 
-export {Container};
+export default Container;

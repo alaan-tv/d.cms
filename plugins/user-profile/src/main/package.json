@@ -1,36 +1,54 @@
 {
-  "name": "semsocial.net",
+  "name": "deeCMS",
   "version": "2.0.0",
   "description": " ",
-  "main": "Gruntfile.js",
+  "main": "Gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "webpack -d --progress --watch --profile --json > compilation-stats.json --env.dev",
+    "start": "webpack-dev-server --progress --colors --inline --env.dev",
+    "build": "webpack -p --progress --env.prod"
   },
   "keywords": [],
   "author": "Anas Aswad",
   "license": "ISC",
   "repository": {},
   "dependencies": {
-    "react": "^15.4.2",
-    "react-bootstrap": "^0.30.3",
-    "react-dom": "^15.4.2"
+    "bootstrap": "4.0.0-beta.2",
+    "chart.js": "2.7.1",
+    "font-awesome": "4.7.0",
+    "history": "4.7.2",
+    "react": "16.1.1",
+    "react-chartjs-2": "2.6.4",
+    "react-dom": "16.1.1",
+    "react-router-dom": "4.2.2",
+    "react-transition-group": "2.2.1",
+    "reactstrap": "5.0.0-alpha.4",
+    "simple-line-icons": "2.4.1"
   },
   "devDependencies": {
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "css-loader": "^0.28.7",
     "gulp": "^3.9.1",
-    "gulp-cli": "^1.2.2",
-    "gulp-eslint": "3.0.1",
-    "gulp-rm": "^1.0.2",
+    "gulp-cli": "^1.4.0",
+    "gulp-rm": "^1.0.4",
     "gulp-sass": "^3.1.0",
-    "node-sass": "^4.5.0",
-    "sass-loader": "^6.0.6",
-    "style-loader": "^0.19.0",
-    "webpack": "^2.5.1",
+    "node-sass": "^4.7.2",
     "webpack-stream": "^4.0.0",
-    "svg-inline-loader": "^0.8.0"
+
+    "babel-core": "6.26.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "6.26.0",
+    "babel-preset-env": "1.6.1",
+    "babel-loader": "^7.1.2",
+
+
+    "webpack": "3.8.1",
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "3.0.2",
+    "css-hot-loader": "1.3.3",
+    "file-loader": "1.1.5",
+    "html-loader": "0.5.1",
+    "html-webpack-plugin": "2.30.1",
+    "sass-loader": "6.0.6",
+    "style-loader": "0.19.0"
   }
 }
