@@ -9,6 +9,24 @@
     <meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,AngularJS,Angular,Angular2,Angular 2,Angular4,Angular 4,jQuery,CSS,HTML,RWD,Dashboard,React,React.js,Vue,Vue.js">
     <link rel="shortcut icon" href="img/favicon.png">
     <title>Dee.Media Digital Media Content Managment System</title>
+    <script src="/cms/fe/requirejs.js"></script>
+    <script>
+        let requireLocal = require.config({
+            waitSeconds: 15
+        });
+        window.defineModule = define;
+        window.requireModule = requireLocal;
+        window.unDefineModule = requireLocal.undef;
+
+        requireLocal.onError = function (err) {
+            console.error(`[BundleContext] ${err.requireType}`, err);
+            if (err.requireType === 'timeout') {
+                console.error(`[BundleContext] timeout loading bundle ${err.requireModules}`);
+                console.log('modules: ' + err.requireModules);
+            }
+            throw err;
+        };
+    </script>
 </head>
 
 <!-- BODY options, add following classes to body to change options
