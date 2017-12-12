@@ -19,7 +19,7 @@ import Full from './containers/Full';
 export default ()=>{
 
     ReactDOM.render((
-        <BrowserRouter>
+        <BrowserRouter basename="/cms">
             <Switch>
                 <Route path="/" name="Home" component={Full}/>
             </Switch>
