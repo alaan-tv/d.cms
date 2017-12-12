@@ -8,10 +8,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
@@ -127,7 +124,7 @@ public class ComponentConnector implements IComponentConnector {
                 .forEach( guiComponent -> unRegisterModuleResources(httpService, guiComponent ));
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, unbind = "unbindEssentialComponent")
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, unbind = "unbindEssentialComponent", policy = ReferencePolicy.DYNAMIC)
     public void bindEssentialComponent(GUIComponent component) {
         synchronized (guiComponents) {
             guiComponents.add(component);
