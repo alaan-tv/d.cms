@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {HashRouter, Route, Switch} from 'react-router-dom';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
 // Styles
 // Import Font Awesome Icons Set
@@ -13,17 +13,17 @@ import '../scss/style.scss'
 import '../scss/core/_dropdown-menu-right.scss'
 
 // Containers
-import Full from './containers/Full/';
+import Full from './containers/Full';
 
 
 export default ()=>{
 
     ReactDOM.render((
-        <HashRouter>
+        <BrowserRouter>
             <Switch>
                 <Route path="/" name="Home" component={Full}/>
             </Switch>
-        </HashRouter>
+        </BrowserRouter>
     ), document.getElementById('root'));
 
 }
