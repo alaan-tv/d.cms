@@ -72,7 +72,7 @@ function config(DEBUG, VERBOSE) {
     const clientConfig = Object.assign(config, {
 
         output: {
-            filename: DEBUG ? 'userprofile.js' : 'userprofile.[hash].js',
+            filename: DEBUG ? 'userprofile.js' : 'userprofile.js',
             chunkFilename: DEBUG ? '[name].[id].js?[chunkhash]' : '[name].[id].[chunkhash].js',
             publicPath: '/cms/fe/'
         },

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component name="NavigationMenu" immediate="true">
-    <implementation class="media.dee.dcms.webapp.cms.components.NavigationMenu" />
-
-    <service>
-        <provide interface="media.dee.dcms.webapp.cms.components.GUIComponent"/>
-    </service>
-</component>

@@ -3,45 +3,58 @@ package media.dee.dcms.webapp.cms.internal;
 import media.dee.dcms.websocket.WebSocketService;
 import org.json.JSONObject;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
-import org.osgi.util.tracker.ServiceTracker;
 
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 @ServerEndpoint("cms")
+@Component(immediate = true)
 public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndpoint{
 
     private Map<String, Session> sessionMap = new HashMap<>();
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
-    private ServiceTracker<ComponentConnector, ComponentConnector> connectorServiceTracker;
+    private final List<IComponentConnector> componentConnectors = new LinkedList<>();
 
-    public void bindLong( LogService log ) {
+    @Reference
+    void setLogService( LogService log ) {
         logRef.set(log);
     }
 
-    public void unbindLong( LogService log ) {
-        logRef.compareAndSet(log, null);
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, unbind = "unbindComponentConnector")
+    void bindComponentConnector(IComponentConnector componentConnector){
+        synchronized (this.componentConnectors) {
+            this.componentConnectors.add(componentConnector);
+        }
     }
 
+    void unbindComponentConnector(IComponentConnector componentConnector){
+        synchronized (this.componentConnectors) {
+            this.componentConnectors.remove(componentConnector);
+        }
+    }
+
+
+    @Activate
     public void activate(ComponentContext ctx){
-        connectorServiceTracker = new ServiceTracker<ComponentConnector, ComponentConnector>(ctx.getBundleContext(), ComponentConnector.class, null);
-        connectorServiceTracker.open();
         LogService log = logRef.get();
         log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
     }
 
+    @Deactivate
     public void deactivate(ComponentContext ctx){
-        if( connectorServiceTracker != null )
-            connectorServiceTracker.close();
     }
 
+    @Reference(unbind = "unbindWebSocketService", cardinality = ReferenceCardinality.AT_LEAST_ONE)
     public void bindWebSocketService(WebSocketService wsService) {
         try {
             wsService.addEndpoint(this);
@@ -57,13 +70,6 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
             e.printStackTrace();
         }
     }
-
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
-
 
     public Future<Void> sendMessageAsync(Session session, JSONObject message){
         return session.getAsyncRemote().sendText(message.toString());
@@ -100,7 +106,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     @Override
     public void open(String path, Session session) {
         sessionMap.put(session.getId(), session);
-        connectorServiceTracker.getService().newSession(session);
+        this.componentConnectors.forEach( connector -> connector.newSession(session));
     }
 
     @Override
