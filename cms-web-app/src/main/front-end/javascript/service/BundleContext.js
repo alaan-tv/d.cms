@@ -15,7 +15,7 @@ class BundleContext{
                 let bundles = Array.isArray(command.bundle) ? command.bundle : [command.bundle];
                 bundles.forEach( (bundle)=>{
                     bundleContext.installBundle( bundle, (bundleContext, exports)=>{
-                        console.info(`Bundle: ${command.bundle} installed.`);
+                        console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} installed.`, 'color: blue;');
                     });
                 });
             });
@@ -23,7 +23,7 @@ class BundleContext{
                 let command = event.detail;
                 console.info(`Uninstall Bundle ${command.bundle}`);
                 bundleContext.removeBundle(command.bundle, ()=>{
-                    console.info(`Bundle: ${command.bundle} Uninstalled.`);
+                    console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} uninstalled.`, 'color: red;');
                 });
             });
         }

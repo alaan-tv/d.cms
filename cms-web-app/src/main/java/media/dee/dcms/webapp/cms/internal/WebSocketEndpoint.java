@@ -1,7 +1,10 @@
 package media.dee.dcms.webapp.cms.internal;
 
 import media.dee.dcms.websocket.WebSocketService;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
@@ -103,9 +106,25 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
                 .forEach( session -> sendMessageAsync(session, txtMessage));
     }
 
+    private void sendWelcomeMessage(Session session){
+        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("action", "system.info");
+            jsonObject.put("SymbolicName",  bundle.getSymbolicName());
+            jsonObject.put("Version",  bundle.getVersion().toString() );
+
+            sendMessage(session, jsonObject);
+
+        }catch (JSONException ex){
+            //pass
+        }
+    }
+
     @Override
     public void open(String path, Session session) {
         sessionMap.put(session.getId(), session);
+        sendWelcomeMessage(session);
         this.componentConnectors.forEach( connector -> connector.newSession(session));
     }
 

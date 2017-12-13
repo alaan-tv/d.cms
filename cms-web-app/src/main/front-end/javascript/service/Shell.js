@@ -1,6 +1,12 @@
 import {BundleContext} from "./BundleContext";
 import {isFunction} from "./utils";
 
+
+window.addEventListener('ws:system.info', (event)=>{
+    let command = event.detail;
+    console.log(`%cSystem: ${command.SymbolicName}-${command.Version}`, 'color: red; font-size: 1.5em;');
+});
+
 const lb = (filter)=>{
     console.log(`%cSymbolicName\tVersion`, 'background: gray; color: white');
     Object.keys(BundleContext.Bundles).forEach( key => {
