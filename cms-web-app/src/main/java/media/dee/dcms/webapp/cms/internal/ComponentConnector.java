@@ -29,9 +29,13 @@ public class ComponentConnector implements IComponentConnector {
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
         JSONObject jsonObject = new JSONObject();
+        JSONObject bundleObject = new JSONObject();
         try {
             jsonObject.put("action", "bundle.install");
-            jsonObject.put("bundle", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            jsonObject.put("bundle", bundleObject);
+            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            bundleObject.put("SymbolicName", bundle.getSymbolicName() );
+            bundleObject.put("Version", bundle.getVersion().toString() );
         } catch (JSONException e) {
             //error
         }
@@ -42,9 +46,13 @@ public class ComponentConnector implements IComponentConnector {
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
         JSONObject jsonObject = new JSONObject();
+        JSONObject bundleObject = new JSONObject();
         try {
             jsonObject.put("action", "bundle.uninstall");
-            jsonObject.put("bundle", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            jsonObject.put("bundle", bundleObject);
+            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            bundleObject.put("SymbolicName", bundle.getSymbolicName() );
+            bundleObject.put("Version", bundle.getVersion().toString() );
         } catch (JSONException e) {
             //error
         }

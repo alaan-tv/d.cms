@@ -1,8 +1,9 @@
 import {isFunction} from "./utils";
 
 class BundleContext{
-    constructor(context, activators) {
+    constructor(context, activators, props) {
         this.context = context;
+        this.props = props;
         this.childContexts = {};
         this.serviceInstances = {};
         this.activiators = activators || [];
@@ -54,7 +55,7 @@ class BundleContext{
     }
 
 
-    installBundle(bundlePath, callback){
+    installBundle({bundlePath, SymbolicName, Version}, callback){
         let me = this;
         if( BundleContext.Bundles[bundlePath] ){
             let bundle = BundleContext.Bundles[bundlePath];
@@ -63,7 +64,7 @@ class BundleContext{
         }
 
         requireModule([bundlePath], (module)=>{
-            let bundleContext = new BundleContext(me, module.activator ? [module.activator] : [] );
+            let bundleContext = new BundleContext(me, module.activator ? [module.activator] : [] , {SymbolicName: SymbolicName, Version: Version});
             me.childContexts[bundlePath] = bundleContext;
             BundleContext.Bundles[bundlePath] = {
                 bundleContext: bundleContext,

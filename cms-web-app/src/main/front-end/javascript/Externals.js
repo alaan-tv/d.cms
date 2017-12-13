@@ -12,7 +12,7 @@ window.ChartJS = ChartJS;
 window.ReactChartJS = ReactChartJS;
 window.ReactRouter = ReactRouter;
 window.ReactStrap = ReactStrap;
-window.bundleContext = new BundleContext();
+window.bundleContext = new BundleContext(null, null, {SymbolicName: 'ADMIN', Version: '1.0'});
 
 defineModule("react", [], () => {
     return React;
