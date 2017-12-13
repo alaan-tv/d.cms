@@ -17,17 +17,24 @@ const lb = (filter)=>{
 
 const services = (filter)=>{
     Object.keys(BundleContext.ServiceReferences).forEach( key => {
-        console.log(`${key}`);
-        let entry = BundleContext.ServiceReferences[key];
-        Object.keys(entry).forEach(indx =>{
-            if(indx !== 'lastIndex') {
-                let serviceReference = entry[indx];
-                let serviceType = isFunction(serviceReference.instance) ? 'Factory' : 'Singleton';
-                console.log(`%c\t${serviceType}\t${serviceReference.context.props.SymbolicName}-${serviceReference.context.props.Version}\tusage:${serviceReference.usage}`, 'background: gray; color: white');
-            }
+        let serviceReferences = bundleContext.getServiceReferences(key, filter);
+        if( !serviceReferences.length )
+            return;
+        console.log(`%c${key}`, 'background: gray; color: white');
+        serviceReferences.forEach(serviceReference =>{
+            let serviceType = isFunction(serviceReference.instance) ? 'Factory' : 'Singleton';
+            let props = '';
+            Object.keys(serviceReference.props).forEach( (key)=> {
+                props+= `\n\t\t${key}: ${serviceReference.props[key]}`;
+            });
+            console.log(`\t${serviceType}
+\t${serviceReference.context.props.SymbolicName}-${serviceReference.context.props.Version}
+\tusage:${serviceReference.usage}\n\tprops:${props}`
+            );
         });
     });
 };
+
 
 
 window.shell ={

@@ -21,7 +21,7 @@ class BundleContext{
             });
             window.addEventListener('ws:bundle.uninstall', (event)=>{
                 let command = event.detail;
-                console.info(`Uninstall Bundle ${command.bundle}`);
+                console.info(`%Uninstall Bundle : ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath}`, 'color: red;');
                 bundleContext.removeBundle(command.bundle, ()=>{
                     console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} uninstalled.`, 'color: red;');
                 });
@@ -77,7 +77,7 @@ class BundleContext{
     }
 
 
-    removeBundle(bundlePath, callback){
+    removeBundle({bundlePath}, callback){
         let bundle = BundleContext.Bundles[bundlePath];
         if( bundle ) {
             bundle.bundleContext.deactivate();
@@ -94,7 +94,7 @@ class BundleContext{
         BundleContext.ServiceReferences[cls] = BundleContext.ServiceReferences[cls] || {
             lastIndex: 0
         };
-        let serviceProps = Object.assign({cls: cls}, props);
+        let serviceProps = Object.assign({cls: cls, ... this.props}, props);
 
         let serviceReference = {
             context: this,
