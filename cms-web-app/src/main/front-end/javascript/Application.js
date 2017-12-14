@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import {HashRouter, Route, Switch} from 'react-router-dom';
 
@@ -9,8 +8,8 @@ import 'font-awesome/css/font-awesome.min.css';
 import 'simple-line-icons/css/simple-line-icons.css';
 // Import Main styles for this application
 import '../scss/style.scss'
-// Temp fix for reactstrap
-import '../scss/core/_dropdown-menu-right.scss'
+// Temp fixes for other css libraries
+import '../scss/core/_override.scss'
 
 // Containers
 import Full from './containers/Full/';
