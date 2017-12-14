@@ -1,4 +1,4 @@
-import {isFunction} from "./utils";
+import {isFunction, applyPropsFilter} from "./utils";
 
 class BundleContext{
     constructor(context, activators, props) {
@@ -117,11 +117,7 @@ class BundleContext{
                 return serviceInstance
             },
             applyFilter: (filter)=>{
-                let props = serviceReference.props;
-                let match = true;
-                for( let filterKey in filter )
-                    match = props.hasOwnProperty(filterKey) && props[filterKey] === filter[filterKey] ;
-                return match;
+                return applyPropsFilter(serviceReference.props, filter);
             }
         };
 
