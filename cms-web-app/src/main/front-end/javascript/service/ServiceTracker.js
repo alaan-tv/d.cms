@@ -4,7 +4,7 @@ class ServiceTracker{
     constructor(context, cls, filter, addingService, removingService){
         this.context = context;
         this.cls = cls;
-        this.filter = Object.assign({cls: cls}, filter);
+        this.filter = `cls="${cls}" ${filter ? 'and' + filter: ''}`;
         this.addingService = addingService;
         this.removingService = removingService;
 

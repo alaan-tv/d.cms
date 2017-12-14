@@ -25,6 +25,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>${org.osgi.service.component.annotations}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>json-osgi</artifactId>
             <version>${project.version}</version>
@@ -73,6 +80,7 @@
             <groupId>meida.dee.dcms</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
 
@@ -144,7 +152,6 @@
                         <Bundle-Activator>media.dee.dcms.webapp.cms.internal.CMSApplicationActivator</Bundle-Activator>
                         <Export-Package>media.dee.dcms.webapp.cms.*;version="${project.version}"</Export-Package>
                         <Private-Package>media.dee.dcms.webapp.cms.internal</Private-Package>
-                        <Service-Component>OSGI-INF/NavigationMenu.xml,OSGI-INF/WebSocketEndpoint.xml,OSGI-INF/ComponentConnector.xml</Service-Component>
                     </instructions>
                 </configuration>
             </plugin>

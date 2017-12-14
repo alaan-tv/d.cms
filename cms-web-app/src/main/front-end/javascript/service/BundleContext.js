@@ -1,8 +1,9 @@
-import {isFunction} from "./utils";
+import {isFunction, applyPropsFilter} from "./utils";
 
 class BundleContext{
-    constructor(context, activators) {
+    constructor(context, activators, props) {
         this.context = context;
+        this.props = props;
         this.childContexts = {};
         this.serviceInstances = {};
         this.activiators = activators || [];
@@ -14,15 +15,15 @@ class BundleContext{
                 let bundles = Array.isArray(command.bundle) ? command.bundle : [command.bundle];
                 bundles.forEach( (bundle)=>{
                     bundleContext.installBundle( bundle, (bundleContext, exports)=>{
-                        console.info(`Bundle: ${command.bundle} installed.`);
+                        console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} installed.`, 'color: blue;');
                     });
                 });
             });
             window.addEventListener('ws:bundle.uninstall', (event)=>{
                 let command = event.detail;
-                console.info(`Uninstall Bundle ${command.bundle}`);
+                console.info(`%Uninstall Bundle : ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath}`, 'color: red;');
                 bundleContext.removeBundle(command.bundle, ()=>{
-                    console.info(`Bundle: ${command.bundle} Uninstalled.`);
+                    console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} uninstalled.`, 'color: red;');
                 });
             });
         }
@@ -54,7 +55,7 @@ class BundleContext{
     }
 
 
-    installBundle(bundlePath, callback){
+    installBundle({bundlePath, SymbolicName, Version}, callback){
         let me = this;
         if( BundleContext.Bundles[bundlePath] ){
             let bundle = BundleContext.Bundles[bundlePath];
@@ -63,7 +64,7 @@ class BundleContext{
         }
 
         requireModule([bundlePath], (module)=>{
-            let bundleContext = new BundleContext(me, module.activator ? [module.activator] : [] );
+            let bundleContext = new BundleContext(me, module.activator ? [module.activator] : [] , {SymbolicName: SymbolicName, Version: Version});
             me.childContexts[bundlePath] = bundleContext;
             BundleContext.Bundles[bundlePath] = {
                 bundleContext: bundleContext,
@@ -76,7 +77,7 @@ class BundleContext{
     }
 
 
-    removeBundle(bundlePath, callback){
+    removeBundle({bundlePath}, callback){
         let bundle = BundleContext.Bundles[bundlePath];
         if( bundle ) {
             bundle.bundleContext.deactivate();
@@ -93,7 +94,7 @@ class BundleContext{
         BundleContext.ServiceReferences[cls] = BundleContext.ServiceReferences[cls] || {
             lastIndex: 0
         };
-        let serviceProps = Object.assign({cls: cls}, props);
+        let serviceProps = Object.assign({cls: cls, ... this.props}, props);
 
         let serviceReference = {
             context: this,
@@ -116,11 +117,7 @@ class BundleContext{
                 return serviceInstance
             },
             applyFilter: (filter)=>{
-                let props = serviceReference.props;
-                let match = true;
-                for( let filterKey in filter )
-                    match = props.hasOwnProperty(filterKey) && props[filterKey] === filter[filterKey] ;
-                return match;
+                return applyPropsFilter(serviceReference.props, filter);
             }
         };
 

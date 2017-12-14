@@ -62,6 +62,8 @@ public final class FrameworkService {
     private void doStop() throws Exception {
         if (this.felix != null) {
             this.felix.stop();
+            //wait felix to stop for 10secs.
+            this.felix.waitForStop(10000);
         }
         log("OSGi framework stopped", null);
     }

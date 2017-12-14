@@ -10,7 +10,7 @@ class Container extends Component {
   }
 
   componentWillMount() {
-    this.serviceTracker = new ServiceTracker(this.bundleContext, this.service, {}, this.addingMenu.bind(this), this.removingMenu.bind(this));
+    this.serviceTracker = new ServiceTracker(this.bundleContext, this.service, null, this.addingMenu.bind(this), this.removingMenu.bind(this));
   }
 
   componentWillUnmount() {

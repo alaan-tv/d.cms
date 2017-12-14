@@ -13,7 +13,7 @@ class Dashboard extends Container {
         return (
             <div className="animated fadeIn">
                 <CardColumns className="cols-2 card-columns">
-                    {this.state.components}
+                    {this.state.components.map( (cls, indx) => React.createElement(cls, {key: indx, ...this.props}, null))}
                 </CardColumns>
             </div>
         )

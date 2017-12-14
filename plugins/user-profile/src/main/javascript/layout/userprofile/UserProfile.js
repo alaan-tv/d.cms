@@ -14,19 +14,19 @@ defineModule(['react'], (React)=> {
                 serviceRegistry.push(
                     context.registerService('d.cms.ui.component.NavigationMenuItem', (context, props)=>{
                         return React.createElement(ProfileMenuItem, props , null);
-                    }, {service: 'userprofile.NavigationMenuItem'})
+                    }, {id: 'profile-menu-item'})
                 );
 
                 serviceRegistry.push(
                     context.registerService('d.cms.ui.component.Dashboard.Card', (context, props)=>{
-                        return React.createElement(ProfilePieItem, props , null);
-                    }, {service: 'userprofile.NavigationMenuItem'})
+                        return ProfilePieItem;
+                    }, {id: 'profile-stats'})
                 );
 
                 serviceRegistry.push(
                     context.registerService('d.cms.ui.component.Dashboard.Card', (context, props)=>{
-                        return React.createElement(ProfileProgressItem, props , null);
-                    }, {service: 'userprofile.NavigationMenuItem'})
+                        return ProfileProgressItem;
+                    }, {id: 'profile-engagement'})
                 );
 
 

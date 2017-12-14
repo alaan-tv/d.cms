@@ -8,6 +8,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
@@ -17,7 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ComponentConnector {
+@Component(service = IComponentConnector.class)
+public class ComponentConnector implements IComponentConnector {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final AtomicReference<WebSocketEndpoint> wsEndpoint = new AtomicReference<>();
     private final List<GUIComponent> guiComponents = new LinkedList<>();
@@ -27,9 +29,13 @@ public class ComponentConnector {
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
         JSONObject jsonObject = new JSONObject();
+        JSONObject bundleObject = new JSONObject();
         try {
             jsonObject.put("action", "bundle.install");
-            jsonObject.put("bundle", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            jsonObject.put("bundle", bundleObject);
+            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            bundleObject.put("SymbolicName", bundle.getSymbolicName() );
+            bundleObject.put("Version", bundle.getVersion().toString() );
         } catch (JSONException e) {
             //error
         }
@@ -40,9 +46,13 @@ public class ComponentConnector {
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
         JSONObject jsonObject = new JSONObject();
+        JSONObject bundleObject = new JSONObject();
         try {
             jsonObject.put("action", "bundle.uninstall");
-            jsonObject.put("bundle", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            jsonObject.put("bundle", bundleObject);
+            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
+            bundleObject.put("SymbolicName", bundle.getSymbolicName() );
+            bundleObject.put("Version", bundle.getVersion().toString() );
         } catch (JSONException e) {
             //error
         }
@@ -80,20 +90,19 @@ public class ComponentConnector {
         bundle.getBundleContext().ungetService(ref);
     }
 
+    @Activate
     public void activate(ComponentContext ctx){
         LogService log = logRef.get();
         log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
     }
 
-    public void bindLong( LogService log ) {
+    @Reference
+    public void setLogService( LogService log ) {
         logRef.set(log);
     }
 
-    public void unbindLong( LogService log ) {
-        logRef.compareAndSet(log, null);
-    }
 
-
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindWebSocketEndpoint")
     public void bindWebSocketEndpoint(media.dee.dcms.websocket.WebSocketEndpoint wsEndpoint){
         if( wsEndpoint instanceof WebSocketEndpoint)
             this.wsEndpoint.set((WebSocketEndpoint)wsEndpoint);
@@ -105,6 +114,7 @@ public class ComponentConnector {
     }
 
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindHttpService")
     public void bindHttpService( HttpService httpService ) {
         synchronized (httpServiceList) {
             httpServiceList.add(httpService);
@@ -122,6 +132,7 @@ public class ComponentConnector {
                 .forEach( guiComponent -> unRegisterModuleResources(httpService, guiComponent ));
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, unbind = "unbindEssentialComponent", policy = ReferencePolicy.DYNAMIC)
     public void bindEssentialComponent(GUIComponent component) {
         synchronized (guiComponents) {
             guiComponents.add(component);
@@ -140,6 +151,7 @@ public class ComponentConnector {
         }
     }
 
+    @Override
     public void newSession(Session session) {
         guiComponents.stream()
                 .map(ComponentConnector::getInstallCommand)
