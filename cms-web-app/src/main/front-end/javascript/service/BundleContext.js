@@ -21,7 +21,7 @@ class BundleContext{
             });
             window.addEventListener('ws:bundle.uninstall', (event)=>{
                 let command = event.detail;
-                console.info(`%Uninstall Bundle : ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath}`, 'color: red;');
+                console.info(`%cUninstall Bundle : ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath}`, 'color: red;');
                 bundleContext.removeBundle(command.bundle, ()=>{
                     console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} uninstalled.`, 'color: red;');
                 });

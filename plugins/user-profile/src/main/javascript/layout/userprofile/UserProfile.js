@@ -26,7 +26,10 @@ defineModule(['react'], (React)=> {
                 serviceRegistry.push(
                     context.registerService('d.cms.ui.component.Dashboard.Card', (context, props)=>{
                         return ProfileProgressItem;
-                    }, {id: 'profile-engagement'})
+                    }, {
+                        id: 'profile-engagement',
+                        roles: ['editor-in-chief', 'system-admin', 'site-manager']
+                    })
                 );
 
 

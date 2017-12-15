@@ -4,7 +4,7 @@ import {isFunction} from "./utils";
 
 window.addEventListener('ws:system.info', (event)=>{
     let command = event.detail;
-    console.log(`%cSystem: ${command.SymbolicName}-${command.Version}`, 'color: red; font-size: 1.5em;');
+    console.log(`%cSystem: ${command.SymbolicName} Version:${command.Version}`, 'color: red; font-size: 1.5em;');
 });
 
 const lb = (filter)=>{
