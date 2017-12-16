@@ -4,27 +4,22 @@ import {Card, CardBody, CardHeader} from 'reactstrap';
 import {Doughnut} from 'react-chartjs-2';
 import {request} from "../../../../../../../../cms-web-app/src/main/front-end/javascript/transport/Request";
 
-const data = {
-    labels: [
-        'Red',
-        'Green',
-        'Yellow'
-    ],
-    datasets: []
-};
 
 class ProfileProgressItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            datasets: []
+            data: {
+                labels: [],
+                datasets: []
+            }
         }
     }
 
     componentDidMount() {
         request(`component/${this.props.id}`, {instanceID: this.props.instanceID, command: 'getData'})
             .then( (response) => {
-                this.setState({datasets: response.response.datasets});
+                this.setState({data: response.response});
             })
             .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
     }
@@ -42,7 +37,7 @@ class ProfileProgressItem extends React.Component {
                 </CardHeader>
                 <CardBody>
                     <div className="chart-wrapper">
-                        <Doughnut data={{lables: data.labels, datasets: this.state.datasets}}/>
+                        <Doughnut data={this.state.data}/>
                     </div>
                 </CardBody>
         </Card>;

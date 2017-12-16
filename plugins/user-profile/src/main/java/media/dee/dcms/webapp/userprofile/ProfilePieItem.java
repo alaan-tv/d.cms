@@ -42,11 +42,16 @@ public class ProfilePieItem implements GUIComponent, EventHandler {
             }
 
             JSONObject result = new JSONObject();
+            JSONArray labels = new JSONArray();
             JSONObject dataset = new JSONObject();
             JSONArray datasets = new JSONArray();
 
             JSONArray backgroundColor = new JSONArray();
             JSONArray hoverBackgroundColor = new JSONArray();
+
+            labels.put("Red");
+            labels.put("Green");
+            labels.put("Yellow");
 
             backgroundColor.put("#FF6384");
             backgroundColor.put("#36A2EB");
@@ -58,6 +63,7 @@ public class ProfilePieItem implements GUIComponent, EventHandler {
 
             try {
                 result.put("datasets", datasets);
+                result.put("labels", labels);
 
                 dataset.put("data", data);
                 dataset.put("backgroundColor", backgroundColor);
