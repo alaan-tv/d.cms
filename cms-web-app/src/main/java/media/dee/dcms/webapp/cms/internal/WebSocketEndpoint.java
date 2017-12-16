@@ -150,62 +150,23 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     public void handleMessage(String path, String message, Session session) {
         try {
             JSONObject jsonMsg = new JSONObject(message);
-            if ( jsonMsg.getString("action").equals("dashboard:widgets:installed")){
-                try{
-                    JSONObject errMsg = new JSONObject();
-                    errMsg.put("action", String.format("response:data:%s", jsonMsg.get("requestID")));
 
-                    JSONObject w1 = new JSONObject();
-                    w1.put("SymbolicName", "meida.dee.dcms.user-profile");
-                    w1.put("Version", "0.0.1.SNAPSHOT");
-                    w1.put("id", "profile-stats");
-                    w1.put("instanceID", 0);
-                    w1.put("cls", "d.cms.ui.component.Dashboard.Card");
-                    w1.put("bundle", "userprofile.js");
-
-                    JSONObject w2 = new JSONObject();
-                    w2.put("SymbolicName", "meida.dee.dcms.user-profile");
-                    w2.put("Version", "0.0.1.SNAPSHOT");
-                    w2.put("id", "profile-engagement");
-                    w2.put("instanceID", 1);
-                    w2.put("cls", "d.cms.ui.component.Dashboard.Card");
-                    w2.put("bundle", "userprofile.js");
-
-
-                    JSONObject w3 = new JSONObject();
-                    w3.put("SymbolicName", "meida.dee.dcms.user-profile");
-                    w3.put("Version", "0.0.1.SNAPSHOT");
-                    w3.put("id", "profile-stats");
-                    w3.put("instanceID", 2);
-                    w3.put("cls", "d.cms.ui.component.Dashboard.Card");
-                    w3.put("bundle", "userprofile.js");
-
-                    JSONArray widgets = new JSONArray();
-                    widgets.put(w1);
-                    widgets.put(w2);
-                    widgets.put(w3);
-
-                    errMsg.put("data", widgets);
-                    sendMessage(session, errMsg);
+            Hashtable<String,Object> dict = new Hashtable<>();
+            Consumer<JSONObject> sendMessage = (msg) -> {
+                try {
+                    JSONObject response = new JSONObject();
+                    response.put("action", String.format("response:data:%s", jsonMsg.get("requestID") ));
+                    response.put("response", msg);
+                    sendMessage(session, response);
                 }catch(JSONException ex){
-                    //ignore
+                    logRef.get().log(LogService.LOG_ERROR, "WebSocket Generate JSON Response Error", ex);
                 }
-            } else if ( jsonMsg.getString("action").equals("meida.dee.dcms.user-profile:0.0.1.SNAPSHOT:ProfileProgressItem:request:config")){
+            };
+            dict.put("sendMessage",  sendMessage );
+            dict.put("message",  jsonMsg );
+            Event event = new Event( jsonMsg.getString("action"), dict );
+            eventAdmin.postEvent(event);
 
-                Hashtable<String,Object> dict = new Hashtable<>();
-                Consumer<String> sendMessage = (msg) -> {
-                    try {
-                        sendMessage(session, String.format("{\"action\": \"response:data:%s\", %s}", jsonMsg.get("requestID"), msg));
-                    }catch(JSONException ex){
-                        //ignore
-                    }
-                };
-                dict.put("sendMessage",  sendMessage );
-                dict.put("message",  jsonMsg );
-                Event event = new Event( "component/userpofile", dict );
-                eventAdmin.postEvent(event);
-
-            }
         } catch (JSONException e) {
             try{
                 JSONObject errMsg = new JSONObject();

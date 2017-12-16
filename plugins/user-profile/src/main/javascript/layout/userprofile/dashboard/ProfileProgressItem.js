@@ -22,9 +22,9 @@ class ProfileProgressItem extends React.Component {
     }
 
     componentDidMount() {
-        request(`${this.props.SymbolicName}:${this.props.Version}:ProfileProgressItem:request:config`, this.props.instanceID)
+        request(`component/${this.props.id}`, {instanceID: this.props.instanceID, command: 'getData'})
             .then( (response) => {
-                this.setState({datasets: response.datasets});
+                this.setState({datasets: response.response.datasets});
             })
             .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
     }
