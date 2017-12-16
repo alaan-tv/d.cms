@@ -33,7 +33,7 @@ class ProfileProgressItem extends React.Component {
     render() {
         return <Card>
                 <CardHeader>
-                    Task Progress {this.props.instanceID}
+                    ProfileProgressItem {this.props.instanceID}
                     <div className="card-actions">
                         <a href="http://www.chartjs.org">
                             <small className="text-muted">docs</small>

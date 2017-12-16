@@ -21,7 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
-@AdminModule(value = "/webapp/js/layout/Menubar", autoInstall = false)
+@AdminModule(value = "/webapp/js/layout/Menubar", autoInstall = true)
 @Component(property= EventConstants.EVENT_TOPIC + "=component/8a001058-5c6e-43d1-8e41-7868d9789817", immediate = true)
 @UUID("8a001058-5c6e-43d1-8e41-7868d9789817")
 public class DashboardPanel implements GUIComponent, EventHandler {
@@ -59,8 +59,8 @@ public class DashboardPanel implements GUIComponent, EventHandler {
                 w3.put("bundle", "userprofile.js");
 
                 JSONArray widgets = new JSONArray();
-                widgets.put(w1);
                 widgets.put(w2);
+                widgets.put(w1);
                 widgets.put(w3);
 
                 response.put("data", widgets);

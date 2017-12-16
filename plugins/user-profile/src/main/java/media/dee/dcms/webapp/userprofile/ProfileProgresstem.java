@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
-@AdminModule(value = "/webapp/userprofile", autoInstall = false)
+@AdminModule(value = "/webapp/userprofile", autoInstall = true)
 @Component(property= EventConstants.EVENT_TOPIC + "=component/5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
 @UUID("5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
 public class ProfileProgresstem implements GUIComponent, EventHandler {

@@ -33,7 +33,7 @@ class ProfilePieItem extends React.Component {
     render() {
         return <Card>
             <CardHeader>
-                Acquired Tasks {this.props.instanceID}
+                ProfilePieItem {this.props.instanceID}
                 <div className="card-actions">
                     <a href="http://www.chartjs.org">
                         <small className="text-muted">docs</small>

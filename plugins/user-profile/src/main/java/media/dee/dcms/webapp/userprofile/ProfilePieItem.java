@@ -22,10 +22,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
-@AdminModule(value = "/webapp/userprofile", autoInstall = false)
+@AdminModule(value = "/webapp/userprofile", autoInstall = true)
 @Component(property= EventConstants.EVENT_TOPIC + "=component/3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a")
 @UUID("3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a")
 public class ProfilePieItem implements GUIComponent, EventHandler {
+
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private Map<String, BiConsumer<JSONObject, Consumer<JSONObject>>> commands = new HashMap<>();
 
