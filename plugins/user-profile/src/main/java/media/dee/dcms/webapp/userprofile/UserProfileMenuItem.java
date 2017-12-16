@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 
-@AdminModule("/webapp/userprofile")
+@AdminModule(value = "/webapp/userprofile", autoInstall = false)
 @Component(property= EventConstants.EVENT_TOPIC + "=component/userpofile")
 public class UserProfileMenuItem implements GUIComponent, EventHandler {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();

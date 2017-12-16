@@ -138,7 +138,9 @@ public class ComponentConnector implements IComponentConnector {
             guiComponents.add(component);
             httpServiceList.parallelStream()
                     .forEach( httpService -> registerModuleResources(httpService, component));
-            wsEndpoint.get().sendAll(getInstallCommand(component));
+            AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
+            if( adminModule.autoInstall() )
+                wsEndpoint.get().sendAll(getInstallCommand(component));
         }
     }
 
@@ -154,6 +156,7 @@ public class ComponentConnector implements IComponentConnector {
     @Override
     public void newSession(Session session) {
         guiComponents.stream()
+                .filter( guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall() )
                 .map(ComponentConnector::getInstallCommand)
                 .forEach( msg -> wsEndpoint.get().sendMessage(session, msg));
     }

@@ -10,7 +10,7 @@ import org.osgi.service.log.LogService;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-@AdminModule("/webapp/js/layout/Menubar")
+@AdminModule(value = "/webapp/js/layout/Menubar", autoInstall = true)
 @Component
 public class NavigationMenu implements GUIComponent {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();

@@ -8,5 +8,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AdminModule {
-    public String value();
+    String value();
+    boolean autoInstall();
 }

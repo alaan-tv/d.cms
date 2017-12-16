@@ -143,6 +143,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
 
     @Override
     public void onError(String path, Throwable error) {
+        logRef.get().log(LogService.LOG_ERROR, "WebSocket Error", error);
     }
 
     @Override
