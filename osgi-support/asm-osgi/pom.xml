@@ -5,6 +5,7 @@
         <groupId>meida.dee.dcms</groupId>
         <artifactId>dee-cms</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>asm-osgi</artifactId>
     <name>ASM OSGI Module</name>
