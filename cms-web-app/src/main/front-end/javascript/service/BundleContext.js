@@ -56,16 +56,17 @@ class BundleContext{
 
 
     installBundle({bundlePath, SymbolicName, Version}, callback){
-        let me = this;
-        if( BundleContext.Bundles[bundlePath] ){
-            let bundle = BundleContext.Bundles[bundlePath];
-            callback(bundle.bundleContext, bundle.exports);
-            return;
-        }
 
         requireModule([bundlePath], (module)=>{
-            let bundleContext = new BundleContext(me, module.activator ? [module.activator] : [] , {SymbolicName: SymbolicName, Version: Version});
-            me.childContexts[bundlePath] = bundleContext;
+            if( BundleContext.Bundles[bundlePath] ){
+                let bundle = BundleContext.Bundles[bundlePath];
+                callback(bundle.bundleContext, bundle.exports);
+                return;
+            }
+
+
+            let bundleContext = new BundleContext(this, module.activator ? [module.activator] : [] , {SymbolicName: SymbolicName, Version: Version});
+            this.childContexts[bundlePath] = bundleContext;
             BundleContext.Bundles[bundlePath] = {
                 bundleContext: bundleContext,
                 exports: module.exports

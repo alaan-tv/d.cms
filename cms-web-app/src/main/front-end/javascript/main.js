@@ -4,5 +4,6 @@ import {init as transportInit} from "./transport/WebSocket";
 import {} from './Externals'
 import './service/Shell';
 
-ApplicationInit();
-transportInit();
+transportInit( ()=>{
+    ApplicationInit();
+});

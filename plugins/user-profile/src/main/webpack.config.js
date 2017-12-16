@@ -40,7 +40,8 @@ function config(DEBUG, VERBOSE) {
             'chart.js': 'ChartJS',
             'react-chartjs-2': 'ReactChartJS',
             'react-router-dom': 'ReactRouter',
-            'reactstrap': 'ReactStrap'
+            'reactstrap': 'ReactStrap',
+            'Request': 'Request'
         }
     };
 

@@ -4,7 +4,18 @@ class ServiceTracker{
     constructor(context, cls, filter, addingService, removingService){
         this.context = context;
         this.cls = cls;
-        this.filter = `cls="${cls}" ${filter ? 'and' + filter: ''}`;
+
+        const filterAsString = (filter) => {
+            return typeof filter === 'string' ? filter :
+                Object.keys(filter).map( key => {
+                    let value = filter[key];
+                    if( typeof value === 'string')
+                        return `${key} = "${value.replace(/"/g, '\\"')}"`;
+                    return `${key} = ${filter[key]}`;
+                } ).reduce( (accumulator, currentValue) => `${accumulator} and ${currentValue}`)
+        };
+
+        this.filter = `cls="${cls}" ${filter ? ' and ' + filterAsString(filter) : ''}`;
         this.addingService = addingService;
         this.removingService = removingService;
 
