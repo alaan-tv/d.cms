@@ -15,7 +15,7 @@ class Dashboard extends Component {
     componentWillMount() {
         request('component/8a001058-5c6e-43d1-8e41-7868d9789817', {instanceID: 0, command: 'getData'})
             .then( (response) => {
-                this.setState({components: response.response.data});
+                this.setState({components: response.data});
             })
             .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
     }

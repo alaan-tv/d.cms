@@ -10,8 +10,7 @@ class BundleContext{
 
         //if main context then register bundle.install and bundle.uninstall listeners
         if( !context ){
-            window.addEventListener('ws:bundle.install', (event)=>{
-                let command = event.detail;
+            globalEmitter.addListener('ws:bundle.install', (command)=>{
                 let bundles = Array.isArray(command.bundle) ? command.bundle : [command.bundle];
                 bundles.forEach( (bundle)=>{
                     bundleContext.installBundle( bundle, (bundleContext, exports)=>{
@@ -19,8 +18,7 @@ class BundleContext{
                     });
                 });
             });
-            window.addEventListener('ws:bundle.uninstall', (event)=>{
-                let command = event.detail;
+            globalEmitter.addListener('ws:bundle.uninstall', (command)=>{
                 console.info(`%cUninstall Bundle : ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath}`, 'color: red;');
                 bundleContext.removeBundle(command.bundle, ()=>{
                     console.info(`%cBundle: ${command.bundle.SymbolicName}-${command.bundle.Version}\nJS Module${command.bundle.bundlePath} uninstalled.`, 'color: red;');

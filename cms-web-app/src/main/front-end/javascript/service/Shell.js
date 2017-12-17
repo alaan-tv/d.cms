@@ -2,8 +2,7 @@ import {BundleContext} from "./BundleContext";
 import {isFunction} from "./utils";
 
 
-window.addEventListener('ws:system.info', (event)=>{
-    let command = event.detail;
+globalEmitter.addListener('ws:system.info', (command)=>{
     console.log(`%cSystem: ${command.SymbolicName} Version:${command.Version}`, 'color: red; font-size: 1.5em;');
 });
 

@@ -18,8 +18,8 @@ class ProfilePieItem extends React.Component {
 
     componentDidMount() {
         request(`component/${this.props.id}`, {instanceID: this.props.instanceID, command: 'getData'})
-            .then( (response) => {
-                this.setState({data: response.response});
+            .then( (data) => {
+                this.setState({data: data});
             })
             .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
     }
