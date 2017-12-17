@@ -1,4 +1,4 @@
-import {isFunction, applyPropsFilter} from "./utils";
+import {isFunction, applyPropsFilter} from "./Utils";
 
 class BundleContext{
     constructor(context, activators, props) {

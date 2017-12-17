@@ -1,5 +1,5 @@
 import {BundleContext} from "./BundleContext";
-import {isFunction} from "./utils";
+import {isFunction} from "./Utils";
 
 
 globalEmitter.addListener('ws:system.info', (command)=>{

@@ -1,4 +1,4 @@
-import compileExpression from './filterx';
+import compileExpression from './Filterx';
 
 function isFunction(functionToCheck) {
     let getType = {};
