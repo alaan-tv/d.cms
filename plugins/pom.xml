@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>meida.dee.dcms</groupId>
+	<artifactId>dee-cms-plugins</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+    <properties>
+        <jdk.version>1.8</jdk.version>
+        <osgi.version>5.0.0</osgi.version>
+        <org.osgi.service.http>1.2.1</org.osgi.service.http>
+        <org.osgi.service.component.annotations>1.3.0</org.osgi.service.component.annotations>
+    </properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>${jdk.version}</source>
+						<target>${jdk.version}</target>
+					</configuration>
+				</plugin>
+            </plugins>
+		</pluginManagement>
+	</build>
+</project>

@@ -14,7 +14,6 @@
         <module>osgi-support/websocket-service</module>
         <module>file-bundle-manager</module>
         <module>cms-web-app</module>
-        <module>plugins/user-profile</module>
 	</modules>
 
     <properties>
