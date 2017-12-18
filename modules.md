@@ -1,5 +1,25 @@
-# Web components model:
-It’s part of layout module and its most important part because it’s the core of the layout module, The Web components can interact with other Web components throw API. Each Web components has own CSS and java Script and has templet, some component support AMP and IA. The sample list of Web components showing in list below:
+#Architecture
+The Pages displayed on  Dee.CMS site are built from a combination of multiple components. Dee.CMS provides multiple methods  to create the pages, depending on  different types of styles, layouts and content for the different pages on the site.
+#Main Architecture
+The main components which contribute to the display of  Dee.CMS pages are:
+* ## Theme
+The Theme determines the look and feel of the page, include both the styling(CSS, SASS and JS) and common page elements. A theme can support multiple formats to produce for example HTML and AMP, each format has it's own templates and assets.
+The Dee.CMS Themes provide a powerful way to consistent look and ell across a site or sites. Themes work with the Layout engine that allows content editor to create templates without any HTML knowledge.
+* ## Layout engine model
+   Dee.CMS provides layout concept, a different concept than template engines, but built on top of them,
+   Where layout in Dee.CMS is assigned to one theme and the template itself defines where components placeholders/containers will appear,
+   and the layout itself defines the visual layout by its CSS/SASS files and other assets, also templates support multi-formats and it's associated with one site.<br/>
+   **Each layout is associated with one content type!** 
+   
+   **Layout** concept is mainly to create different layouts for pages and content types, where it become reusable and much modular
+   ### Functional usage
+   - **layout designer** will configure the layouts and defines the components placeholders/containers and the design of the layout along with its assets
+   and defines what kind of containers/placeholders are supported if required, also he defines for each format the templates, assets, and the design
+   - **layout configurer** users how can add components to placeholders/containers and provide the settings for each component.
+
+------------------------------
+* ## Web components model:
+It’s part of layout module and its most important part because it’s the core of the layout module, The Web components can interact with other Web components through API. Each Web components has own CSS and java Script and has templet, some component support AMP and IA. The sample list of Web components showing in list below:
 - Poll
 - Tweet 
 - Post
@@ -7,10 +27,9 @@ It’s part of layout module and its most important part because it’s the core
 - Header
 - footer
 - etc.…
-
-# layout engine model:
-The layout engine work like the container for the web components and allow to each component to communicate with other. There is configuration file include all the components and the location of each one. The layout engine allows us to create templet of layout to use it for display the web components 
+----------------------------------
 # module design:
+
 # Asset Module
 # static pages module
 # production bundle manager
@@ -30,10 +49,29 @@ The workflow engine responsible for defining and managing all the steps to work 
 -	Retrieve draft data
 -	Approve publish
 -	etc.… 
+> annssdsd
+>> sdsd
+> ### sdfsdf
+> * dfdfsdfb <http://www.google.com>
 
-#explorer module
-#news module
-#VOD module
+<ol> 
+<li> d </li>
+<li> sdfsf</li>
+
+</ol>
+
+* a
+  * a1
+  * a2
+* b
+  * b1
+  * b2
+  
+
+
+#explorer module:
+#news module:
+#VOD module:
 #Revision Support and Modeling
 #Drafting Support for Modules:
 
@@ -53,9 +91,30 @@ In case the browser crashes while entering data in a given page, when the user n
 
 
 # Preview Support for Drafts and Persisted Models:
-There are several usages for preview mode, the user can use it when define the layout and also when the editor user start writ the post. So, there are two ways to launch the preview mode. One in Editor post and  one 
+There are two ways to launch the preview mode. One when create/edit any post and other one when create/edit the layout. This type of functionality allows us to preview any modification before going to publish it. This should call the render API for these types (normal HTML, AMP and IA) 
+- Layout render:
+  
+   The layout render will show HTML result of designed any templet by the admin 
+- Post render:
+
+   should show post like as final result and will render full the page with any format we can selected (AMP, IA and Normal).
+
 #Front Cache Module
 #Server caching Module
 #Configurations Module
 #Site Module
 #CMS Module
+#Log Module
+This module defines functions and API which implement an event logging for the application, Logging is means of tracking events that happen when the application runs. an event is described by a message. there is several types of log like:
+- info
+- warning
+- error
+
+The log module has configuration file to set save location, so any model can execute the log API after  by call it and set some parameters like 
+- **level**: error, info, warning
+- **message**: this will descript the event
+- **format**: for date, time,
+- **location**: DB, file
+- **type**: system, user
+- **from**: module name and class name, this information for technical purpose.
+ 
