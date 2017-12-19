@@ -16,9 +16,37 @@ The Dee.CMS Themes provide a powerful way to consistent look and ell across a si
    - **layout designer** will configure the layouts and defines the components placeholders/containers and the design of the layout along with its assets
    and defines what kind of containers/placeholders are supported if required, also he defines for each format the templates, assets, and the design
    - **layout configurer** users how can add components to placeholders/containers and provide the settings for each component.
+* ## Placeholder/container
+   The placeholder/container in Dee.CMS allows to specify what type of placeholder to be added to a page and how content of this pleaceholder type will display.
+   
+   **placeholder function:** 
+     - Select what type of placeholder/content
+     - Specify different formatting and styling for each placeholder/content type that will display in container
+     - - Each contents/web components are placed inside containers, Containers are placed inside Template, and Template placed inside a pages, so each web component/ content displayed and formatted in a page via containers
+       - Create different containers that format and display the same placeholder/content type in different ways
+       - Set permissions to used it
+* ## Placeholder/content Type
+  Each web component/content in Dee.CMS is an instance of Placeholder/content Type. The content type determine:
+   * What data can be added to web component of that type
+   * The default permission will applied 
+   * The default format and style 
+   * What is thw workflow applied
+   ..........
+   .
+   ..
+   .
+   ..
+   
+   .
+   .
+   
+   
 
-------------------------------
-* ## Web components model:
+* ## Web components/Content:
+
+
+>to modify 
+
 It’s part of layout module and its most important part because it’s the core of the layout module, The Web components can interact with other Web components through API. Each Web components has own CSS and java Script and has templet, some component support AMP and IA. The sample list of Web components showing in list below:
 - Poll
 - Tweet 
@@ -49,25 +77,6 @@ The workflow engine responsible for defining and managing all the steps to work 
 -	Retrieve draft data
 -	Approve publish
 -	etc.… 
-> annssdsd
->> sdsd
-> ### sdfsdf
-> * dfdfsdfb <http://www.google.com>
-
-<ol> 
-<li> d </li>
-<li> sdfsf</li>
-
-</ol>
-
-* a
-  * a1
-  * a2
-* b
-  * b1
-  * b2
-  
-
 
 #explorer module:
 #news module:
@@ -100,10 +109,15 @@ There are two ways to launch the preview mode. One when create/edit any post and
    should show post like as final result and will render full the page with any format we can selected (AMP, IA and Normal).
 
 #Front Cache Module
+
 #Server caching Module
+
 #Configurations Module
+
 #Site Module
+
 #CMS Module
+
 #Log Module
 This module defines functions and API which implement an event logging for the application, Logging is means of tracking events that happen when the application runs. an event is described by a message. there is several types of log like:
 - info
