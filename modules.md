@@ -1,6 +1,6 @@
-#Architecture
+# Architecture
 The Pages displayed on  Dee.CMS site are built from a combination of multiple components. Dee.CMS provides multiple methods  to create the pages, depending on  different types of styles, layouts and content for the different pages on the site.
-#Main Architecture
+# Main Architecture
 The main components which contribute to the display of  Dee.CMS pages are:
 * ## Theme
 The Theme determines the look and feel of the page, include both the styling(CSS, SASS and JS) and common page elements. A theme can support multiple formats to produce for example HTML and AMP, each format has it's own templates and assets.
@@ -16,25 +16,60 @@ The Dee.CMS Themes provide a powerful way to consistent look and ell across a si
    - **layout designer** will configure the layouts and defines the components placeholders/containers and the design of the layout along with its assets
    and defines what kind of containers/placeholders are supported if required, also he defines for each format the templates, assets, and the design
    - **layout configurer** users how can add components to placeholders/containers and provide the settings for each component.
+* ## Placeholder/container
+   The placeholder/container in Dee.CMS allows to specify what type of placeholder to be added to a page and how content of this pleaceholder type will display.
+   
+   **placeholder function:** 
+     - Select what type of placeholder/content
+     - Specify different formatting and styling for each placeholder/content type that will display in container
+     - - Each contents/web components are placed inside containers, Containers are placed inside Template, and Template placed inside a pages, so each web component/ content displayed and formatted in a page via containers
+       - Create different containers that format and display the same placeholder/content type in different ways
+       - Set permissions to used it
+* ## Placeholder/content Type
+  Each web component/content in Dee.CMS is an instance of Placeholder/content Type and it's predefine  . The content type determine:
+   * What data can be added to web component/content of that content type
+   * The default permission will applied 
+   * The default format and style 
+   * What is the workflow  will applied, some content type maybe used more than one workflow. 
+   * The location where the content type are stored (which site)
+   * The API definition that will be use in content
+   
+ 
+* ## Web components/Content:
 
-------------------------------
-* ## Web components model:
-It’s part of layout module and its most important part because it’s the core of the layout module, The Web components can interact with other Web components through API. Each Web components has own CSS and java Script and has templet, some component support AMP and IA. The sample list of Web components showing in list below:
-- Poll
-- Tweet 
-- Post
-- AD 
-- Header
-- footer
-- etc.…
-----------------------------------
-# module design:
-
-# Asset Module
-# static pages module
-# production bundle manager
-# cluster sync technology
-# Workflow module:
+ The Web component/content in Dee.CMS take many form and can be used in different way depending on the placeholder/content type, 
+ Content can be any any object such as **post** ,**tweeter**, **youtube** and so on so far. Each Web components has own CSS and java Script and can support AMP or not.
+ To create any instance of The content should set all the configuration data for each workflow. below list of web component /widgets that can be created:
+  - Post widget 
+  - Post list widget
+  - Comments widget
+  - Download widget
+  - Feed widget
+  - Youtube widget
+  - Tweeter list widget
+  - Image widget
+  - Imag gallery widget
+  - List widget
+  - Pull widget
+  - News widget
+  - Video widget
+  - Video list widget
+  - Social share widget
+  - Login widget
+  - Login status and name widget
+  - User profile widget
+  - User List widget
+  - Navigation widget
+  - widget
+  - widget
+  - widget
+  - widget
+  - widget
+  - widget
+  - widget
+  - widget
+ 
+* ##  Workflow module:
 The workflow engine responsible for defining and managing all the steps to work together as a unit, each step has input and output and the input some time maybe is output of another workflow. The step is an activity to do something. The workflow is executing by anther workflow or user has the permission, in other word the workflow is define the way how the process will work and only can work with predefine processes as listed below:
 - Send email
 - Post review
@@ -49,31 +84,8 @@ The workflow engine responsible for defining and managing all the steps to work 
 -	Retrieve draft data
 -	Approve publish
 -	etc.… 
-> annssdsd
->> sdsd
-> ### sdfsdf
-> * dfdfsdfb <http://www.google.com>
 
-<ol> 
-<li> d </li>
-<li> sdfsf</li>
-
-</ol>
-
-* a
-  * a1
-  * a2
-* b
-  * b1
-  * b2
-  
-
-
-#explorer module:
-#news module:
-#VOD module:
-#Revision Support and Modeling
-#Drafting Support for Modules:
+* ## Drafting Support for Modules:
 
 The drafting mechanism and auto save will be useful for the editor once write any post, so the system will save the user data (post) in cash (or somewhere maybe in DB if it’s efficient, user device) each period of time will have determined by the configurations, before final save or send the data for review.
 this module has several API _like_:
@@ -90,7 +102,7 @@ Each API should have (user, data) parameter at least. Once enabling this module 
 In case the browser crashes while entering data in a given page, when the user navigates back to the same form, a dialog box will be displayed to the user to confirm whether he wants to restore data.
 
 
-# Preview Support for Drafts and Persisted Models:
+* ## Preview Support for Drafts and Persisted Models:
 There are two ways to launch the preview mode. One when create/edit any post and other one when create/edit the layout. This type of functionality allows us to preview any modification before going to publish it. This should call the render API for these types (normal HTML, AMP and IA) 
 - Layout render:
   
@@ -99,12 +111,8 @@ There are two ways to launch the preview mode. One when create/edit any post and
 
    should show post like as final result and will render full the page with any format we can selected (AMP, IA and Normal).
 
-#Front Cache Module
-#Server caching Module
-#Configurations Module
-#Site Module
-#CMS Module
-#Log Module
+
+* ## Log Module
 This module defines functions and API which implement an event logging for the application, Logging is means of tracking events that happen when the application runs. an event is described by a message. there is several types of log like:
 - info
 - warning
@@ -118,3 +126,30 @@ The log module has configuration file to set save location, so any model can exe
 - **type**: system, user
 - **from**: module name and class name, this information for technical purpose.
  
+* ## Front Cache Module
+
+* ## module design:
+
+* ## Asset Module
+
+* ## static pages module
+
+* ## production bundle manager
+
+* ## cluster sync technology
+
+* ## explorer module:
+
+* ## news module:
+
+* ## VOD module:
+
+* ## Revision Support and Modeling
+
+* ## Server caching Module
+
+* ## Configurations Module
+
+* ## Site Module
+
+* ## CMS Module
