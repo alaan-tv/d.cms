@@ -5,6 +5,8 @@ import * as ReactChartJS from 'react-chartjs-2';
 import * as ReactRouter from 'react-router-dom';
 import * as ReactStrap from 'reactstrap';
 import * as Request from './transport/Request';
+import * as Mobx from 'mobx';
+import * as MobxReact from 'mobx-react';
 
 window.React = React; //export as global variable
 window.ReactDOM = ReactDOM; //export as global variable
@@ -14,6 +16,8 @@ window.ReactRouter = ReactRouter;
 window.ReactStrap = ReactStrap;
 window.bundleContext = new BundleContext(null, null, {SymbolicName: 'ADMIN', Version: '1.0'});
 window.Request = Request;
+window.Mobx = Mobx;
+window.MobxReact = MobxReact;
 
 
 defineModule("react", [], () => {

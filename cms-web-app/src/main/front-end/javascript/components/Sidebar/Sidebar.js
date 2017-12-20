@@ -8,6 +8,17 @@ import SidebarForm from './../SidebarForm';
 import SidebarHeader from './../SidebarHeader';
 import SidebarMinimizer from './../SidebarMinimizer';
 import {ServiceTracker} from "../../service/ServiceTracker";
+import {observer} from "mobx-react";
+
+
+// badge addon to NavItem
+const NavigationBadge = observer( ({badge}) => {
+    if (badge) {
+        const classes = classNames(badge.class);
+        return <Badge className={classes} color={badge.variant}>{badge.text}</Badge>;
+    }
+    return [];
+} );
 
 class Sidebar extends Component {
 
@@ -79,14 +90,6 @@ class Sidebar extends Component {
         const activeRoute = this.activeRoute;
         const handleClick = this.handleClick;
 
-        // badge addon to NavItem
-        const badge = (badge) => {
-            if (badge) {
-                const classes = classNames(badge.class);
-                return (<Badge className={classes} color={badge.variant}>{badge.text}</Badge>)
-            }
-        };
-
         // simple wrapper for nav-title item
         const wrapper = item => {
             return (item.wrapper && item.wrapper.element ? (React.createElement(item.wrapper.element, item.wrapper.attributes, item.name)) : item.name)
@@ -123,11 +126,11 @@ class Sidebar extends Component {
                 <NavItem key={key} className={classes.item}>
                     {isExternal(url) ?
                         <RsNavLink href={url} className={classes.link} active>
-                            <i className={classes.icon}></i>{item.name}{badge(item.badge)}
+                            <i className={classes.icon}></i>{item.name}<NavigationBadge badge={item.badge} />
                         </RsNavLink>
                         :
                         <NavLink to={url} className={classes.link} activeClassName="active">
-                            <i className={classes.icon}></i>{item.name}{badge(item.badge)}
+                            <i className={classes.icon}></i>{item.name}<NavigationBadge badge={item.badge} />
                         </NavLink>
                     }
                 </NavItem>
