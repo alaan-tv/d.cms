@@ -2,6 +2,7 @@ package media.dee.dcms.webapp.cms.internal;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.webapp.cms.components.GUIComponent;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.Bundle;
@@ -9,17 +10,25 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.websocket.Session;
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-@Component(service = IComponentConnector.class)
-public class ComponentConnector implements IComponentConnector {
+@Component(property= EventConstants.EVENT_TOPIC + "=components/essential/bundles", immediate = true)
+public class ComponentConnector implements IComponentConnector, EventHandler {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final AtomicReference<WebSocketEndpoint> wsEndpoint = new AtomicReference<>();
     private final List<GUIComponent> guiComponents = new LinkedList<>();
@@ -90,6 +99,42 @@ public class ComponentConnector implements IComponentConnector {
         bundle.getBundleContext().ungetService(ref);
     }
 
+
+    private Map<String, BiConsumer<JSONObject, Consumer<JSONObject>>> commands = new HashMap<>();
+
+    public ComponentConnector(){
+        commands.put("list", (message, sendMessage)->{
+            int rest = 100;
+
+            List<JSONObject> bundles = guiComponents.stream()
+                    .filter( guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall() )
+                    .map( (component)->{
+                        AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
+                        Bundle bundle = FrameworkUtil.getBundle(component.getClass());
+                        JSONObject bundleObject = new JSONObject();
+                        try {
+                            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()));
+                            bundleObject.put("SymbolicName", bundle.getSymbolicName());
+                            bundleObject.put("Version", bundle.getVersion().toString());
+                        } catch (JSONException e) {
+                            //error
+                        }
+                        return bundleObject;
+                    })
+                    .collect(Collectors.toList());
+
+            try {
+                JSONObject result = new JSONObject();
+                result.put("bundles", bundles);
+                sendMessage.accept(result);
+
+            } catch (JSONException ex){
+                logRef.get().log(LogService.LOG_ERROR, "JSON Write Error", ex);
+            }
+
+        });
+    }
+
     @Activate
     public void activate(ComponentContext ctx){
         LogService log = logRef.get();
@@ -102,7 +147,7 @@ public class ComponentConnector implements IComponentConnector {
     }
 
 
-    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindWebSocketEndpoint")
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindWebSocketEndpoint", policy = ReferencePolicy.DYNAMIC)
     public void bindWebSocketEndpoint(media.dee.dcms.websocket.WebSocketEndpoint wsEndpoint){
         if( wsEndpoint instanceof WebSocketEndpoint)
             this.wsEndpoint.set((WebSocketEndpoint)wsEndpoint);
@@ -114,7 +159,7 @@ public class ComponentConnector implements IComponentConnector {
     }
 
 
-    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindHttpService")
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindHttpService", policy = ReferencePolicy.DYNAMIC)
     public void bindHttpService( HttpService httpService ) {
         synchronized (httpServiceList) {
             httpServiceList.add(httpService);
@@ -155,9 +200,25 @@ public class ComponentConnector implements IComponentConnector {
 
     @Override
     public void newSession(Session session) {
-        guiComponents.stream()
-                .filter( guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall() )
-                .map(ComponentConnector::getInstallCommand)
-                .forEach( msg -> wsEndpoint.get().sendMessage(session, msg));
+
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void handleEvent(Event event) {
+        Consumer<JSONObject> sendMessage = (Consumer<JSONObject>) event.getProperty("sendMessage");
+        JSONObject message = (JSONObject) event.getProperty("message");
+
+        try {
+            JSONArray cmdList = message.getJSONArray("parameters");
+            for( int i = 0 ; i < cmdList.length(); ++i) {
+                JSONObject cmdObject = cmdList.getJSONObject(i);
+                String command = cmdObject.getString("command");
+                if (commands.containsKey(command))
+                    commands.get(command).accept(message, sendMessage);
+            }
+        } catch (JSONException e) {
+            logRef.get().log(LogService.LOG_ERROR, "JSON READ Error", e);
+        }
     }
 }

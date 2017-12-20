@@ -1,4 +1,3 @@
-import {BundleContext} from "./BundleContext";
 
 class ServiceTracker{
     constructor(context, cls, filter, addingService, removingService){
@@ -33,7 +32,7 @@ class ServiceTracker{
         this.context.addServiceListener('osgi:service:registered', this.serviceRegistered);
         this.context.addServiceListener('osgi:service:unregistered',  this.serviceUnRegistered );
 
-        this.context.getServiceReferences(cls)
+        this.context.getServiceReferences(cls, this.filter)
             .forEach( (serviceReference => this.addingService(this.context, serviceReference) ))
     }
 

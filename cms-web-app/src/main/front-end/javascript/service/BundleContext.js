@@ -58,7 +58,7 @@ class BundleContext{
         requireModule([bundlePath], (module)=>{
             if( BundleContext.Bundles[bundlePath] ){
                 let bundle = BundleContext.Bundles[bundlePath];
-                callback(bundle.bundleContext, bundle.exports);
+                callback(bundle.bundleContext, module.exports, module.initializer);
                 return;
             }
 
@@ -71,7 +71,7 @@ class BundleContext{
             };
 
             bundleContext.activate();
-            callback(bundleContext, module.exports);
+            callback(bundleContext, module.exports, module.initializer);
         });
     }
 
