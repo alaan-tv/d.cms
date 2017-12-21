@@ -2,9 +2,6 @@ package media.dee.dcms.webapp.cms.components;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.UUID;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,6 +11,10 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,48 +27,76 @@ import java.util.function.Consumer;
 @UUID("8a001058-5c6e-43d1-8e41-7868d9789817")
 public class DashboardPanel implements GUIComponent, EventHandler {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
-    private Map<String, BiConsumer<JSONObject, Consumer<JSONObject>>> commands = new HashMap<>();
+    private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
 
     public DashboardPanel(){
-        commands.put("getData", (message, sendMessage)->{
+        commands.put("getData", (message, response)->{
 
-            try {
-                JSONObject response = new JSONObject();
-                JSONObject w1 = new JSONObject();
-                w1.put("SymbolicName", "meida.dee.dcms.user-profile");
-                w1.put("Version", "0.0.1.SNAPSHOT");
-                w1.put("id", "3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a");
-                w1.put("instanceID", 0);
-                w1.put("cls", "d.cms.ui.component.Dashboard.Card");
-                w1.put("bundle", "userprofile.js");
+            int instanceID = message.getInt("instanceID");
 
-                JSONObject w2 = new JSONObject();
-                w2.put("SymbolicName", "meida.dee.dcms.user-profile");
-                w2.put("Version", "0.0.1.SNAPSHOT");
-                w2.put("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab");
-                w2.put("instanceID", 1);
-                w2.put("cls", "d.cms.ui.component.Dashboard.Card");
-                w2.put("bundle", "userprofile.js");
+            if( instanceID <= 0 ) {
+
+                JsonArray widgets = Json.createArrayBuilder()
+                        .add(
+                                Json.createObjectBuilder()
+                                        .add("SymbolicName", "meida.dee.dcms.user-profile")
+                                        .add("Version", "0.0.1.SNAPSHOT")
+                                        .add("id", "3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a")
+                                        .add("instanceID", 0)
+                                        .add("cls", "d.cms.ui.component.Dashboard.Card")
+                                        .add("bundle", "userprofile.js")
+                                        .build()
+                        )
+                        .add(
+                                Json.createObjectBuilder()
+                                        .add("SymbolicName", "meida.dee.dcms.user-profile")
+                                        .add("Version", "0.0.1.SNAPSHOT")
+                                        .add("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
+                                        .add("instanceID", 1)
+                                        .add("cls", "d.cms.ui.component.Dashboard.Card")
+                                        .add("bundle", "userprofile.js")
+                                        .build()
+                        )
+                        .add(
+                                Json.createObjectBuilder()
+                                        .add("SymbolicName", "meida.dee.dcms.user-profile")
+                                        .add("Version", "0.0.1.SNAPSHOT")
+                                        .add("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
+                                        .add("instanceID", 2)
+                                        .add("cls", "d.cms.ui.component.Dashboard.Card")
+                                        .add("bundle", "userprofile.js")
+                                        .build()
+                        )
+                        .build();
 
 
-                JSONObject w3 = new JSONObject();
-                w3.put("SymbolicName", "meida.dee.dcms.user-profile");
-                w3.put("Version", "0.0.1.SNAPSHOT");
-                w3.put("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab");
-                w3.put("instanceID", 2);
-                w3.put("cls", "d.cms.ui.component.Dashboard.Card");
-                w3.put("bundle", "userprofile.js");
+                response.accept(widgets);
+            } else{
+                JsonArray widgets = Json.createArrayBuilder()
+                        .add(
+                                Json.createObjectBuilder()
+                                        .add("SymbolicName", "meida.dee.dcms.user-profile")
+                                        .add("Version", "0.0.1.SNAPSHOT")
+                                        .add("id", "3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a")
+                                        .add("instanceID", 0)
+                                        .add("cls", "d.cms.ui.component.Dashboard.Card")
+                                        .add("bundle", "userprofile.js")
+                                        .build()
+                        )
+                        .add(
+                                Json.createObjectBuilder()
+                                        .add("SymbolicName", "meida.dee.dcms.user-profile")
+                                        .add("Version", "0.0.1.SNAPSHOT")
+                                        .add("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
+                                        .add("instanceID", 1)
+                                        .add("cls", "d.cms.ui.component.Dashboard.Card")
+                                        .add("bundle", "userprofile.js")
+                                        .build()
+                        )
+                        .build();
 
-                JSONArray widgets = new JSONArray();
-                widgets.put(w2);
-                widgets.put(w1);
-                widgets.put(w3);
 
-                response.put("data", widgets);
-                sendMessage.accept(response);
-
-            } catch (JSONException ex){
-                logRef.get().log(LogService.LOG_ERROR, "JSON Write Error", ex);
+                response.accept(widgets);
             }
 
         });
@@ -90,19 +119,14 @@ public class DashboardPanel implements GUIComponent, EventHandler {
     @Override
     public void handleEvent(Event event) {
 
-        Consumer<JSONObject> sendMessage = (Consumer<JSONObject>) event.getProperty("sendMessage");
-        JSONObject message = (JSONObject) event.getProperty("message");
+        Consumer<JsonValue> response = (Consumer<JsonValue>) event.getProperty("response");
+        JsonObject message = (JsonObject) event.getProperty("message");
 
-        try {
-            JSONArray cmdList = message.getJSONArray("parameters");
-            for( int i = 0 ; i < cmdList.length(); ++i) {
-                JSONObject cmdObject = cmdList.getJSONObject(i);
-                String command = cmdObject.getString("command");
-                if (commands.containsKey(command))
-                    commands.get(command).accept(message, sendMessage);
-            }
-        } catch (JSONException e) {
-            logRef.get().log(LogService.LOG_ERROR, "JSON READ Error", e);
-        }
+        JsonArray cmdList = message.getJsonArray("parameters");
+        cmdList.forEach( (cmdObject)->{
+            String command = ((JsonObject)cmdObject).getString("command");
+            if (commands.containsKey(command))
+                commands.get(command).accept((JsonObject)cmdObject, response);
+        });
     }
 }

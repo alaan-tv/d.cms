@@ -16,7 +16,7 @@ transportInit( ()=>{
     */
     let allInitializationPromise = [];
     request('components/essential/bundles', {command: 'list'})
-        .then( ({bundles})=>{
+        .then( (bundles)=>{
             bundles.forEach( (bundleInfo)=>{
 
                 let promise = new Promise( (resolve, reject)=>{

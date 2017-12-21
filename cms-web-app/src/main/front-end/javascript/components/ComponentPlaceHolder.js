@@ -5,7 +5,7 @@ import {BundleContext} from "../service/BundleContext";
 
 class ComponentPlaceHolder extends Container {
     constructor(props) {
-        let { context, service, filter: {SymbolicName, Version, id}, bundle, autoInstallBundle, instanceID } = props;
+        let { renderer, context, service, filter: {SymbolicName, Version, id}, bundle, autoInstallBundle, instanceID } = props;
         if (!service)
             throw new Error(`ComponentPlaceHolder component requires service attribute.`);
         super(context || bundleContext, service, props);
@@ -13,6 +13,8 @@ class ComponentPlaceHolder extends Container {
         this.componentProps = {
             instanceID, SymbolicName, Version, id
         };
+
+        this.renderer = renderer || this.defaultRenderer.bind(this);
 
         //auto install bundle
         if( SymbolicName && Version && bundle && id && autoInstallBundle ){
@@ -22,13 +24,17 @@ class ComponentPlaceHolder extends Container {
                 SymbolicName: SymbolicName,
                 Version: Version
             }, (bundleContext, exports)=>{
-                console.info(`%cBundle: ${SymbolicName}-${Version}\nJS Module: ${bundlePath} installed.`, 'color: green;');
+                //console.info(`%cBundle: ${SymbolicName}-${Version}\nJS Module: ${bundlePath} installed.`, 'color: green;');
             });
         }
     }
 
+    defaultRenderer(component, idx){
+        return React.createElement(component, {key: idx, ...this.componentProps}, null);
+    }
+
     render() {
-        return this.state.components.map((c, idx) => React.createElement(c, {key: idx, ...this.componentProps}, null));
+        return this.state.components.map(this.renderer);
     }
 }
 
@@ -39,7 +45,8 @@ ComponentPlaceHolder.propTypes = {
         PropTypes.shape({})
     ]),
     context: PropTypes.instanceOf(BundleContext),
-    autoInstallBundle: PropTypes.bool
+    autoInstallBundle: PropTypes.bool,
+    renderer: PropTypes.func
 };
 
 

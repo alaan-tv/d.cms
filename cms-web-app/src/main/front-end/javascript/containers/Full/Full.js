@@ -7,13 +7,18 @@ import Breadcrumb from '../../components/Breadcrumb';
 import Aside from '../../components/Aside';
 import Footer from '../../components/Footer';
 import {ServiceTracker} from "../../service/ServiceTracker";
+import {extendObservable} from 'mobx';
 
 class Full extends Component {
     constructor(props){
         super(props);
         this.state = {
             routers: []
-        }
+        };
+
+        this.breadcrumb = extendObservable({}, {
+            path: []
+        });
     }
 
     componentWillMount() {
@@ -61,11 +66,14 @@ class Full extends Component {
                 <div className="app-body">
                     <Sidebar {...this.props}/>
                     <main className="main">
-                        <Breadcrumb/>
+                        <Breadcrumb breadcrumb={this.breadcrumb} />
                         <Container fluid>
                             <Switch>
                                 {this.state.routers.map( (router, indx) =>
-                                    <Route key={indx} path={router.path} name={router.name} component={router.component}/>
+                                    <Route key={indx} path={router.path} name={router.name} component={ props => {
+                                        this.breadcrumb.path = [];
+                                        return React.createElement(router.component, {...props, breadcrumb: this.breadcrumb }, null);
+                                    }} />
                                 )}
                                 <Redirect from="/" to="/dashboard"/>
                             </Switch>

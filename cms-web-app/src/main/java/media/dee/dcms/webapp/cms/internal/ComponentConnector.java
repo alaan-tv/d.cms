@@ -2,9 +2,6 @@ package media.dee.dcms.webapp.cms.internal;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.webapp.cms.components.GUIComponent;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -16,6 +13,7 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
+import javax.json.*;
 import javax.websocket.Session;
 import java.io.File;
 import java.util.HashMap;
@@ -25,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Component(property= EventConstants.EVENT_TOPIC + "=components/essential/bundles", immediate = true)
 public class ComponentConnector implements IComponentConnector, EventHandler {
@@ -33,39 +30,41 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
     private final AtomicReference<WebSocketEndpoint> wsEndpoint = new AtomicReference<>();
     private final List<GUIComponent> guiComponents = new LinkedList<>();
     private final List<HttpService> httpServiceList = new LinkedList<>();
+    private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
 
-    private static JSONObject getInstallCommand(GUIComponent component){
+    private static JsonObject getInstallCommand(GUIComponent component){
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
-        JSONObject jsonObject = new JSONObject();
-        JSONObject bundleObject = new JSONObject();
-        try {
-            jsonObject.put("action", "bundle.install");
-            jsonObject.put("bundle", bundleObject);
-            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
-            bundleObject.put("SymbolicName", bundle.getSymbolicName() );
-            bundleObject.put("Version", bundle.getVersion().toString() );
-        } catch (JSONException e) {
-            //error
-        }
-        return jsonObject;
+
+        JsonObject jsonBundle = Json.createObjectBuilder()
+                .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ))
+                .add("SymbolicName", bundle.getSymbolicName() )
+                .add("Version", bundle.getVersion().toString() )
+                .build();
+
+        return Json.createObjectBuilder()
+                .add("action", "bundle.install")
+                .add("bundle", jsonBundle )
+                .build();
     }
 
-    private static JSONObject getUnInstallCommand(GUIComponent component){
+    private static JsonObject getUnInstallCommand(GUIComponent component){
+
+
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
-        JSONObject jsonObject = new JSONObject();
-        JSONObject bundleObject = new JSONObject();
-        try {
-            jsonObject.put("action", "bundle.uninstall");
-            jsonObject.put("bundle", bundleObject);
-            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ));
-            bundleObject.put("SymbolicName", bundle.getSymbolicName() );
-            bundleObject.put("Version", bundle.getVersion().toString() );
-        } catch (JSONException e) {
-            //error
-        }
-        return jsonObject;
+
+        JsonObject jsonBundle = Json.createObjectBuilder()
+                .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ))
+                .add("SymbolicName", bundle.getSymbolicName() )
+                .add("Version", bundle.getVersion().toString() )
+                .build();
+
+        return Json.createObjectBuilder()
+                .add("action", "bundle.uninstall")
+                .add("bundle", jsonBundle )
+                .build();
+
     }
 
     private void registerModuleResources(HttpService httpService, GUIComponent guiComponent){
@@ -99,39 +98,23 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
         bundle.getBundleContext().ungetService(ref);
     }
 
-
-    private Map<String, BiConsumer<JSONObject, Consumer<JSONObject>>> commands = new HashMap<>();
-
     public ComponentConnector(){
-        commands.put("list", (message, sendMessage)->{
-            int rest = 100;
+        commands.put("list", (message, response)->{
+            final JsonArrayBuilder bundles = Json.createArrayBuilder();
 
-            List<JSONObject> bundles = guiComponents.stream()
+            guiComponents.stream()
                     .filter( guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall() )
                     .map( (component)->{
                         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
                         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
-                        JSONObject bundleObject = new JSONObject();
-                        try {
-                            bundleObject.put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()));
-                            bundleObject.put("SymbolicName", bundle.getSymbolicName());
-                            bundleObject.put("Version", bundle.getVersion().toString());
-                        } catch (JSONException e) {
-                            //error
-                        }
-                        return bundleObject;
+                        return Json.createObjectBuilder()
+                                .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
+                                .add("SymbolicName", bundle.getSymbolicName() )
+                                .add("Version", bundle.getVersion().toString())
+                                .build();
                     })
-                    .collect(Collectors.toList());
-
-            try {
-                JSONObject result = new JSONObject();
-                result.put("bundles", bundles);
-                sendMessage.accept(result);
-
-            } catch (JSONException ex){
-                logRef.get().log(LogService.LOG_ERROR, "JSON Write Error", ex);
-            }
-
+                    .forEach( bundles::add );
+            response.accept(bundles.build());
         });
     }
 
@@ -206,19 +189,14 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
     @Override
     @SuppressWarnings("unchecked")
     public void handleEvent(Event event) {
-        Consumer<JSONObject> sendMessage = (Consumer<JSONObject>) event.getProperty("sendMessage");
-        JSONObject message = (JSONObject) event.getProperty("message");
+        Consumer<JsonValue> response = (Consumer<JsonValue>) event.getProperty("response");
+        JsonObject message = (JsonObject) event.getProperty("message");
 
-        try {
-            JSONArray cmdList = message.getJSONArray("parameters");
-            for( int i = 0 ; i < cmdList.length(); ++i) {
-                JSONObject cmdObject = cmdList.getJSONObject(i);
-                String command = cmdObject.getString("command");
-                if (commands.containsKey(command))
-                    commands.get(command).accept(message, sendMessage);
-            }
-        } catch (JSONException e) {
-            logRef.get().log(LogService.LOG_ERROR, "JSON READ Error", e);
-        }
+        JsonArray cmdList = message.getJsonArray("parameters");
+        cmdList.forEach( (cmdObject)->{
+            String command = ((JsonObject)cmdObject).getString("command");
+            if (commands.containsKey(command))
+                commands.get(command).accept(message, response);
+        });
     }
 }

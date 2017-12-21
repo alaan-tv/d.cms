@@ -1,55 +1,35 @@
 import React from 'react';
-import {Route, Link} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import {Breadcrumb, BreadcrumbItem} from 'reactstrap';
-import routes from '../../routes';
+import {observer} from "mobx-react";
 
-const findRouteName = url => routes[url];
-
-const getPaths = (pathname) => {
-  const paths = ['/'];
-
-  if (pathname === '/') return paths;
-
-  pathname.split('/').reduce((prev, curr, index) => {
-    const currPath = `${prev}/${curr}`;
-    paths.push(currPath);
-    return currPath;
-  });
-  return paths;
-};
-
-const BreadcrumbsItem = ({...rest, match}) => {
-  const routeName = findRouteName(match.url);
-  if (routeName) {
+const BreadcrumbsItem = ({name, url, last}) => {
     return (
-      match.isExact ?
-        (
-          <BreadcrumbItem active>{routeName}</BreadcrumbItem>
-        ) :
-        (
-          <BreadcrumbItem>
-            <Link to={match.url || ''}>
-              {routeName}
-            </Link>
-          </BreadcrumbItem>
-        )
+        last ?
+            (
+                <BreadcrumbItem active>{name}</BreadcrumbItem>
+            ) :
+            (
+                <BreadcrumbItem>
+                    <Link to={url || ''}>
+                        {name}
+                    </Link>
+                </BreadcrumbItem>
+            )
     );
-  }
-  return null;
 };
 
-const Breadcrumbs = ({...rest, location : {pathname}, match}) => {
-  const paths = getPaths(pathname);
-  const items = paths.map((path, i) => <Route key={i++} path={path} component={BreadcrumbsItem}/>);
-  return (
-    <Breadcrumb>
-      {items}
-    </Breadcrumb>
-  );
-};
+const Breadcrumbs = observer( ({breadcrumb}) => {
+    let path = [{
+        name: 'Home',
+        url: '/'
+    }, ...breadcrumb.path];
+    const items = path.map((path, i) => <BreadcrumbsItem key={i} name={path.name} url={path.url} last={breadcrumb.path.length === i}/>);
+    return (
+        <Breadcrumb>
+            {items}
+        </Breadcrumb>
+    );
+} );
 
-export default props => (
-  <div>
-    <Route path="/:path" component={Breadcrumbs} {...props} />
-  </div>
-);
+export default Breadcrumbs;

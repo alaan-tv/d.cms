@@ -4,7 +4,6 @@ let request = (action, ...args) => {
         const seq = reqSequence++;
 
         globalEmitter.once(`ws:response:data:${seq}`, ({action, response}, ...args)=>{
-            console.log(`%cRequest action=${action} is resolved`, 'color: green');
             resolve(response, ...args);
         });
 
