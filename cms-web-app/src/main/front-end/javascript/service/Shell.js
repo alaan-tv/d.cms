@@ -38,10 +38,8 @@ const services = (filter)=>{
 const echo = (action, message)=>{
     globalEmitter.emit(`ws:request`, {
         action: 'transport',
-        requestID: seq,
         parameters: {
-            action,
-            message
+            action, ...message
         }
     });
 };

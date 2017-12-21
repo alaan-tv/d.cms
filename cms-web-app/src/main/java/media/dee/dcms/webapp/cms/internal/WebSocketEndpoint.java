@@ -166,8 +166,11 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     @Override
     @SuppressWarnings("unchecked")
     public void handleEvent(Event event) {
-        Consumer<JsonObject> response = (Consumer<JsonObject>) event.getProperty("basicResponse");
+        Consumer<JsonValue> response = (Consumer<JsonValue>) event.getProperty("basicResponse");
         JsonObject message = (JsonObject) event.getProperty("message");
-        response.accept(message);
+        JsonValue parameters = message.get("parameters");
+        if( parameters instanceof JsonArray)
+            ((JsonArray)parameters).forEach(response);
+        else response.accept(parameters);
     }
 }

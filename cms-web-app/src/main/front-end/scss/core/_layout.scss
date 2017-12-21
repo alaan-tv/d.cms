@@ -13,6 +13,8 @@ app-root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: radial-gradient(ellipse at 60%, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+  background-color: lightgray;
 }
 
 .app-header {
