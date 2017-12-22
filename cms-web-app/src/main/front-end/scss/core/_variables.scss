@@ -48,7 +48,7 @@ $navbar-border: (
 )  !default;
 $navbar-brand-width:                  155px !default;
 $navbar-brand-bg:                     #fff !default;
-$navbar-brand-logo:                   url('../img/logo.png') !default;
+$navbar-brand-logo:                   url('../img/logo.svg') !default;
 $navbar-brand-logo-size:              70px auto !default;
 $navbar-brand-border: (
   bottom: (
@@ -64,9 +64,9 @@ $navbar-brand-minimized-logo:         url('../img/logo-symbol.png') !default;
 $navbar-brand-minimized-logo-size:    24px !default;
 $navbar-brand-minimized-border:       $navbar-brand-border !default;
 
-$navbar-color:                        $gray-600 !default;
-$navbar-hover-color:                  $gray-800 !default;
-$navbar-active-color:                 $gray-800 !default;
+$navbar-color:                        $white !default;
+$navbar-hover-color:                  $yellow !default;
+$navbar-active-color:                 $yellow !default;
 $navbar-disabled-color:               $gray-300 !default;
 
 $navbar-toggler-icon:                 str-replace(url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='#{$navbar-color}' stroke-width='2.25' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"), "#", "%23") !default;

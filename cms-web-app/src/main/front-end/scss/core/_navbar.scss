@@ -4,21 +4,17 @@
   height: $navbar-height;
   padding: 0;
   margin: 0;
-  background-color: $navbar-bg;
-  @include borders($navbar-border);
+  background: linear-gradient(to bottom, rgba(59,103,158,1) 0%,rgba(43,136,217,1) 50%,rgba(32,124,202,1) 51%,rgba(125,185,232,1) 100%);
 
   .navbar-brand {
     display: inline-block;
     width: $navbar-brand-width;
     height: $navbar-height;
-    padding: $navbar-padding-y $navbar-padding-x;
+    padding: $navbar-padding-y 0;
     margin-right: 0;
-    background-color: $navbar-brand-bg;
     background-image: $navbar-brand-logo;
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: $navbar-brand-logo-size;
-    @include borders($navbar-brand-border);
   }
 
   .navbar-toggler {

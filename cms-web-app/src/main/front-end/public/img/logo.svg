@@ -1,0 +1,27 @@
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	        viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+			<path d="M -800 -256,A 800 200 0 0 0 0 0"
+				stroke="none"
+				fill="none" id="theMotionPath"/>
+
+            <g>
+                <path id="p1" transform="translate(512) rotate(90 0 0)" style="fill:#5EDAFF;" d="M256,0l-33.537,103.898L256,433.747c31.301-74.9,82.199-45.834,82.199-160.978
+                    C338.199,184.488,294.009,0,256,0z" />
+                <path id="p2" transform="translate(512) rotate(90 0 0)" style="fill:#ADEBFF;" d="M256,0v282.763l-72.038-105.575C199.233,92.026,229.159,0,256,0z" />
+                <path id="p3" transform="translate(512) rotate(90 0 0)" style="fill:#5EDAFF;" d="M256,249.226v95.771l-79.818-113.355c1.744-17.093,4.405-35.605,7.781-54.453L256,249.226z"/>
+                <path id="p4" transform="translate(512) rotate(90 0 0)" style="fill:#ADEBFF;" d="M256,311.459v122.288c-31.301-74.9-82.199-45.834-82.199-160.978c0-12.129,0.838-26.081,2.381-41.128
+                    L256,311.459z"/>
+                <path transform="translate(512) rotate(90 0 0)" style="fill:#4B58E3;" d="M256,512c-4.939,0-8.943-4.004-8.943-8.943V33.537c0-4.939,4.004-8.943,8.943-8.943
+                    c4.939,0,8.943,4.004,8.943,8.943v469.52C264.943,507.996,260.939,512,256,512z"/>
+					<animateTransform attributeName="transform"
+	                      attributeType="XML"
+	                      type="rotate"
+	                      from="-40 256 256"
+	                      to="0 256 256"
+	                      dur="3000ms"
+	                      repeatCount="1"/>
+				  	<animateMotion dur="3s" repeatCount="1" calcMode="paced">
+		      			<mpath xlink:href="#theMotionPath"/>
+		    		</animateMotion>
+            </g>
+        </svg>
