@@ -2,7 +2,8 @@ import compileExpression from './Filterx';
 
 function isFunction(functionToCheck) {
     let getType = {};
-    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]'
+        && !functionToCheck.toString().startsWith('class');
 }
 
 

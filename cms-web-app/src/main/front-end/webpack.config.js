@@ -23,8 +23,8 @@ function config(DEBUG, VERBOSE) {
                         loader: 'babel-loader',
                         options: {
                             cacheDirectory: DEBUG,
-                            presets: ['react', 'env'],
-                            plugins: ['transform-object-rest-spread']
+                            presets: ['react', 'stage-0'],
+                            plugins: ['transform-decorators-legacy']
                         }
                     }
                 },

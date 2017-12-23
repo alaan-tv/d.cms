@@ -8,6 +8,7 @@ import Aside from '../../components/Aside';
 import Footer from '../../components/Footer';
 import {ServiceTracker} from "../../service/ServiceTracker";
 import {extendObservable} from 'mobx';
+import Dashboard from '../../views/Dashboard/Dashboard';
 
 class Full extends Component {
     constructor(props){
@@ -75,6 +76,7 @@ class Full extends Component {
                                         return React.createElement(router.component, {...props, breadcrumb: this.breadcrumb }, null);
                                     }} />
                                 )}
+                                <Route key='dashboard' path='/dashboard' component={Dashboard}/>
                                 <Redirect from="/" to="/dashboard"/>
                             </Switch>
                         </Container>
