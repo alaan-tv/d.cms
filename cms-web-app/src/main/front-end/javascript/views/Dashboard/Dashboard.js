@@ -13,7 +13,7 @@ class Dashboard extends Component {
     }
 
     componentWillMount() {
-        request('component/8a001058-5c6e-43d1-8e41-7868d9789817', {instanceID: 0, command: 'getData'})
+        request(`component/dashboard`, {instanceID: this.props.instanceID})
             .then( (data) => {
                 this.setState({components: data});
             })

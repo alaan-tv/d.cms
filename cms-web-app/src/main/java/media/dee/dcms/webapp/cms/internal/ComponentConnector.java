@@ -6,13 +6,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.*;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.websocket.Session;
 import java.io.File;
 import java.util.HashMap;
@@ -23,9 +23,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Component(property= EventConstants.EVENT_TOPIC + "=components/essential/bundles", immediate = true)
+@Component
+@ShortCommandName("components/essential/bundles")
 @SuppressWarnings("unused")
-public class ComponentConnector implements IComponentConnector, EventHandler {
+public class ComponentConnector implements IComponentConnector, WebComponent.Command {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final AtomicReference<WebSocketEndpoint> wsEndpoint = new AtomicReference<>();
     private final List<WebComponent> guiComponents = new LinkedList<>();
@@ -98,26 +99,6 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
         bundle.getBundleContext().ungetService(ref);
     }
 
-    @SuppressWarnings("unused")
-    public ComponentConnector(){
-        commands.put("list", (message, response)->{
-            final JsonArrayBuilder bundles = Json.createArrayBuilder();
-
-            guiComponents.stream()
-                    .filter( guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall() )
-                    .map( (component)->{
-                        AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
-                        Bundle bundle = FrameworkUtil.getBundle(component.getClass());
-                        return Json.createObjectBuilder()
-                                .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
-                                .add("SymbolicName", bundle.getSymbolicName() )
-                                .add("Version", bundle.getVersion().toString())
-                                .build();
-                    })
-                    .forEach( bundles::add );
-            response.accept(bundles.build());
-        });
-    }
 
     @Activate
     public void activate(){
@@ -188,16 +169,21 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void handleEvent(Event event) {
-        Consumer<JsonValue> response = (Consumer<JsonValue>) event.getProperty("response");
-        JsonObject message = (JsonObject) event.getProperty("message");
+    public JsonValue execute(JsonValue... arguments) {
+        final JsonArrayBuilder bundles = Json.createArrayBuilder();
 
-        JsonArray cmdList = message.getJsonArray("parameters");
-        cmdList.forEach( (cmdObject)->{
-            String command = ((JsonObject)cmdObject).getString("command");
-            if (commands.containsKey(command))
-                commands.get(command).accept(message, response);
-        });
+        guiComponents.stream()
+                .filter( guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall() )
+                .map( (component)->{
+                    AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
+                    Bundle bundle = FrameworkUtil.getBundle(component.getClass());
+                    return Json.createObjectBuilder()
+                            .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
+                            .add("SymbolicName", bundle.getSymbolicName() )
+                            .add("Version", bundle.getVersion().toString())
+                            .build();
+                })
+                .forEach( bundles::add );
+        return bundles.build();
     }
 }

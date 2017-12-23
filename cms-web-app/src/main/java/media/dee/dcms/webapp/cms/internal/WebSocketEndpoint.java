@@ -1,12 +1,13 @@
 package media.dee.dcms.webapp.cms.internal;
 
+import media.dee.dcms.components.UUID;
+import media.dee.dcms.components.WebComponent;
 import media.dee.dcms.websocket.WebSocketService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
@@ -30,12 +31,16 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     private Map<String, Session> sessionMap = new HashMap<>();
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final List<IComponentConnector> componentConnectors = new LinkedList<>();
-    private EventAdmin eventAdmin;
+    private final Map<String, WebComponent.Command> commandMap = new Hashtable<>();
+    static private final WebComponent.Command errorCommand = new WebComponent.Command() {
+        @Override
+        public JsonValue execute(JsonValue... arguments) {
+            return Json.createObjectBuilder()
+                    .add("error", "not-fount")
+                    .build();
+        }
+    };
 
-    @Reference
-    void setEventAdmin( EventAdmin eventAdmin) {
-        this.eventAdmin = eventAdmin;
-    }
 
     @Reference
     void setLogService( LogService log ) {
@@ -52,6 +57,36 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     void unbindComponentConnector(IComponentConnector componentConnector){
         synchronized (this.componentConnectors) {
             this.componentConnectors.remove(componentConnector);
+        }
+    }
+
+    private String getCommandName(WebComponent.Command command){
+        Bundle bundle = FrameworkUtil.getBundle(command.getClass());
+        WebComponent.Command.For forAnnotation = command.getClass().getAnnotation(WebComponent.Command.For.class);
+        ShortCommandName shortCommandName = command.getClass().getAnnotation(ShortCommandName.class);
+        UUID uuid = forAnnotation == null ? null : forAnnotation.component().getAnnotation(UUID.class);
+        return String.format(
+                shortCommandName != null ? shortCommandName.value() : "component/%s/%s/%s/%s",
+                bundle.getSymbolicName(),
+                bundle.getVersion(),
+                uuid == null ? "" : uuid.value(),
+                forAnnotation == null ? "" : forAnnotation.value()
+        );
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, unbind = "unbindCommand")
+    void bindCommand(WebComponent.Command command){
+        synchronized (this.commandMap) {
+            String cmdName = getCommandName(command);
+            WebComponent.Command cmd = this.commandMap.putIfAbsent(cmdName, command);
+            if( cmd != null )
+                logRef.get().log(LogService.LOG_ERROR, String.format("Command[%s] is already registered", cmdName));
+        }
+    }
+
+    void unbindCommand(WebComponent.Command command){
+        synchronized (this.commandMap) {
+            this.commandMap.remove(getCommandName(command));
         }
     }
 
@@ -146,21 +181,33 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
         JsonReader reader = Json.createReader(new StringReader(message));
         JsonObject jsonMsg = reader.readObject();
 
-        Hashtable<String,Object> dict = new Hashtable<>();
-        Consumer<JsonValue> responseFunction = (msg) -> {
-            JsonObjectBuilder response = Json.createObjectBuilder();
-            response.add("action", String.format("response:data:%s", jsonMsg.getInt("requestID") ));
-            response.add("response", msg);
-            sendMessage(session, response.build() );
-        };
-        Consumer<JsonObject> basicResponse = (msg) -> {
-            sendMessage(session, msg );
-        };
-        dict.put("response",  responseFunction );
-        dict.put("basicResponse",  basicResponse );
-        dict.put("message",  jsonMsg );
-        Event event = new Event( jsonMsg.getString("action"), dict );
-        eventAdmin.postEvent(event);
+        String cmdName = jsonMsg.getString("action");
+        WebComponent.Command command = this.commandMap.getOrDefault(cmdName, errorCommand);
+
+        if( command != null ) {
+            JsonValue parameters = jsonMsg.get("parameters");
+            JsonValue response;
+            if( parameters instanceof JsonArray ){
+                JsonArray paramList = (JsonArray) parameters;
+                JsonValue[] values = new JsonValue[paramList.size()];
+                values = paramList.toArray(values);
+                response = command.execute(values);
+            } else{
+                response = command.execute(parameters);
+            }
+            if( response instanceof JsonObject){
+                JsonObject robj = (JsonObject)response;
+                if( robj.containsKey("action") ){
+                    sendMessage(session, robj);
+                    return;
+                }
+            }
+            sendMessage(
+                    session, Json.createObjectBuilder()
+                            .add("action", String.format("response:data:%s", jsonMsg.getInt("requestID") ))
+                            .add("response", response).build()
+            );
+        }
     }
 
     @Override
