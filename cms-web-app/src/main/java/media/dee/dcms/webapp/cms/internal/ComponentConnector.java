@@ -1,11 +1,10 @@
 package media.dee.dcms.webapp.cms.internal;
 
 import media.dee.dcms.components.AdminModule;
-import media.dee.dcms.webapp.cms.components.GUIComponent;
+import media.dee.dcms.components.WebComponent;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
@@ -25,14 +24,15 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Component(property= EventConstants.EVENT_TOPIC + "=components/essential/bundles", immediate = true)
+@SuppressWarnings("unused")
 public class ComponentConnector implements IComponentConnector, EventHandler {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final AtomicReference<WebSocketEndpoint> wsEndpoint = new AtomicReference<>();
-    private final List<GUIComponent> guiComponents = new LinkedList<>();
+    private final List<WebComponent> guiComponents = new LinkedList<>();
     private final List<HttpService> httpServiceList = new LinkedList<>();
     private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
 
-    private static JsonObject getInstallCommand(GUIComponent component){
+    private static JsonObject getInstallCommand(WebComponent component){
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
 
@@ -48,7 +48,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
                 .build();
     }
 
-    private static JsonObject getUnInstallCommand(GUIComponent component){
+    private static JsonObject getUnInstallCommand(WebComponent component){
 
 
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
@@ -67,7 +67,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
 
     }
 
-    private void registerModuleResources(HttpService httpService, GUIComponent guiComponent){
+    private void registerModuleResources(@SuppressWarnings("unused") HttpService httpService, WebComponent guiComponent){
         AdminModule adminModule = guiComponent.getClass().getAnnotation(AdminModule.class);
         String path = adminModule.value();
         File fPath = new File(path);
@@ -82,7 +82,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
         }
     }
 
-    private void unRegisterModuleResources(HttpService httpService, GUIComponent guiComponent){
+    private void unRegisterModuleResources(@SuppressWarnings("unused") HttpService httpService, WebComponent guiComponent){
         AdminModule adminModule = guiComponent.getClass().getAnnotation(AdminModule.class);
         String path = adminModule.value();
         File fPath = new File(path);
@@ -98,6 +98,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
         bundle.getBundleContext().ungetService(ref);
     }
 
+    @SuppressWarnings("unused")
     public ComponentConnector(){
         commands.put("list", (message, response)->{
             final JsonArrayBuilder bundles = Json.createArrayBuilder();
@@ -119,7 +120,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
     }
 
     @Activate
-    public void activate(ComponentContext ctx){
+    public void activate(){
         LogService log = logRef.get();
         log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
     }
@@ -161,7 +162,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, unbind = "unbindEssentialComponent", policy = ReferencePolicy.DYNAMIC)
-    public void bindEssentialComponent(GUIComponent component) {
+    public void bindEssentialComponent(WebComponent component) {
         synchronized (guiComponents) {
             guiComponents.add(component);
             httpServiceList.parallelStream()
@@ -172,7 +173,7 @@ public class ComponentConnector implements IComponentConnector, EventHandler {
         }
     }
 
-    public void unbindEssentialComponent( GUIComponent component ) {
+    public void unbindEssentialComponent( WebComponent component ) {
         synchronized (guiComponents) {
             guiComponents.remove(component);
             httpServiceList.parallelStream()

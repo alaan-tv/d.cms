@@ -2,6 +2,7 @@ package media.dee.dcms.webapp.cms.components;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.UUID;
+import media.dee.dcms.components.WebComponent;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
 @AdminModule(value = "/webapp/js/layout/Menubar", autoInstall = true)
 @Component(property= EventConstants.EVENT_TOPIC + "=component/8a001058-5c6e-43d1-8e41-7868d9789817", immediate = true)
 @UUID("8a001058-5c6e-43d1-8e41-7868d9789817")
-public class DashboardPanel implements GUIComponent, EventHandler {
+public class DashboardPanel implements WebComponent, EventHandler {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
 

@@ -1,6 +1,6 @@
 package media.dee.dcms.filebundles;
 
-import media.dee.dcms.CoreConstants;
+import media.dee.dcms.bundle.mananger.Constants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -31,7 +31,7 @@ public class FileBundleActivator implements BundleActivator{
         /**
          * baseDir is the root directory of the project.
          */
-        File baseDir = new File(bundleContext.getProperty(CoreConstants.BASE_URI_PROPERTY)).getParentFile().getParentFile().getParentFile();
+        File baseDir = new File(bundleContext.getProperty(Constants.BASE_URI_PROPERTY)).getParentFile().getParentFile().getParentFile();
 
         String bundles = resourceBundle.getString("bundles");
         StringTokenizer tokenizer = new StringTokenizer(bundles,";");

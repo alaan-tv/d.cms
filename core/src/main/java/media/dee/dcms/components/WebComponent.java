@@ -7,7 +7,6 @@ import java.util.Map;
  * WebComponent is edited and configured on admin interface via LayoutEngine<br/>.
  * Each layout setup is persisted on database with reference to the ID of the WebComponent.
  */
-@UUID(value = "" )
 public interface WebComponent {
-    void setConfig(Map<String,Object> config);
+
 }

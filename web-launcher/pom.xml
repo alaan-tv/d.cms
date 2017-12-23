@@ -62,7 +62,7 @@
         <!-- core dee cms specs and interfaces -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>bundle-manager</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

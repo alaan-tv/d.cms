@@ -7,8 +7,7 @@
 	<packaging>pom</packaging>
 	<modules>
         <module>core</module>
-		<module>osgi-support/asm-osgi</module>
-		<module>osgi-support/json-osgi</module>
+        <module>bundle-manager</module>
 		<module>web-launcher</module>
         <module>osgi-support/websocket-birdge</module>
         <module>osgi-support/websocket-service</module>
