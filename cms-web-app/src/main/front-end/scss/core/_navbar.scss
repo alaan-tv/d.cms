@@ -4,12 +4,13 @@
   height: $navbar-height;
   padding: 0;
   margin: 0;
-  background: linear-gradient(to bottom, rgba(59,103,158,1) 0%,rgba(43,136,217,1) 50%,rgba(32,124,202,1) 51%,rgba(125,185,232,1) 100%);
+  background-image: radial-gradient(circle at 50% 15px,rgba(0,0,0,0) 0,rgba(0,0,0,0) 50%,#00276c 100%);
+  background-color: #0050b2;
 
   .navbar-brand {
     display: inline-block;
     width: $navbar-brand-width;
-    height: $navbar-height;
+    height: $navbar-height - 10px;
     padding: $navbar-padding-y 0;
     margin-right: 0;
     background-image: $navbar-brand-logo;
@@ -113,10 +114,8 @@
     .app-header.navbar {
       .navbar-brand {
         width: $navbar-brand-minimized-width;
-        background-color: $navbar-brand-minimized-bg;
         background-image: $navbar-brand-minimized-logo;
         background-size: $navbar-brand-minimized-logo-size;
-        @include borders($navbar-brand-minimized-border);
       }
     }
   }
