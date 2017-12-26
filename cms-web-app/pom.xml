@@ -79,7 +79,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>meida.dee.dcms</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>core</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
