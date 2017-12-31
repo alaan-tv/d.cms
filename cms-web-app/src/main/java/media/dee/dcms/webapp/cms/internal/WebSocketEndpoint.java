@@ -16,10 +16,11 @@ import javax.json.*;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -118,26 +119,30 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
         }
     }
 
-    public <T extends JsonObject> Future<Void> sendMessageAsync(Session session, T message){
+    private  <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, T message){
         StringWriter stringWriter = new StringWriter();
         JsonWriter writer = Json.createWriter(stringWriter);
-        writer.writeObject(message);
+        writer.write(message);
         writer.close();
-        return session.getAsyncRemote().sendText(stringWriter.toString());
+        synchronized (session) {
+            return session.getAsyncRemote().sendText(stringWriter.toString());
+        }
     }
 
 
-    public <T extends JsonObject> void sendMessage(Session session, T message){
+    private <T extends JsonStructure> void sendMessage(final Session session, T message){
         try {
             StringWriter stringWriter = new StringWriter();
             JsonWriter writer = Json.createWriter(stringWriter);
-            writer.writeObject(message);
+            writer.write(message);
             writer.close();
-
-            session.getBasicRemote().sendText(stringWriter.toString());
-        } catch (IOException e) {
+            synchronized (session){
+                session.getBasicRemote().sendText(stringWriter.toString());
+            }
+        } catch (Throwable e) {
             e.printStackTrace();
-            sessionMap.remove(session.getId());
+            if( !session.isOpen() )
+                sessionMap.remove(session.getId());
         }
     }
 
@@ -178,36 +183,49 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
 
     @Override
     public void handleMessage(String path, String message, Session session) {
-        JsonReader reader = Json.createReader(new StringReader(message));
-        JsonObject jsonMsg = reader.readObject();
 
-        String cmdName = jsonMsg.getString("action");
-        WebComponent.Command command = this.commandMap.getOrDefault(cmdName, errorCommand);
+        CompletableFuture.runAsync( ()->{
 
-        if( command != null ) {
-            JsonValue parameters = jsonMsg.get("parameters");
-            JsonValue response;
-            if( parameters instanceof JsonArray ){
-                JsonArray paramList = (JsonArray) parameters;
-                JsonValue[] values = new JsonValue[paramList.size()];
-                values = paramList.toArray(values);
-                response = command.execute(values);
-            } else{
-                response = command.execute(parameters);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            if( response instanceof JsonObject){
-                JsonObject robj = (JsonObject)response;
-                if( robj.containsKey("action") ){
-                    sendMessage(session, robj);
-                    return;
+
+            JsonReader reader = Json.createReader(new StringReader(message));
+            JsonObject jsonMsg = reader.readObject();
+
+            String cmdName = jsonMsg.getString("action");
+            WebComponent.Command command = this.commandMap.getOrDefault(cmdName, errorCommand);
+
+            if( command != null ) {
+                JsonValue parameters = jsonMsg.get("parameters");
+                JsonValue response;
+                if( parameters instanceof JsonArray ){
+                    JsonArray paramList = (JsonArray) parameters;
+                    JsonValue[] values = new JsonValue[paramList.size()];
+                    values = paramList.toArray(values);
+                    response = command.execute(values);
+                } else{
+                    response = command.execute(parameters);
                 }
+                if( response instanceof JsonObject){
+                    JsonObject robj = (JsonObject)response;
+                    if( robj.containsKey("action") ){
+                        sendMessage(session, robj);
+                        return;
+                    }
+                }
+
+                sendMessage(
+                        session, Json.createObjectBuilder()
+                                .add("action", String.format("response:data:%s", jsonMsg.getInt("requestID") ))
+                                .add("response", response).build()
+                );
             }
-            sendMessage(
-                    session, Json.createObjectBuilder()
-                            .add("action", String.format("response:data:%s", jsonMsg.getInt("requestID") ))
-                            .add("response", response).build()
-            );
-        }
+
+        });
+
     }
 
     @Override

@@ -16,18 +16,23 @@
  */
 package media.dee.dcms.web.launcher.bridge;
 
+import org.osgi.framework.BundleContext;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public final class FrameworkInitializer implements ServletContextListener {
+    public static BundleContext BUNDLE_CONTEXT;
 	private FrameworkService service;
 
 	public void contextInitialized(ServletContextEvent event) {
 		this.service = new FrameworkService(event.getServletContext());
 		this.service.start();
+        BUNDLE_CONTEXT = this.service.getBundleContext();
 	}
 
 	public void contextDestroyed(ServletContextEvent event) {
 		this.service.stop();
+        BUNDLE_CONTEXT = null;
 	}
 }

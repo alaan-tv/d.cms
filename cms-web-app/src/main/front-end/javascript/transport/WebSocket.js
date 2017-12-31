@@ -11,6 +11,10 @@ function init(callback) {
     });
 
     socket.onopen = callback;
+
+    window.onclose = (event)=>{
+        socket.close(1, 'window closed');
+    }
 }
 
 export {init};

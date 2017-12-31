@@ -49,6 +49,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>${org.osgi.service.component.annotations}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
     </dependencies>
 
@@ -86,7 +93,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-Category>d.CMS</Bundle-Category>
-                        <Bundle-Activator>media.dee.dcms.websocket.birdge.WebSocketBridgeActivator</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>
