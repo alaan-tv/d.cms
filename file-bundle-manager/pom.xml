@@ -205,15 +205,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>javax.json</groupId>
-            <artifactId>javax.json-api</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-
     </dependencies>
 
 	<build>
@@ -248,7 +239,7 @@
                             <overWriteIfNewer>true</overWriteIfNewer>
                             <excludeTransitive>true</excludeTransitive>
                             <includeScope>provided</includeScope>
-                            <excludeArtifactIds>core,org.osgi.core,org.apache.felix.framework,javax.servlet-api,javax.websocket-api</excludeArtifactIds>
+                            <excludeArtifactIds>bundle-manager,core,org.osgi.core,org.apache.felix.framework,javax.servlet-api,javax.websocket-api</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
