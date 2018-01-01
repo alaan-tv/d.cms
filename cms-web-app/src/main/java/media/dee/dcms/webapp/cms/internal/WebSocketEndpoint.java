@@ -112,11 +112,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     }
 
     public void unbindWebSocketService( WebSocketService wsService ) {
-        try {
-            wsService.addEndpoint(this);
-        } catch (DeploymentException e) {
-            e.printStackTrace();
-        }
+        wsService.removeEndpoint(this);
     }
 
     private  <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, T message){
