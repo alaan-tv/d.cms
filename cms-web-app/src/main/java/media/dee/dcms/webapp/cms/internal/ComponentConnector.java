@@ -44,7 +44,7 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
                 .build();
 
         return Json.createObjectBuilder()
-                .add("action", "bundle.install")
+                .add("action", "bundwsServicele.install")
                 .add("bundle", jsonBundle )
                 .build();
     }
