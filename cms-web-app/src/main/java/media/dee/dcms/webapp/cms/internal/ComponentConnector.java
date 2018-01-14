@@ -33,23 +33,7 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
     private final List<HttpService> httpServiceList = new LinkedList<>();
     private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
 
-    private static JsonObject getInstallCommand(WebComponent component){
-        AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
-        Bundle bundle = FrameworkUtil.getBundle(component.getClass());
-
-        JsonObject jsonBundle = Json.createObjectBuilder()
-                .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value() ))
-                .add("SymbolicName", bundle.getSymbolicName() )
-                .add("Version", bundle.getVersion().toString() )
-                .build();
-
-        return Json.createObjectBuilder()
-                .add("action", "bundwsServicele.install")
-                .add("bundle", jsonBundle )
-                .build();
-    }
-
-    private static JsonObject getUnInstallCommand(WebComponent component){
+    private static JsonObject getCommand(WebComponent component,CommandType commandType){
 
 
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
@@ -62,13 +46,12 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
                 .build();
 
         return Json.createObjectBuilder()
-                .add("action", "bundle.uninstall")
+                .add("action", commandType.toString())
                 .add("bundle", jsonBundle )
                 .build();
 
     }
-
-    private void registerModuleResources(@SuppressWarnings("unused") HttpService httpService, WebComponent guiComponent){
+    private void ModuleResourcesAction(WebComponent guiComponent, ComponentResourcesAction resourcesAction ){
         AdminModule adminModule = guiComponent.getClass().getAnnotation(AdminModule.class);
         String path = adminModule.value();
         File fPath = new File(path);
@@ -77,28 +60,26 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
         ServiceReference<HttpService> ref = bundle.getBundleContext().getServiceReference(HttpService.class);
         HttpService bundleHttpService = bundle.getBundleContext().getService(ref);
         try {
-            bundleHttpService.registerResources(String.format("/cms/%s/%s%s", bundle.getSymbolicName(), bundle.getVersion().toString(), dir ), dir.toString(), null );
+            if (resourcesAction== ComponentResourcesAction.Register){
+                bundleHttpService.registerResources(String.format("/cms/%s/%s%s", bundle.getSymbolicName(), bundle.getVersion().toString(), dir ), dir.toString(), null );
+
+            }else if (resourcesAction== ComponentResourcesAction.UnRegister){
+                bundleHttpService.unregister( String.format("/cms/%s/%s%s", bundle.getSymbolicName(), bundle.getVersion().toString(), dir ) );
+            }
         } catch (Exception exception) {
-            logRef.get().log(LogService.LOG_ERROR, String.format("Error while registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
+            if (resourcesAction== ComponentResourcesAction.Register){
+                logRef.get().log(LogService.LOG_ERROR, String.format("Error while registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
+
+            } else if (resourcesAction== ComponentResourcesAction.UnRegister){
+                logRef.get().log(LogService.LOG_ERROR, String.format("Error while un-registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
+
+            }
+        }
+        if (resourcesAction== ComponentResourcesAction.UnRegister){
+            bundle.getBundleContext().ungetService(ref);
+
         }
     }
-
-    private void unRegisterModuleResources(@SuppressWarnings("unused") HttpService httpService, WebComponent guiComponent){
-        AdminModule adminModule = guiComponent.getClass().getAnnotation(AdminModule.class);
-        String path = adminModule.value();
-        File fPath = new File(path);
-        File dir = fPath.getParentFile();
-        Bundle bundle = FrameworkUtil.getBundle(guiComponent.getClass());
-        ServiceReference<HttpService> ref = bundle.getBundleContext().getServiceReference(HttpService.class);
-        HttpService bundleHttpService = bundle.getBundleContext().getService(ref);
-        try {
-            bundleHttpService.unregister( String.format("/cms/%s/%s%s", bundle.getSymbolicName(), bundle.getVersion().toString(), dir ) );
-        } catch (Exception exception) {
-            logRef.get().log(LogService.LOG_ERROR, String.format("Error while un-registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
-        }
-        bundle.getBundleContext().ungetService(ref);
-    }
-
 
     @Activate
     public void activate(){
@@ -131,7 +112,7 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
         }
 
         guiComponents.parallelStream()
-                .forEach( guiComponent -> registerModuleResources(httpService, guiComponent ));
+                .forEach( guiComponent -> ModuleResourcesAction(guiComponent, ComponentResourcesAction.Register ));
     }
 
     public void unbindHttpService(HttpService httpService){
@@ -139,7 +120,7 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
             httpServiceList.remove(httpService);
         }
         guiComponents.parallelStream()
-                .forEach( guiComponent -> unRegisterModuleResources(httpService, guiComponent ));
+                .forEach( guiComponent -> ModuleResourcesAction(guiComponent, ComponentResourcesAction.UnRegister ));
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, unbind = "unbindEssentialComponent", policy = ReferencePolicy.DYNAMIC)
@@ -147,10 +128,11 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
         synchronized (guiComponents) {
             guiComponents.add(component);
             httpServiceList.parallelStream()
-                    .forEach( httpService -> registerModuleResources(httpService, component));
+                    .forEach( httpService -> ModuleResourcesAction(component, ComponentResourcesAction.Register ));
             AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
             if( adminModule.autoInstall() )
-                wsEndpoint.get().sendAll(getInstallCommand(component));
+
+                wsEndpoint.get().sendAll(getCommand(component,CommandType.Install));
         }
     }
 
@@ -158,8 +140,8 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
         synchronized (guiComponents) {
             guiComponents.remove(component);
             httpServiceList.parallelStream()
-                    .forEach( httpService -> unRegisterModuleResources(httpService, component));
-            wsEndpoint.get().sendAll(getUnInstallCommand(component));
+                    .forEach( httpService -> ModuleResourcesAction(component, ComponentResourcesAction.UnRegister ));
+            wsEndpoint.get().sendAll(getCommand(component,CommandType.Uninstall));
         }
     }
 
