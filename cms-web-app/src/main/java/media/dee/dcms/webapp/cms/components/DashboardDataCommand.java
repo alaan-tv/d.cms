@@ -23,76 +23,33 @@ public class DashboardDataCommand implements WebComponent.Command {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
 
     @Reference
-    void setLogService( LogService log ) {
+    void setLogService(LogService log) {
         logRef.set(log);
     }
 
     @Override
     public JsonValue execute(JsonValue... command) {
-        int instanceID = ((JsonObject)command[0]).getInt("instanceID");
+        int instanceID = ((JsonObject) command[0]).getInt("instanceID");
 
-        if (instanceID <= 0) {
-
-            JsonArray widgets = Json.createArrayBuilder()
-                    .add(
-                            Json.createObjectBuilder()
-                                    .add("SymbolicName", "meida.dee.dcms.user-profile")
-                                    .add("Version", "0.0.1.SNAPSHOT")
-                                    .add("id", "3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a")
-                                    .add("instanceID", 0)
-                                    .add("cls", "d.cms.ui.component.Dashboard.Card")
-                                    .add("bundle", "userprofile.js")
-                                    .build()
-                    )
-                    .add(
-                            Json.createObjectBuilder()
-                                    .add("SymbolicName", "meida.dee.dcms.user-profile")
-                                    .add("Version", "0.0.1.SNAPSHOT")
-                                    .add("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
-                                    .add("instanceID", 1)
-                                    .add("cls", "d.cms.ui.component.Dashboard.Card")
-                                    .add("bundle", "userprofile.js")
-                                    .build()
-                    )
-                    .add(
-                            Json.createObjectBuilder()
-                                    .add("SymbolicName", "meida.dee.dcms.user-profile")
-                                    .add("Version", "0.0.1.SNAPSHOT")
-                                    .add("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
-                                    .add("instanceID", 2)
-                                    .add("cls", "d.cms.ui.component.Dashboard.Card")
-                                    .add("bundle", "userprofile.js")
-                                    .build()
-                    )
+        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+        URL dataURL = bundle.getResource(String.format("/data/dashboard/%s.json", instanceID) );
+        if( dataURL == null ){
+            return Json.createObjectBuilder()
+                    .add("action","error")
+                    .add("code", "not-fount")
                     .build();
+        }
+        try (InputStream dataInStream = dataURL.openStream()){
+
+            return Json.createReader(dataInStream).readArray();
 
 
-            return widgets;
-        } else {
-            JsonArray widgets = Json.createArrayBuilder()
-                    .add(
-                            Json.createObjectBuilder()
-                                    .add("SymbolicName", "meida.dee.dcms.user-profile")
-                                    .add("Version", "0.0.1.SNAPSHOT")
-                                    .add("id", "3ecbd060-dd59-4d9a-a2cc-ca41f1562a4a")
-                                    .add("instanceID", 0)
-                                    .add("cls", "d.cms.ui.component.Dashboard.Card")
-                                    .add("bundle", "userprofile.js")
-                                    .build()
-                    )
-                    .add(
-                            Json.createObjectBuilder()
-                                    .add("SymbolicName", "meida.dee.dcms.user-profile")
-                                    .add("Version", "0.0.1.SNAPSHOT")
-                                    .add("id", "5d4b2f67-ee47-4a84-947d-d9b65d94e3ab")
-                                    .add("instanceID", 1)
-                                    .add("cls", "d.cms.ui.component.Dashboard.Card")
-                                    .add("bundle", "userprofile.js")
-                                    .build()
-                    )
+        } catch (IOException ex){
+            logRef.get().log(LogService.LOG_ERROR, "Error Reading data", ex);
+            return Json.createObjectBuilder()
+                    .add("action","error")
+                    .add("code", ex.getMessage())
                     .build();
-            return widgets;
-
         }
     }
 }

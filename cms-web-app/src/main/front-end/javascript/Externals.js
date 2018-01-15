@@ -7,10 +7,12 @@ import * as ReactStrap from 'reactstrap';
 import * as Request from './transport/Request';
 import * as Mobx from 'mobx';
 import * as MobxReact from 'mobx-react';
+import * as ReactDnD from 'react-dnd';
 import ComponentPlaceHolder from './components/ComponentPlaceHolder';
 
-window.React = React; //export as global variable
-window.ReactDOM = ReactDOM; //export as global variable
+//export as global variable
+window.React = React;
+window.ReactDOM = ReactDOM;
 window.ChartJS = ChartJS;
 window.ReactChartJS = ReactChartJS;
 window.ReactRouter = ReactRouter;
@@ -19,8 +21,8 @@ window.bundleContext = new BundleContext(null, null, {SymbolicName: 'ADMIN', Ver
 window.Request = Request;
 window.Mobx = Mobx;
 window.MobxReact = MobxReact;
+window.ReactDnD = ReactDnD;
 window.ComponentPlaceHolder = ComponentPlaceHolder;
-
 
 defineModule("react", [], () => {
     return React;
