@@ -6,3 +6,12 @@
     }
   }
 }
+
+.card {
+  height: 100%;
+  .chart-wrapper {
+    position: absolute;
+    width: calc(100% - 2.5rem);
+    height: calc(100% - 5rem);
+  }
+}
