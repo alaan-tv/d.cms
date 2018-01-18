@@ -1,12 +1,12 @@
 import {Component} from 'react';
-import {CardColumns} from 'reactstrap';
-import update from 'immutability-helper';
+import {Responsive, WidthProvider} from 'react-grid-layout';
+
+const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 export default class Dashboard extends Component {
 
   constructor(props){
     super(props);
-    this.moveWidget = this.moveWidget.bind(this);
     this.state = {
       /**
        * @components: list of dict, dict is:
@@ -17,7 +17,19 @@ export default class Dashboard extends Component {
        * 5. id: the identifier of the widget
        * 6. instanceID: the identifier of the widget instance
        */
-      components: []
+      components: [],
+      layouts: {
+        lg: [
+          {x: 0, y: 0, w: 2, h: 5},
+          {x: 2, y: 0, w: 1, h: 5},
+          {x: 0, y: 6, w: 3, h: 5}
+        ],
+        sm: [
+          {x: 0, y: 0, w: 1, h: 3},
+          {x: 0, y: 3, w: 1, h: 3},
+          {x: 0, y: 6, w: 1, h: 3}
+        ]
+      }
     };
   }
 
@@ -29,40 +41,38 @@ export default class Dashboard extends Component {
       .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
   }
 
-  moveWidget(dragIndex, hoverIndex) {
-    const {components} = this.state;
-    const dragWidget = components[dragIndex];
-
-    this.setState(
-      update(this.state, {
-        components: {
-          $splice: [[dragIndex, 1], [hoverIndex, 0, dragWidget]],
-        },
-      }),
-    )
+  onLayoutChange(layout, layouts) {
+    this.setState({layouts});
   }
 
   render() {
     return (
       <div className="animated fadeIn">
         <h1>Dashboard</h1>
-        <CardColumns className="cols-2 card-columns">
+        <ResponsiveReactGridLayout
+          className="layout"
+          cols={{lg: 3, sm: 1}}
+          breakpoints={{lg: 480, sm: 0}}
+          rowHeight={50}
+          layouts={this.state.layouts}
+          onLayoutChange={(layout, layouts) => this.onLayoutChange(layout, layouts)}
+        >
           {this.state.components.map(({cls, SymbolicName, Version, bundle, id, instanceID}, idx) => (
-            <ComponentPlaceHolder
-              key={idx}
-              index={idx}
-              service='d.cms.ui.component.Dashboard.Card'
-              bundle={bundle}
-              autoInstallBundle={true}
-              instanceID={instanceID}
-              filter={{
-                SymbolicName: SymbolicName,
-                Version: Version,
-                id: id
-              }}
-              moveWidget={this.moveWidget}/>
+            <div key={idx}>
+              <ComponentPlaceHolder
+                service='d.cms.ui.component.Dashboard.Card'
+                bundle={bundle}
+                autoInstallBundle={true}
+                instanceID={instanceID}
+                filter={{
+                  SymbolicName: SymbolicName,
+                  Version: Version,
+                  id: id
+                }}
+              />
+            </div>
           ))}
-        </CardColumns>
+        </ResponsiveReactGridLayout>
       </div>
     )
   }

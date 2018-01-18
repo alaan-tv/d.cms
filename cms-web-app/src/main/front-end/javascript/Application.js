@@ -10,12 +10,15 @@ import 'simple-line-icons/css/simple-line-icons.css';
 import '../scss/style.scss'
 // Temp fixes for other css libraries
 import '../scss/core/_override.scss'
+// Style files for React-Grid-Layout
+import '../node_modules/react-grid-layout/css/styles.css'
+import '../node_modules/react-resizable/css/styles.css'
 
 // Containers
 import Full from './containers/Full';
 
 
-export default ()=>{
+export default () => {
 
     ReactDOM.render((
         <BrowserRouter basename="/cms">

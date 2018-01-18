@@ -4,10 +4,10 @@ import * as ChartJS from 'chart.js';
 import * as ReactChartJS from 'react-chartjs-2';
 import * as ReactRouter from 'react-router-dom';
 import * as ReactStrap from 'reactstrap';
-import * as Request from './transport/Request';
 import * as Mobx from 'mobx';
 import * as MobxReact from 'mobx-react';
-import * as ReactDnD from 'react-dnd';
+import * as ReactGridLayout from 'react-grid-layout';
+import * as Request from './transport/Request';
 import ComponentPlaceHolder from './components/ComponentPlaceHolder';
 
 //export as global variable
@@ -21,19 +21,19 @@ window.bundleContext = new BundleContext(null, null, {SymbolicName: 'ADMIN', Ver
 window.Request = Request;
 window.Mobx = Mobx;
 window.MobxReact = MobxReact;
-window.ReactDnD = ReactDnD;
 window.ComponentPlaceHolder = ComponentPlaceHolder;
+window.ReactGridLayout = ReactGridLayout;
 
 defineModule("react", [], () => {
-    return React;
+  return React;
 });
 
 defineModule("react-dom", [], () => {
-    return ReactDOM;
+  return ReactDOM;
 });
 
 defineModule('bundleContext', [], ()=>{
-    return window.bundleContext;
+  return window.bundleContext;
 });
 
-export {React, ReactDOM, ChartJS, ReactChartJS, ReactRouter, ReactStrap}
+export {React, ReactDOM, ChartJS, ReactChartJS, ReactRouter, ReactStrap};

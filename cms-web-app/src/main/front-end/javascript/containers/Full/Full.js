@@ -1,19 +1,16 @@
 import React, {Component} from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import {Container} from 'reactstrap';
+import {extendObservable} from 'mobx';
 import Header from '../../components/Header';
 import Sidebar from '../../components/Sidebar';
 import Breadcrumb from '../../components/Breadcrumb';
 import Aside from '../../components/Aside';
 import Footer from '../../components/Footer';
 import {ServiceTracker} from "../../service/ServiceTracker";
-import {extendObservable} from 'mobx';
 import Dashboard from '../../views/Dashboard/Dashboard';
-import {DragDropContext} from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 
-@DragDropContext(HTML5Backend)
-class Full extends Component {
+export default class Full extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -91,5 +88,3 @@ class Full extends Component {
     );
   }
 }
-
-export default Full;
