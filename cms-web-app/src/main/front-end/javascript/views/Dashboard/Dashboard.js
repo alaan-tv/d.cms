@@ -1,7 +1,5 @@
 import {Component} from 'react';
-import {Responsive, WidthProvider} from 'react-grid-layout';
-
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
+import {CardColumns} from 'reactstrap';
 
 export default class Dashboard extends Component {
 
@@ -17,19 +15,7 @@ export default class Dashboard extends Component {
        * 5. id: the identifier of the widget
        * 6. instanceID: the identifier of the widget instance
        */
-      components: [],
-      layouts: {
-        lg: [
-          {x: 0, y: 0, w: 2, h: 5},
-          {x: 2, y: 0, w: 1, h: 5},
-          {x: 0, y: 6, w: 3, h: 5}
-        ],
-        sm: [
-          {x: 0, y: 0, w: 1, h: 3},
-          {x: 0, y: 3, w: 1, h: 3},
-          {x: 0, y: 6, w: 1, h: 3}
-        ]
-      }
+      components: []
     };
   }
 
@@ -41,38 +27,26 @@ export default class Dashboard extends Component {
       .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
   }
 
-  onLayoutChange(layout, layouts) {
-    this.setState({layouts});
-  }
-
   render() {
     return (
       <div className="animated fadeIn">
         <h1>Dashboard</h1>
-        <ResponsiveReactGridLayout
-          className="layout"
-          cols={{lg: 3, sm: 1}}
-          breakpoints={{lg: 480, sm: 0}}
-          rowHeight={50}
-          layouts={this.state.layouts}
-          onLayoutChange={(layout, layouts) => this.onLayoutChange(layout, layouts)}
-        >
-          {this.state.components.map(({cls, SymbolicName, Version, bundle, id, instanceID}, idx) => (
-            <div key={idx}>
-              <ComponentPlaceHolder
-                service='d.cms.ui.component.Dashboard.Card'
-                bundle={bundle}
-                autoInstallBundle={true}
-                instanceID={instanceID}
-                filter={{
-                  SymbolicName: SymbolicName,
-                  Version: Version,
-                  id: id
-                }}
-              />
-            </div>
-          ))}
-        </ResponsiveReactGridLayout>
+        <CardColumns className="cols-2 card-columns">
+        {this.state.components.map(({cls, SymbolicName, Version, bundle, id, instanceID}, idx) => (
+          <ComponentPlaceHolder
+            key={idx}
+            service='d.cms.ui.component.Dashboard.Card'
+            bundle={bundle}
+            autoInstallBundle={true}
+            instanceID={instanceID}
+            filter={{
+              SymbolicName: SymbolicName,
+              Version: Version,
+              id: id
+            }}
+          />
+        ))}
+        </CardColumns>
       </div>
     )
   }

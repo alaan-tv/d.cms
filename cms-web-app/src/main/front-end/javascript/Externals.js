@@ -6,7 +6,6 @@ import * as ReactRouter from 'react-router-dom';
 import * as ReactStrap from 'reactstrap';
 import * as Mobx from 'mobx';
 import * as MobxReact from 'mobx-react';
-import * as ReactGridLayout from 'react-grid-layout';
 import * as Request from './transport/Request';
 import ComponentPlaceHolder from './components/ComponentPlaceHolder';
 
@@ -22,7 +21,6 @@ window.Request = Request;
 window.Mobx = Mobx;
 window.MobxReact = MobxReact;
 window.ComponentPlaceHolder = ComponentPlaceHolder;
-window.ReactGridLayout = ReactGridLayout;
 
 defineModule("react", [], () => {
   return React;
