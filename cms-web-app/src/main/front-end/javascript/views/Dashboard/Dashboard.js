@@ -1,5 +1,35 @@
 import {Component} from 'react';
 import {CardColumns} from 'reactstrap';
+import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+
+// a little function to help us with reordering the result
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result;
+};
+
+// using some little inline style helpers to make the app look okay
+const grid = 8;
+const getItemStyle = (isDragging, draggableStyle) => ({
+  // some basic styles to make the items look a bit nicer
+  userSelect: 'none',
+  outline: isDragging ? '1px solid green' : 'none',
+  margin: `0 0 ${grid}px 0`,
+
+  // change background colour if dragging
+  background: isDragging ? 'lightgreen' : 'grey',
+
+  // styles we need to apply on draggables
+  ...draggableStyle,
+});
+const getListStyle = isDraggingOver => ({
+  background: isDraggingOver ? 'lightblue' : 'lightgrey',
+  padding: grid,
+  width: 250,
+});
 
 export default class Dashboard extends Component {
 
@@ -17,6 +47,7 @@ export default class Dashboard extends Component {
        */
       components: []
     };
+    this.onDragEnd = this.onDragEnd.bind(this);
   }
 
   componentWillMount() {
@@ -27,27 +58,64 @@ export default class Dashboard extends Component {
       .catch( (err) => console.error(`Error fetching [Dashboard] data: ${err}`));
   }
 
+  onDragEnd(result) {
+    if (!result.destination) {
+      return;
+    }
+
+    const components = reorder(
+      this.state.components,
+      result.source.index,
+      result.destination.index
+    );
+
+    this.setState({
+      components,
+    });
+  }
+
   render() {
     return (
-      <div className="animated fadeIn">
+      <DragDropContext onDragEnd={this.onDragEnd}>
         <h1>Dashboard</h1>
-        <CardColumns className="cols-2 card-columns">
-        {this.state.components.map(({cls, SymbolicName, Version, bundle, id, instanceID}, idx) => (
-          <ComponentPlaceHolder
-            key={idx}
-            service='d.cms.ui.component.Dashboard.Card'
-            bundle={bundle}
-            autoInstallBundle={true}
-            instanceID={instanceID}
-            filter={{
-              SymbolicName: SymbolicName,
-              Version: Version,
-              id: id
-            }}
-          />
-        ))}
-        </CardColumns>
-      </div>
+        <Droppable droppableId="droppable">
+          {(provided, snapshot) => (
+            <div ref={provided.innerRef}
+                 style={getListStyle(snapshot.isDraggingOver)}
+            >
+              {this.state.components.map(({cls, SymbolicName, Version, bundle, id, instanceID}, index) => (
+                <Draggable key={id + instanceID} draggableId={id + instanceID} index={index}>
+                  {(provided, snapshot) => (
+                    <div>
+                      <div ref={provided.innerRef}
+                           {...provided.draggableProps}
+                           {...provided.dragHandleProps}
+                           style={getItemStyle(
+                             snapshot.isDragging,
+                             provided.draggableProps.style,
+                           )}>
+                        <ComponentPlaceHolder
+                          service='d.cms.ui.component.Dashboard.Card'
+                          bundle={bundle}
+                          autoInstallBundle={true}
+                          instanceID={instanceID}
+                          filter={{
+                            SymbolicName: SymbolicName,
+                            Version: Version,
+                            id: id
+                          }}
+                        />
+                      </div>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     )
   }
 }

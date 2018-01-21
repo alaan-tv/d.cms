@@ -25,6 +25,7 @@
     "mobx-react": "^4.3.5",
     "prop-types": "^15.6.0",
     "react": "16.1.1",
+    "react-beautiful-dnd": "^4.0.1",
     "react-chartjs-2": "2.6.4",
     "react-dom": "16.1.1",
     "react-grid-layout": "^0.16.2",

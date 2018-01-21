@@ -6,6 +6,7 @@ import * as ReactRouter from 'react-router-dom';
 import * as ReactStrap from 'reactstrap';
 import * as Mobx from 'mobx';
 import * as MobxReact from 'mobx-react';
+import * as ReactBeautifulDND from 'react-beautiful-dnd'
 import * as Request from './transport/Request';
 import ComponentPlaceHolder from './components/ComponentPlaceHolder';
 
@@ -20,6 +21,7 @@ window.bundleContext = new BundleContext(null, null, {SymbolicName: 'ADMIN', Ver
 window.Request = Request;
 window.Mobx = Mobx;
 window.MobxReact = MobxReact;
+window.ReactBeautifulDND = ReactBeautifulDND;
 window.ComponentPlaceHolder = ComponentPlaceHolder;
 
 defineModule("react", [], () => {
