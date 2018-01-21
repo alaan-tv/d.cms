@@ -1,23 +1,20 @@
 package media.dee.dcms.web.launcher.websocket;
 
 import media.dee.dcms.websocket.WebSocketDispatcher;
-import org.osgi.framework.BundleContext;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import static media.dee.dcms.web.launcher.bridge.BundleContextFilter.BUNDLE_CONTEXT_THREAD_LOCAL;
+import static media.dee.dcms.web.launcher.bridge.FrameworkInitializer.BUNDLE_CONTEXT;
 
 @ServerEndpoint(value = "/{path}")
 public class WebSocketProxy {
 
     private WebSocketDispatcherTracker dispatcherTracker;
-    private BundleContext bundleContext;
 
     public WebSocketProxy(){
-        bundleContext = BUNDLE_CONTEXT_THREAD_LOCAL.get();
-        dispatcherTracker = new WebSocketDispatcherTracker(bundleContext);
+        dispatcherTracker = new WebSocketDispatcherTracker(BUNDLE_CONTEXT);
         dispatcherTracker.open();
     }
     @OnOpen
@@ -50,6 +47,9 @@ public class WebSocketProxy {
 
     @Override
     protected void finalize() throws Throwable {
+        if( dispatcherTracker == null )
+            return;
         dispatcherTracker.close();
+        dispatcherTracker = null;
     }
 }

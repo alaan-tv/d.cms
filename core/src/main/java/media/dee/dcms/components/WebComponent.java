@@ -16,9 +16,31 @@ import java.util.Map;
  */
 public interface WebComponent {
 
+
+
     interface Command {
         JsonValue execute(JsonValue ...arguments);
+        public enum CommandType {
+            Uninstall,
+            Install; //note semicolon needed only when extending behavior
 
+            //overrides and additions go here, below the enum constants
+
+            @Override public String toString(){
+      /*
+      * Either name() or super.toString() may be called here.
+      * name() is final, and always returns the exact name as specified in
+      * declaration; toString() is not final, and is intended for presentation
+      * to the user. It seems best to call name() here.
+      */
+                return "bundle." + name();
+            }
+
+        }
+        public enum ComponentResourcesAction{
+            Register,
+            UnRegister;//note semicolon needed only when extending behavior
+        }
         @Target(ElementType.TYPE)
         @Retention(RetentionPolicy.RUNTIME)
         public @interface For {

@@ -3,12 +3,14 @@ package media.dee.dcms.websocket.birdge;
 import media.dee.dcms.websocket.WebSocketDispatcher;
 import media.dee.dcms.websocket.WebSocketEndpoint;
 import media.dee.dcms.websocket.WebSocketService;
+import org.osgi.service.component.annotations.Component;
 
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocketService {
 
     private final ConcurrentHashMap<String, WebSocketEndpoint> endpoints = new ConcurrentHashMap<>();
