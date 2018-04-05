@@ -20,6 +20,7 @@ Dee.CMS a content management system built for media companies, to provide easy d
   * Install JDK 8
   * Install Maven 3x
   * Install Tomcat8
+  * Install Node.js 8.x
   * create directory for d.cms and plugins 'd.cms.project'
   * inside 'd.cms.project' clone d.cms project
   * inside 'd.cms.project' create 'd.plugins' directory
