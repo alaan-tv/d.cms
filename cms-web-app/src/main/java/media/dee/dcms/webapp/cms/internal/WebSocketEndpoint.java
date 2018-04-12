@@ -20,14 +20,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 @ServerEndpoint("cms")
-@Component(immediate = true, property= EventConstants.EVENT_TOPIC + "=transport")
-public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndpoint, EventHandler{
+@Component(immediate = true, property = EventConstants.EVENT_TOPIC + "=transport")
+public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndpoint, EventHandler {
 
     private Map<String, Session> sessionMap = new HashMap<>();
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
@@ -44,24 +43,24 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
 
 
     @Reference
-    void setLogService( LogService log ) {
+    void setLogService(LogService log) {
         logRef.set(log);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, unbind = "unbindComponentConnector")
-    void bindComponentConnector(IComponentConnector componentConnector){
+    void bindComponentConnector(IComponentConnector componentConnector) {
         synchronized (this.componentConnectors) {
             this.componentConnectors.add(componentConnector);
         }
     }
 
-    void unbindComponentConnector(IComponentConnector componentConnector){
+    void unbindComponentConnector(IComponentConnector componentConnector) {
         synchronized (this.componentConnectors) {
             this.componentConnectors.remove(componentConnector);
         }
     }
 
-    private String getCommandName(WebComponent.Command command){
+    private String getCommandName(WebComponent.Command command) {
         Bundle bundle = FrameworkUtil.getBundle(command.getClass());
         WebComponent.Command.For forAnnotation = command.getClass().getAnnotation(WebComponent.Command.For.class);
         ShortCommandName shortCommandName = command.getClass().getAnnotation(ShortCommandName.class);
@@ -76,16 +75,16 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, unbind = "unbindCommand")
-    void bindCommand(WebComponent.Command command){
+    void bindCommand(WebComponent.Command command) {
         synchronized (this.commandMap) {
             String cmdName = getCommandName(command);
             WebComponent.Command cmd = this.commandMap.putIfAbsent(cmdName, command);
-            if( cmd != null )
+            if (cmd != null)
                 logRef.get().log(LogService.LOG_ERROR, String.format("Command[%s] is already registered", cmdName));
         }
     }
 
-    void unbindCommand(WebComponent.Command command){
+    void unbindCommand(WebComponent.Command command) {
         synchronized (this.commandMap) {
             this.commandMap.remove(getCommandName(command));
         }
@@ -93,13 +92,13 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
 
 
     @Activate
-    public void activate(ComponentContext ctx){
+    public void activate(ComponentContext ctx) {
         LogService log = logRef.get();
         log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
     }
 
     @Deactivate
-    public void deactivate(ComponentContext ctx){
+    public void deactivate(ComponentContext ctx) {
     }
 
     @Reference(unbind = "unbindWebSocketService", cardinality = ReferenceCardinality.AT_LEAST_ONE)
@@ -111,11 +110,11 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
         }
     }
 
-    public void unbindWebSocketService( WebSocketService wsService ) {
+    public void unbindWebSocketService(WebSocketService wsService) {
         wsService.removeEndpoint(this);
     }
 
-    private  <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, T message){
+    private <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, T message) {
         StringWriter stringWriter = new StringWriter();
         JsonWriter writer = Json.createWriter(stringWriter);
         writer.write(message);
@@ -126,36 +125,35 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     }
 
 
-    private <T extends JsonStructure> void sendMessage(final Session session, T message){
+    private <T extends JsonStructure> void sendMessage(final Session session, T message) {
         try {
             StringWriter stringWriter = new StringWriter();
             JsonWriter writer = Json.createWriter(stringWriter);
             writer.write(message);
             writer.close();
-            synchronized (session){
+            synchronized (session) {
                 session.getBasicRemote().sendText(stringWriter.toString());
             }
         } catch (Throwable e) {
             e.printStackTrace();
-            if( !session.isOpen() )
+            if (!session.isOpen())
                 sessionMap.remove(session.getId());
         }
     }
 
 
-
-    protected <T extends JsonObject> void sendAll(T message){
+    protected <T extends JsonObject> void sendAll(T message) {
         sessionMap.values()
                 .parallelStream()
-                .forEach( session -> sendMessageAsync(session, message));
+                .forEach(session -> sendMessageAsync(session, message));
     }
 
-    private void sendWelcomeMessage(Session session){
+    private void sendWelcomeMessage(Session session) {
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         JsonObject jsonObject = Json.createObjectBuilder()
                 .add("action", "system.info")
-                .add("SymbolicName", bundle.getSymbolicName() )
-                .add("Version", bundle.getVersion().toString() )
+                .add("SymbolicName", bundle.getSymbolicName())
+                .add("Version", bundle.getVersion().toString())
                 .build();
         sendMessage(session, jsonObject);
     }
@@ -164,7 +162,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     public void open(String path, Session session) {
         sessionMap.put(session.getId(), session);
         sendWelcomeMessage(session);
-        this.componentConnectors.forEach( connector -> connector.newSession(session));
+        this.componentConnectors.forEach(connector -> connector.newSession(session));
     }
 
     @Override
@@ -180,7 +178,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     @Override
     public void handleMessage(String path, String message, Session session) {
 
-        CompletableFuture.runAsync( ()->{
+        CompletableFuture.runAsync(() -> {
 
             try {
                 Thread.sleep(500);
@@ -194,20 +192,20 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
             String cmdName = jsonMsg.getString("action");
             WebComponent.Command command = this.commandMap.getOrDefault(cmdName, errorCommand);
 
-            if( command != null ) {
+            if (command != null) {
                 JsonValue parameters = jsonMsg.get("parameters");
                 JsonValue response;
-                if( parameters instanceof JsonArray ){
+                if (parameters instanceof JsonArray) {
                     JsonArray paramList = (JsonArray) parameters;
                     JsonValue[] values = new JsonValue[paramList.size()];
                     values = paramList.toArray(values);
                     response = command.execute(values);
-                } else{
+                } else {
                     response = command.execute(parameters);
                 }
-                if( response instanceof JsonObject){
-                    JsonObject robj = (JsonObject)response;
-                    if( robj.containsKey("action") ){
+                if (response instanceof JsonObject) {
+                    JsonObject robj = (JsonObject) response;
+                    if (robj.containsKey("action")) {
                         sendMessage(session, robj);
                         return;
                     }
@@ -215,7 +213,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
 
                 sendMessage(
                         session, Json.createObjectBuilder()
-                                .add("action", String.format("response:data:%s", jsonMsg.getInt("requestID") ))
+                                .add("action", String.format("response:data:%s", jsonMsg.getInt("requestID")))
                                 .add("response", response).build()
                 );
             }
@@ -230,8 +228,8 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
         Consumer<JsonValue> response = (Consumer<JsonValue>) event.getProperty("basicResponse");
         JsonObject message = (JsonObject) event.getProperty("message");
         JsonValue parameters = message.get("parameters");
-        if( parameters instanceof JsonArray)
-            ((JsonArray)parameters).forEach(response);
+        if (parameters instanceof JsonArray)
+            ((JsonArray) parameters).forEach(response);
         else response.accept(parameters);
     }
 }

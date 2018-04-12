@@ -74,7 +74,7 @@ public final class FrameworkService {
 
         HashMap<String, Object> map = new HashMap<>();
         for (Object key : props.keySet()) {
-            map.put(key.toString(), Util.substVars(props.getProperty((String)key), (String)key, null, props));
+            map.put(key.toString(), Util.substVars(props.getProperty((String) key), (String) key, null, props));
         }
         map.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, Arrays.asList(new ProvisionActivator(this.context)));
         map.put(Constants.BASE_URI_PROPERTY, this.context.getResource(".").toURI().getPath());

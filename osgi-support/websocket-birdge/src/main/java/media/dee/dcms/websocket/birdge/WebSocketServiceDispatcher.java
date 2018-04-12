@@ -18,7 +18,7 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
     @Override
     public void addEndpoint(WebSocketEndpoint endpoint) throws DeploymentException {
         ServerEndpoint serverEndpoint = endpoint.getClass().getAnnotation(ServerEndpoint.class);
-        if( serverEndpoint == null )
+        if (serverEndpoint == null)
             throw new IllegalArgumentException(String.format("class %s should be annotated with @ServerEndpoint annotation", endpoint.getClass().getName()));
         endpoints.put(serverEndpoint.value(), endpoint);
     }
@@ -26,7 +26,7 @@ public class WebSocketServiceDispatcher implements WebSocketDispatcher, WebSocke
     @Override
     public void removeEndpoint(WebSocketEndpoint endpoint) {
         ServerEndpoint serverEndpoint = endpoint.getClass().getAnnotation(ServerEndpoint.class);
-        if( serverEndpoint == null )
+        if (serverEndpoint == null)
             throw new IllegalArgumentException(String.format("class %s should be annotated with @ServerEndpoint annotation", endpoint.getClass().getName()));
         endpoints.remove(serverEndpoint.value());
     }

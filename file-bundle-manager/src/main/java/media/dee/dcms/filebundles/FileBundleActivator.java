@@ -13,7 +13,7 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchService;
 import java.util.*;
 
-public class FileBundleActivator implements BundleActivator{
+public class FileBundleActivator implements BundleActivator {
 
     private ResourceBundle resourceBundle = ResourceBundle.getBundle("bundle");
     private List<Bundle> bundleList = new LinkedList<>();
@@ -35,19 +35,19 @@ public class FileBundleActivator implements BundleActivator{
         File bundlesDir = new File(baseLocation.getParentFile(), "bundles");
         File[] bundleFiles = bundlesDir.listFiles();
         Arrays.stream(bundleFiles != null ? bundleFiles : new File[0])
-            .forEach( (bundleFile)->{
-                try {
-                    Bundle bundle = bundleContext.installBundle(bundleFile.toURI().toString());
-                    bundleList.add(bundle);
-                } catch (BundleException e) {
-                    e.printStackTrace();
-                }
-            });
+                .forEach((bundleFile) -> {
+                    try {
+                        Bundle bundle = bundleContext.installBundle(bundleFile.toURI().toString());
+                        bundleList.add(bundle);
+                    } catch (BundleException e) {
+                        e.printStackTrace();
+                    }
+                });
 
         String bundles = resourceBundle.getString("bundles");
-        StringTokenizer tokenizer = new StringTokenizer(bundles,";");
-        while(tokenizer.hasMoreTokens()){
-            File bundleFile = new File(baseDir, tokenizer.nextToken() ).getCanonicalFile();
+        StringTokenizer tokenizer = new StringTokenizer(bundles, ";");
+        while (tokenizer.hasMoreTokens()) {
+            File bundleFile = new File(baseDir, tokenizer.nextToken()).getCanonicalFile();
             Bundle bundle = bundleContext.installBundle(bundleFile.toURI().toString());
             bundleList.add(bundle);
 
@@ -61,20 +61,20 @@ public class FileBundleActivator implements BundleActivator{
             watchTread.watchBundle(bundle);
         }
 
-        bundleList.forEach( bundle -> {
+        bundleList.forEach(bundle -> {
             try {
                 bundle.start();
-            } catch (BundleException e){
-              e.printStackTrace(System.err);
+            } catch (BundleException e) {
+                e.printStackTrace(System.err);
             }
-        } );
+        });
 
         watchTread.start();
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-       watchTread.interrupt();
+        watchTread.interrupt();
         watcherService.close();
     }
 }

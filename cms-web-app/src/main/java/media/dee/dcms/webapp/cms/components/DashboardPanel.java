@@ -19,7 +19,7 @@ public class DashboardPanel implements WebComponent {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
 
     @Reference
-    void setLogService( LogService log ) {
+    void setLogService(LogService log) {
         logRef.set(log);
     }
 

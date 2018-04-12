@@ -4,7 +4,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.*;
@@ -27,10 +26,10 @@ public class WatchThread extends Thread {
                     //we only register "ENTRY_MODIFY" so the context is always a Path.
                     final Path changed = (Path) event.context();
                     Bundle bundle = bundles.get(changed.toFile().getName());
-                    if( bundle != null && event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
+                    if (bundle != null && event.kind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
                         try {
                             bundle.update();
-                            System.out.printf("[%s] Bundle `%s-%s` is updated%n", LocalDateTime.now() , bundle.getSymbolicName(), bundle.getVersion().toString() );
+                            System.out.printf("[%s] Bundle `%s-%s` is updated%n", LocalDateTime.now(), bundle.getSymbolicName(), bundle.getVersion().toString());
                         } catch (BundleException e) {
                             e.printStackTrace(System.err);
                         }
@@ -40,7 +39,7 @@ public class WatchThread extends Thread {
                 if (!valid) {
                     System.out.println("Key has been unregistered");
                 }
-            }catch (InterruptedException ex){
+            } catch (InterruptedException ex) {
                 return;
             }
         }

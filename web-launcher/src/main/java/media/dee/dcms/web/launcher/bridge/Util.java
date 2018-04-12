@@ -12,7 +12,7 @@ import java.util.Properties;
 public class Util {
 
     private static final String DELIM_START = "${";
-    private static final String DELIM_STOP  = "}";
+    private static final String DELIM_STOP = "}";
 
     /**
      * <p>
@@ -26,23 +26,22 @@ public class Util {
      * are substituted from inner most to outer most. Configuration
      * properties override system properties.
      * </p>
-     * @param val The string on which to perform property substitution.
-     * @param currentKey The key of the property being evaluated used to
-     *        detect cycles.
-     * @param cycleMap Map of variable references used to detect nested cycles.
+     *
+     * @param val         The string on which to perform property substitution.
+     * @param currentKey  The key of the property being evaluated used to
+     *                    detect cycles.
+     * @param cycleMap    Map of variable references used to detect nested cycles.
      * @param configProps Set of configuration properties.
      * @return The value of the specified string after system property substitution.
      * @throws IllegalArgumentException If there was a syntax error in the
-     *         property placeholder syntax or a recursive variable reference.
+     *                                  property placeholder syntax or a recursive variable reference.
      **/
     public static String substVars(String val, String currentKey,
                                    Map cycleMap, Properties configProps)
-            throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
         // If there is currently no cycle map, then create
         // one for detecting cycles for this invocation.
-        if (cycleMap == null)
-        {
+        if (cycleMap == null) {
             cycleMap = new HashMap();
         }
 
@@ -61,30 +60,24 @@ public class Util {
         // by looping until we find a start delimiter that is
         // greater than the stop delimiter we have found.
         int startDelim = val.indexOf(DELIM_START);
-        while (stopDelim >= 0)
-        {
+        while (stopDelim >= 0) {
             int idx = val.indexOf(DELIM_START, startDelim + DELIM_START.length());
-            if ((idx < 0) || (idx > stopDelim))
-            {
+            if ((idx < 0) || (idx > stopDelim)) {
                 break;
-            }
-            else if (idx < stopDelim)
-            {
+            } else if (idx < stopDelim) {
                 startDelim = idx;
             }
         }
 
         // If we do not have a start or stop delimiter, then just
         // return the existing value.
-        if ((startDelim < 0) && (stopDelim < 0))
-        {
+        if ((startDelim < 0) && (stopDelim < 0)) {
             return val;
         }
         // At this point, we found a stop delimiter without a start,
         // so throw an exception.
         else if (((startDelim < 0) || (startDelim > stopDelim))
-                && (stopDelim >= 0))
-        {
+                && (stopDelim >= 0)) {
             throw new IllegalArgumentException(
                     "stop delimiter with no start delimiter: "
                             + val);
@@ -98,8 +91,7 @@ public class Util {
                 val.substring(startDelim + DELIM_START.length(), stopDelim);
 
         // Verify that this is not a recursive variable reference.
-        if (cycleMap.get(variable) != null)
-        {
+        if (cycleMap.get(variable) != null) {
             throw new IllegalArgumentException(
                     "recursive variable reference: " + variable);
         }
@@ -109,8 +101,7 @@ public class Util {
         String substValue = (configProps != null)
                 ? configProps.getProperty(variable, null)
                 : null;
-        if (substValue == null)
-        {
+        if (substValue == null) {
             // Ignore unknown property values.
             substValue = System.getProperty(variable, "");
         }
