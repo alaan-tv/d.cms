@@ -1,6 +1,7 @@
 package media.dee.dcms.webapp.cms.internal;
 
-import javax.websocket.Session;
+
+import org.eclipse.jetty.websocket.api.Session;
 
 public interface IComponentConnector {
     void newSession(Session session);

@@ -2,7 +2,7 @@ package media.dee.dcms.webapp.cms.internal;
 
 import media.dee.dcms.components.UUID;
 import media.dee.dcms.components.WebComponent;
-import media.dee.dcms.websocket.WebSocketService;
+import org.eclipse.jetty.websocket.api.Session;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
@@ -13,9 +13,6 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 
 import javax.json.*;
-import javax.websocket.DeploymentException;
-import javax.websocket.Session;
-import javax.websocket.server.ServerEndpoint;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
@@ -24,22 +21,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-@ServerEndpoint("cms")
 @Component(immediate = true, property = EventConstants.EVENT_TOPIC + "=transport")
-public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndpoint, EventHandler {
+public class AdminCommunicationHandler implements CommunicationHandler, EventHandler {
 
-    private Map<String, Session> sessionMap = new HashMap<>();
+    private final Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<Session>());
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final List<IComponentConnector> componentConnectors = new LinkedList<>();
     private final Map<String, WebComponent.Command> commandMap = new Hashtable<>();
-    static private final WebComponent.Command errorCommand = new WebComponent.Command() {
-        @Override
-        public JsonValue execute(JsonValue... arguments) {
-            return Json.createObjectBuilder()
-                    .add("error", "not-fount")
-                    .build();
-        }
-    };
+
+
+
+    static private final WebComponent.Command errorCommand = (JsonValue... arguments) ->
+            Json.createObjectBuilder()
+                .add("error", "not-fount")
+                .build();
 
 
     @Reference
@@ -54,6 +49,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
         }
     }
 
+    @SuppressWarnings("unused")
     void unbindComponentConnector(IComponentConnector componentConnector) {
         synchronized (this.componentConnectors) {
             this.componentConnectors.remove(componentConnector);
@@ -84,6 +80,7 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
         }
     }
 
+    @SuppressWarnings("unused")
     void unbindCommand(WebComponent.Command command) {
         synchronized (this.commandMap) {
             this.commandMap.remove(getCommandName(command));
@@ -92,58 +89,41 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
 
 
     @Activate
-    public void activate(ComponentContext ctx) {
+    public void activate(@SuppressWarnings("unused") ComponentContext ctx) {
         LogService log = logRef.get();
         log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
     }
 
     @Deactivate
-    public void deactivate(ComponentContext ctx) {
+    public void deactivate(@SuppressWarnings("unused") ComponentContext ctx) {
     }
 
-    @Reference(unbind = "unbindWebSocketService", cardinality = ReferenceCardinality.AT_LEAST_ONE)
-    public void bindWebSocketService(WebSocketService wsService) {
-        try {
-            wsService.addEndpoint(this);
-        } catch (DeploymentException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void unbindWebSocketService(WebSocketService wsService) {
-        wsService.removeEndpoint(this);
-    }
-
-    private <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, T message) {
+    private <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, final T message) {
         StringWriter stringWriter = new StringWriter();
         JsonWriter writer = Json.createWriter(stringWriter);
         writer.write(message);
         writer.close();
-        synchronized (session) {
-            return session.getAsyncRemote().sendText(stringWriter.toString());
-        }
+
+        return session.getRemote().sendStringByFuture(stringWriter.toString());
     }
 
 
-    private <T extends JsonStructure> void sendMessage(final Session session, T message) {
+    private <T extends JsonStructure> void sendMessage(final Session session, final T message) {
         try {
             StringWriter stringWriter = new StringWriter();
             JsonWriter writer = Json.createWriter(stringWriter);
             writer.write(message);
             writer.close();
-            synchronized (session) {
-                session.getBasicRemote().sendText(stringWriter.toString());
-            }
+            session.getRemote().sendString(stringWriter.toString());
         } catch (Throwable e) {
-            e.printStackTrace();
-            if (!session.isOpen())
-                sessionMap.remove(session.getId());
+            logRef.get().log(LogService.LOG_ERROR, String.format("Error Sending Message via Websocket to client: %s.", session.getRemoteAddress()));
         }
     }
 
 
-    protected <T extends JsonObject> void sendAll(T message) {
-        sessionMap.values()
+    public <T extends JsonObject> void sendAll(T message) {
+        clientSessions
                 .parallelStream()
                 .forEach(session -> sendMessageAsync(session, message));
     }
@@ -159,32 +139,22 @@ public class WebSocketEndpoint implements media.dee.dcms.websocket.WebSocketEndp
     }
 
     @Override
-    public void open(String path, Session session) {
-        sessionMap.put(session.getId(), session);
+    public void registerConnection(Session session) {
+        clientSessions.add(session);
         sendWelcomeMessage(session);
         this.componentConnectors.forEach(connector -> connector.newSession(session));
     }
 
     @Override
-    public void close(String path, Session session) {
-        sessionMap.remove(session.getId());
+    public void unregisterConnection(Session session) {
+        clientSessions.remove(session);
     }
 
-    @Override
-    public void onError(String path, Throwable error) {
-        logRef.get().log(LogService.LOG_ERROR, "WebSocket Error", error);
-    }
 
     @Override
-    public void handleMessage(String path, String message, Session session) {
+    public void processCommand(Session session, String message) {
 
         CompletableFuture.runAsync(() -> {
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
             JsonReader reader = Json.createReader(new StringReader(message));
             JsonObject jsonMsg = reader.readObject();

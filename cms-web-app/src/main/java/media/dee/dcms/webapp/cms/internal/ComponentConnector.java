@@ -2,6 +2,7 @@ package media.dee.dcms.webapp.cms.internal;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.WebComponent;
+import org.eclipse.jetty.websocket.api.Session;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -13,7 +14,6 @@ import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
-import javax.websocket.Session;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class ComponentConnector implements IComponentConnector, WebComponent.Command {
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
-    private final AtomicReference<WebSocketEndpoint> wsEndpoint = new AtomicReference<>();
+    private final AtomicReference<CommunicationHandler> communicationHandler = new AtomicReference<>();
     private final List<WebComponent> guiComponents = new LinkedList<>();
     private final List<HttpService> httpServiceList = new LinkedList<>();
     private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
@@ -68,12 +68,13 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
                 bundleHttpService.unregister(String.format("/cms/%s/%s%s", bundle.getSymbolicName(), bundle.getVersion().toString(), dir));
             }
         } catch (Exception exception) {
-            if (resourcesAction == ComponentResourcesAction.Register) {
-                logRef.get().log(LogService.LOG_ERROR, String.format("Error while registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
-
-            } else if (resourcesAction == ComponentResourcesAction.UnRegister) {
-                logRef.get().log(LogService.LOG_ERROR, String.format("Error while un-registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
-
+            switch (resourcesAction){
+                case Register:
+                    logRef.get().log(LogService.LOG_ERROR, String.format("Error while registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
+                    break;
+                case UnRegister:
+                    logRef.get().log(LogService.LOG_ERROR, String.format("Error while un-registering httpService Resource of GUIComponent: %s", guiComponent.getClass().getName()), exception);
+                    break;
             }
         }
         if (resourcesAction == ComponentResourcesAction.UnRegister) {
@@ -94,15 +95,13 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
     }
 
 
-    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindWebSocketEndpoint", policy = ReferencePolicy.DYNAMIC)
-    public void bindWebSocketEndpoint(media.dee.dcms.websocket.WebSocketEndpoint wsEndpoint) {
-        if (wsEndpoint instanceof WebSocketEndpoint)
-            this.wsEndpoint.set((WebSocketEndpoint) wsEndpoint);
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindCommunicationHandler", policy = ReferencePolicy.DYNAMIC)
+    public void bindCommunicationHandler(CommunicationHandler communicationHandler) {
+        this.communicationHandler.set(communicationHandler);
     }
 
-    public void unbindWebSocketEndpoint(media.dee.dcms.websocket.WebSocketEndpoint wsEndpoint) {
-        if (wsEndpoint instanceof WebSocketEndpoint)
-            this.wsEndpoint.compareAndSet((WebSocketEndpoint) wsEndpoint, null);
+    public void unbindCommunicationHandler(CommunicationHandler communicationHandler) {
+        this.communicationHandler.compareAndSet(communicationHandler, null);
     }
 
 
@@ -133,7 +132,7 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
             AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
             if (adminModule.autoInstall())
 
-                wsEndpoint.get().sendAll(getCommand(component, CommandType.Install));
+                communicationHandler.get().sendAll(getCommand(component, CommandType.Install));
         }
     }
 
@@ -142,7 +141,7 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
             guiComponents.remove(component);
             httpServiceList.parallelStream()
                     .forEach(httpService -> ModuleResourcesAction(component, ComponentResourcesAction.UnRegister));
-            wsEndpoint.get().sendAll(getCommand(component, CommandType.Uninstall));
+            communicationHandler.get().sendAll(getCommand(component, CommandType.Uninstall));
         }
     }
 

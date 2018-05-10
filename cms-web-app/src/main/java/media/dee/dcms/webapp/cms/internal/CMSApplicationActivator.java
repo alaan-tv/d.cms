@@ -7,9 +7,18 @@ public class CMSApplicationActivator implements BundleActivator {
 
     public void start(BundleContext context) throws Exception {
 
+        System.out.println("****************************************************************************");
+        System.out.println("******************************** d.CMS Admin *******************************");
+        System.out.println("****************************************************************************");
 
     }
 
     public void stop(BundleContext context) throws Exception {
+
+        System.out.println("****************************************************************************");
+        System.out.println("**************************** d.CMS Admin STOPPED ***************************");
+        System.out.println("****************************************************************************");
+
+
     }
 }

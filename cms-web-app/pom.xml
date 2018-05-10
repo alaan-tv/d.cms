@@ -2,19 +2,19 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-        <groupId>meida.dee.dcms</groupId>
+        <groupId>media.dee.dcms</groupId>
         <artifactId>dee-cms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>cms-web-app</artifactId>
+	<artifactId>admin</artifactId>
     <name>DeeCMS CMS Web Application</name>
-	<packaging>bundle</packaging>
+	<packaging>war</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <felix.log>1.0.1</felix.log>
-        <websocket.api>1.1</websocket.api>
         <javax.servlet>3.1.0</javax.servlet>
+        <websocket-servlet>9.0.7.v20131107</websocket-servlet>
 	</properties>
 
 	<dependencies>
@@ -22,6 +22,7 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>${osgi.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -35,7 +36,7 @@
         <dependency>
             <groupId>javax.json</groupId>
             <artifactId>javax.json-api</artifactId>
-            <version>1.0</version>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
 
@@ -63,21 +64,26 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Websocket service provided via container -->
+
+        <!-- Jetty websocket to program websockets -->
+
         <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-            <version>${websocket.api}</version>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-servlet</artifactId>
+            <version>${websocket-servlet}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- hazelcast to synchronize websockets based on karaf hazelcast config -->
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+            <version>3.2.3</version>
             <scope>provided</scope>
         </dependency>
 
 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>websocket-service</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>core</artifactId>
@@ -107,10 +113,6 @@
                     <target>${jdk.version}</target>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -149,12 +151,57 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
+                    <supportedProjectTypes>
+                        <supportedProjectType>war</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                        <supportedProjectType>jar</supportedProjectType>
+                    </supportedProjectTypes>
                     <instructions>
-                        <Bundle-Category>d.CMS</Bundle-Category>
                         <Bundle-Activator>media.dee.dcms.webapp.cms.internal.CMSApplicationActivator</Bundle-Activator>
                         <Export-Package>media.dee.dcms.webapp.cms.*;version="${project.version}"</Export-Package>
                         <Private-Package>media.dee.dcms.webapp.cms.internal</Private-Package>
+                        <Bundle-Category>d.CMS</Bundle-Category>
+                        <Web-ContextPath>/</Web-ContextPath>
+                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Directory>WEB-INF/lib</Embed-Directory>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>bundle-install</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin> <!-- Need to use this plugin to build war files -->
+                <artifactId>maven-war-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <configuration>
+                    <archive>
+                        <!-- add bundle plugin generated manifest to the war -->
+                        <manifestFile>
+                            ${project.build.outputDirectory}/META-INF/MANIFEST.MF
+                        </manifestFile>
+                        <!-- Adding Bundle-ClassPath in maven-bundle-plugin confuses that
+                            plugin and it generates wrong Import-Package, etc. So, we generate it here. -->
+                        <manifestEntries>
+                            <Bundle-ClassPath>WEB-INF/classes/
+                            </Bundle-ClassPath>
+                        </manifestEntries>
+                    </archive>
+                    <!-- We don't always have a web.xml -->
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
 		</plugins>

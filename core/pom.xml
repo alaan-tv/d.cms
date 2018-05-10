@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-        <groupId>meida.dee.dcms</groupId>
+        <groupId>media.dee.dcms</groupId>
         <artifactId>dee-cms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>javax.json</groupId>
             <artifactId>javax.json-api</artifactId>
-            <version>1.0</version>
+            <version>1.1.2</version>
             <scope>provided</scope>
         </dependency>
 
