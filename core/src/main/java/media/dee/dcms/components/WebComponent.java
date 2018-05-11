@@ -1,6 +1,7 @@
 package media.dee.dcms.components;
 
-import javax.json.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,7 +16,7 @@ public interface WebComponent {
 
 
     interface Command {
-        JsonValue execute(JsonValue... arguments);
+        JsonNode execute(JsonNode... arguments);
 
         public enum CommandType {
             Uninstall,

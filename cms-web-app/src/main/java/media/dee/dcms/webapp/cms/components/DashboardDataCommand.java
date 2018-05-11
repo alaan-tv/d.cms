@@ -1,5 +1,7 @@
 package media.dee.dcms.webapp.cms.components;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import media.dee.dcms.components.WebComponent;
 import media.dee.dcms.webapp.cms.internal.ShortCommandName;
 import org.osgi.framework.Bundle;
@@ -8,9 +10,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -19,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component
 @ShortCommandName("component/dashboard")
 public class DashboardDataCommand implements WebComponent.Command {
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
 
     @Reference
@@ -27,28 +27,25 @@ public class DashboardDataCommand implements WebComponent.Command {
     }
 
     @Override
-    public JsonValue execute(JsonValue... command) {
-        int instanceID = ((JsonObject) command[0]).getInt("instanceID");
+    public JsonNode execute(JsonNode... command) {
+        int instanceID = command[0].get("instanceID").asInt();
 
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         URL dataURL = bundle.getResource(String.format("/data/dashboard/%s.json", instanceID));
         if (dataURL == null) {
-            return Json.createObjectBuilder()
-                    .add("action", "error")
-                    .add("code", "not-fount")
-                    .build();
+            return objectMapper.createObjectNode()
+                    .put("action", "error")
+                    .put("code", "not-fount");
         }
         try (InputStream dataInStream = dataURL.openStream()) {
 
-            return Json.createReader(dataInStream).readArray();
-
+            return objectMapper.readValue(dataInStream, JsonNode.class);
 
         } catch (IOException ex) {
             logRef.get().log(LogService.LOG_ERROR, "Error Reading data", ex);
-            return Json.createObjectBuilder()
-                    .add("action", "error")
-                    .add("code", ex.getMessage())
-                    .build();
+            return objectMapper.createObjectNode()
+                    .put("action", "error")
+                    .put("code", ex.getMessage());
         }
     }
 }

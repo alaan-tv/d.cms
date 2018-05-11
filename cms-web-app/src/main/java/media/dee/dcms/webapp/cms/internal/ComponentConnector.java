@@ -1,5 +1,9 @@
 package media.dee.dcms.webapp.cms.internal;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.WebComponent;
 import org.eclipse.jetty.websocket.api.Session;
@@ -10,10 +14,6 @@ import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,28 +27,29 @@ import java.util.function.Consumer;
 @ShortCommandName("components/essential/bundles")
 @SuppressWarnings("unused")
 public class ComponentConnector implements IComponentConnector, WebComponent.Command {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
     private final AtomicReference<CommunicationHandler> communicationHandler = new AtomicReference<>();
     private final List<WebComponent> guiComponents = new LinkedList<>();
     private final List<HttpService> httpServiceList = new LinkedList<>();
-    private Map<String, BiConsumer<JsonObject, Consumer<JsonValue>>> commands = new HashMap<>();
+    private Map<String, BiConsumer<JsonNode, Consumer<JsonNode>>> commands = new HashMap<>();
 
-    private static JsonObject getCommand(WebComponent component, CommandType commandType) {
+    private JsonNode getCommand(WebComponent component, CommandType commandType) {
 
 
         AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
         Bundle bundle = FrameworkUtil.getBundle(component.getClass());
 
-        JsonObject jsonBundle = Json.createObjectBuilder()
-                .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
-                .add("SymbolicName", bundle.getSymbolicName())
-                .add("Version", bundle.getVersion().toString())
-                .build();
+        ObjectNode cmd = objectMapper.createObjectNode()
+                .put("action", commandType.toString());
+        cmd.putObject("bundle")
+                .put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
+                .put("SymbolicName", bundle.getSymbolicName())
+                .put("Version", bundle.getVersion().toString());
 
-        return Json.createObjectBuilder()
-                .add("action", commandType.toString())
-                .add("bundle", jsonBundle)
-                .build();
+        return cmd;
 
     }
 
@@ -151,21 +152,20 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
     }
 
     @Override
-    public JsonValue execute(JsonValue... arguments) {
-        final JsonArrayBuilder bundles = Json.createArrayBuilder();
+    public JsonNode execute(JsonNode... arguments) {
+        final ArrayNode bundles = objectMapper.createArrayNode();
 
         guiComponents.stream()
                 .filter(guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall())
                 .map((component) -> {
                     AdminModule adminModule = component.getClass().getAnnotation(AdminModule.class);
                     Bundle bundle = FrameworkUtil.getBundle(component.getClass());
-                    return Json.createObjectBuilder()
-                            .add("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
-                            .add("SymbolicName", bundle.getSymbolicName())
-                            .add("Version", bundle.getVersion().toString())
-                            .build();
+                    return objectMapper.createObjectNode()
+                            .put("bundlePath", String.format("/cms/%s/%s%s.js", bundle.getSymbolicName(), bundle.getVersion().toString(), adminModule.value()))
+                            .put("SymbolicName", bundle.getSymbolicName())
+                            .put("Version", bundle.getVersion().toString());
                 })
                 .forEach(bundles::add);
-        return bundles.build();
+        return bundles;
     }
 }

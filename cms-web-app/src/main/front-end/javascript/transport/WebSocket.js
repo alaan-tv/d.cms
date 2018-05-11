@@ -1,5 +1,5 @@
 function init(callback) {
-    let socket = new WebSocket(`ws://${document.location.host}/cms`);
+    let socket = new WebSocket(`ws://${document.location.host}/cms/ws`);
     socket.onmessage = (event) =>{
         let command = JSON.parse(event.data);
 

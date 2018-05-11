@@ -1,5 +1,10 @@
 package media.dee.dcms.webapp.cms.internal;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import media.dee.dcms.components.UUID;
 import media.dee.dcms.components.WebComponent;
 import org.eclipse.jetty.websocket.api.Session;
@@ -12,17 +17,16 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 
-import javax.json.*;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 @Component(immediate = true, property = EventConstants.EVENT_TOPIC + "=transport")
 public class AdminCommunicationHandler implements CommunicationHandler, EventHandler {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<Session>());
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
@@ -31,10 +35,9 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
 
 
 
-    static private final WebComponent.Command errorCommand = (JsonValue... arguments) ->
-            Json.createObjectBuilder()
-                .add("error", "not-fount")
-                .build();
+    private final WebComponent.Command errorCommand = (JsonNode... arguments) ->
+            objectMapper.createObjectNode()
+                .put("error", "not-fount");
 
 
     @Reference
@@ -99,42 +102,30 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
     }
 
 
-    private <T extends JsonStructure> Future<Void> sendMessageAsync(final Session session, final T message) {
-        StringWriter stringWriter = new StringWriter();
-        JsonWriter writer = Json.createWriter(stringWriter);
-        writer.write(message);
-        writer.close();
-
-        return session.getRemote().sendStringByFuture(stringWriter.toString());
-    }
-
-
-    private <T extends JsonStructure> void sendMessage(final Session session, final T message) {
+    private void sendMessage(final Session session, final JsonNode message) {
         try {
-            StringWriter stringWriter = new StringWriter();
-            JsonWriter writer = Json.createWriter(stringWriter);
-            writer.write(message);
-            writer.close();
-            session.getRemote().sendString(stringWriter.toString());
-        } catch (Throwable e) {
+            session.getRemote().sendString( objectMapper.writeValueAsString(message) );
+        } catch (JsonProcessingException e) {
+            logRef.get().log(LogService.LOG_ERROR, String.format("Error Sending Message via Websocket to client: %s.", session.getRemoteAddress()));
+        } catch (IOException e) {
+            try{ session.close(); } catch (IOException ex){ /* ignore */}
             logRef.get().log(LogService.LOG_ERROR, String.format("Error Sending Message via Websocket to client: %s.", session.getRemoteAddress()));
         }
     }
 
 
-    public <T extends JsonObject> void sendAll(T message) {
+    public void sendAll(JsonNode message) {
         clientSessions
                 .parallelStream()
-                .forEach(session -> sendMessageAsync(session, message));
+                .forEach(session -> sendMessage(session, message));
     }
 
     private void sendWelcomeMessage(Session session) {
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-        JsonObject jsonObject = Json.createObjectBuilder()
-                .add("action", "system.info")
-                .add("SymbolicName", bundle.getSymbolicName())
-                .add("Version", bundle.getVersion().toString())
-                .build();
+        JsonNode jsonObject = objectMapper.createObjectNode()
+                .put("action", "system.info")
+                .put("SymbolicName", bundle.getSymbolicName())
+                .put("Version", bundle.getVersion().toString());
         sendMessage(session, jsonObject);
     }
 
@@ -156,36 +147,40 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
 
         CompletableFuture.runAsync(() -> {
 
-            JsonReader reader = Json.createReader(new StringReader(message));
-            JsonObject jsonMsg = reader.readObject();
-
-            String cmdName = jsonMsg.getString("action");
+            String cmdName = null;
+            ObjectNode jsonMsg = objectMapper.createObjectNode();
+            try {
+                jsonMsg = objectMapper.readValue(message, ObjectNode.class);
+                cmdName = jsonMsg.get("action").asText();
+            } catch (IOException e) {
+                cmdName = null;
+            }
             WebComponent.Command command = this.commandMap.getOrDefault(cmdName, errorCommand);
 
             if (command != null) {
-                JsonValue parameters = jsonMsg.get("parameters");
-                JsonValue response;
-                if (parameters instanceof JsonArray) {
-                    JsonArray paramList = (JsonArray) parameters;
-                    JsonValue[] values = new JsonValue[paramList.size()];
-                    values = paramList.toArray(values);
-                    response = command.execute(values);
+                JsonNode parameters = jsonMsg.get("parameters");
+                JsonNode response;
+                if (parameters instanceof ArrayNode) {
+                    ArrayNode paramList = (ArrayNode) parameters;
+                    JsonNode[] nodes = new JsonNode[paramList.size()];
+                    for( int i=0; i< nodes.length ; ++i)
+                        nodes[i] = paramList.get(i);
+                    response = command.execute(nodes);
                 } else {
                     response = command.execute(parameters);
                 }
-                if (response instanceof JsonObject) {
-                    JsonObject robj = (JsonObject) response;
-                    if (robj.containsKey("action")) {
+                if (response instanceof ObjectNode) {
+                    ObjectNode robj = (ObjectNode) response;
+                    if (robj.has("action")) {
                         sendMessage(session, robj);
                         return;
                     }
                 }
 
-                sendMessage(
-                        session, Json.createObjectBuilder()
-                                .add("action", String.format("response:data:%s", jsonMsg.getInt("requestID")))
-                                .add("response", response).build()
-                );
+                ObjectNode responseMsg = objectMapper.createObjectNode()
+                        .put("action", String.format("response:data:%s", jsonMsg.get("requestID").asInt() ));
+                responseMsg.set("response", response);
+                sendMessage(session, responseMsg );
             }
 
         });
@@ -195,11 +190,11 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
     @Override
     @SuppressWarnings("unchecked")
     public void handleEvent(Event event) {
-        Consumer<JsonValue> response = (Consumer<JsonValue>) event.getProperty("basicResponse");
-        JsonObject message = (JsonObject) event.getProperty("message");
-        JsonValue parameters = message.get("parameters");
-        if (parameters instanceof JsonArray)
-            ((JsonArray) parameters).forEach(response);
+        Consumer<JsonNode> response = (Consumer<JsonNode>) event.getProperty("basicResponse");
+        ObjectNode message = (ObjectNode) event.getProperty("message");
+        JsonNode parameters = message.get("parameters");
+        if (parameters instanceof ArrayNode)
+            parameters.forEach(response);
         else response.accept(parameters);
     }
 }
