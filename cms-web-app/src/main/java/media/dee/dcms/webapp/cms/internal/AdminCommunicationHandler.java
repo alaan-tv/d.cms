@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-@Component(immediate = true, property = EventConstants.EVENT_TOPIC + "=transport")
+@Component(property = EventConstants.EVENT_TOPIC + "=transport")
 public class AdminCommunicationHandler implements CommunicationHandler, EventHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();

@@ -12,6 +12,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
 import java.io.File;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Component
+@Component(immediate = true)
 @ShortCommandName("components/essential/bundles")
 @SuppressWarnings("unused")
 public class ComponentConnector implements IComponentConnector, WebComponent.Command {
@@ -78,10 +79,8 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
                     break;
             }
         }
-        if (resourcesAction == ComponentResourcesAction.UnRegister) {
-            bundle.getBundleContext().ungetService(ref);
 
-        }
+        bundle.getBundleContext().ungetService(ref);
     }
 
     @Activate
@@ -112,6 +111,12 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
             httpServiceList.add(httpService);
         }
 
+        try {
+            httpService.registerResources("/cms/fe", "/webapp", null);
+        } catch (NamespaceException e) {
+            throw new RuntimeException(e);
+        }
+
         guiComponents.parallelStream()
                 .forEach(guiComponent -> ModuleResourcesAction(guiComponent, ComponentResourcesAction.Register));
     }
@@ -120,8 +125,12 @@ public class ComponentConnector implements IComponentConnector, WebComponent.Com
         synchronized (httpServiceList) {
             httpServiceList.remove(httpService);
         }
+
+        httpService.unregister("/cms/fe");
+
         guiComponents.parallelStream()
                 .forEach(guiComponent -> ModuleResourcesAction(guiComponent, ComponentResourcesAction.UnRegister));
+
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, unbind = "unbindEssentialComponent", policy = ReferencePolicy.DYNAMIC)
