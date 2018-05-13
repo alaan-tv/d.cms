@@ -77,7 +77,7 @@ function config(DEBUG, VERBOSE) {
         }
     };
 
-    let PLUGINS = [
+    var PLUGINS = [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NamedModulesPlugin(),
         extractCSS,
