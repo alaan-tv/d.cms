@@ -1,7 +1,7 @@
 [![Build Status](https://semaphoreci.com/api/v1/anasaswad/d-cms/branches/master/shields_badge.svg)](https://semaphoreci.com/anasaswad/d-cms)
 
 <p align="center">
-    <img height="256" width="256" src="https://raw.githubusercontent.com/alaan-tv/d.cms/master/cms-web-app/src/main/front-end/public/img/logo.svg">
+    <img height="256" width="256" src="https://raw.githubusercontent.com/alaan-tv/d.cms/master/cms-web-app/src/main/front-end/public/logo.png">
   <p align="center">Digital Media CMS</p>
 </p>
 
