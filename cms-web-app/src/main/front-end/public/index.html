@@ -86,7 +86,8 @@
 <script src="/cms/fe/requirejs.js"></script>
 <script>
     let requireLocal = require.config({
-        waitSeconds: 15
+        waitSeconds: 15,
+        urlArgs: "bust=" + (new Date()).getTime()
     });
     window.defineModule = define;
     window.requireModule = requireLocal;

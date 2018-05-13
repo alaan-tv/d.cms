@@ -12,7 +12,11 @@ import org.osgi.service.log.LogService;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-@AdminModule(value = "/webapp/js/layout/Menubar", autoInstall = true)
+@AdminModule(
+        value = "Menubar",
+        resource = "/webapp/js/layout",
+        autoInstall = true
+)
 @UUID("dashboard")
 @Component
 public class DashboardPanel implements WebComponent {

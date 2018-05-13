@@ -12,25 +12,20 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 import org.osgi.service.log.LogService;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
-@Component(property = EventConstants.EVENT_TOPIC + "=transport")
-public class AdminCommunicationHandler implements CommunicationHandler, EventHandler {
+@Component
+public class AdminCommunicationHandler implements CommunicationHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<Session>());
+    private final Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<>());
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
-    private final List<IComponentConnector> componentConnectors = new LinkedList<>();
     private final Map<String, WebComponent.Command> commandMap = new Hashtable<>();
 
 
@@ -45,19 +40,6 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
         logRef.set(log);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC, unbind = "unbindComponentConnector")
-    void bindComponentConnector(IComponentConnector componentConnector) {
-        synchronized (this.componentConnectors) {
-            this.componentConnectors.add(componentConnector);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    void unbindComponentConnector(IComponentConnector componentConnector) {
-        synchronized (this.componentConnectors) {
-            this.componentConnectors.remove(componentConnector);
-        }
-    }
 
     private String getCommandName(WebComponent.Command command) {
         Bundle bundle = FrameworkUtil.getBundle(command.getClass());
@@ -133,7 +115,6 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
     public void registerConnection(Session session) {
         clientSessions.add(session);
         sendWelcomeMessage(session);
-        this.componentConnectors.forEach(connector -> connector.newSession(session));
     }
 
     @Override
@@ -147,7 +128,7 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
 
         CompletableFuture.runAsync(() -> {
 
-            String cmdName = null;
+            String cmdName;
             ObjectNode jsonMsg = objectMapper.createObjectNode();
             try {
                 jsonMsg = objectMapper.readValue(message, ObjectNode.class);
@@ -185,16 +166,5 @@ public class AdminCommunicationHandler implements CommunicationHandler, EventHan
 
         });
 
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void handleEvent(Event event) {
-        Consumer<JsonNode> response = (Consumer<JsonNode>) event.getProperty("basicResponse");
-        ObjectNode message = (ObjectNode) event.getProperty("message");
-        JsonNode parameters = message.get("parameters");
-        if (parameters instanceof ArrayNode)
-            parameters.forEach(response);
-        else response.accept(parameters);
     }
 }
