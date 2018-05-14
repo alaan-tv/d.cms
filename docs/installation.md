@@ -1,4 +1,4 @@
-#d.CMS Installation
+# d.CMS Installation
 
 * Install JDK 8
 * Install Maven 3x
@@ -28,3 +28,33 @@
 * install cms-web-app module, command:<br/>
     ``bundle:install mvn:media.dee.dcms/admin/0.0.1-SNAPSHOT``
 * navigate 'http://localhost:{KARAF_HTTP:8181}/cms'
+
+
+# Docker Installation
+* cd to {d.cms project}
+* run command:<br/>
+    ```bash 
+        docker build dee/cms .
+    ```
+* to create one docker container follow the following setps:
+    * create container with name dcms1, command:<br/>
+        ```bash
+        docker run -d -t --name dcms1 -p 1099:1099 -p 8181:8181 -p 44444:44444 -v /work/env/docker.deploy:/deploy dee/cms
+        ```
+    * start the container
+        ```bash
+        docker start dcms1
+        ```
+    * connect to container ssh
+    ```bash
+    docker exec -it dcms1 bash
+    ```
+    * install karaf required features
+        ```bash
+            ./opt/karaf/bin/client feature:install war; \
+                ./opt/karaf/bin/client feature:repo-add cellar; \
+                ./opt/karaf/bin/client feature:install cellar; \
+                ./opt/karaf/bin/client feature:repo-add mvn:org.code-house.jackson/features/2.8.0/xml/features; \
+                ./opt/karaf/bin/client feature:install jackson-databind; \
+                ./opt/karaf/bin/client feature:repo-add cellar
+        ```
