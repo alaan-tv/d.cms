@@ -1,13 +1,15 @@
-package media.dee.dcms.webapp.cms.internal;
+package media.dee.dcms.admin.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import media.dee.dcms.admin.internal.ShortCommandName;
+import media.dee.dcms.admin.services.AdminWebsocketDispatcher;
 import media.dee.dcms.components.UUID;
 import media.dee.dcms.components.WebComponent;
-import org.eclipse.jetty.websocket.api.Session;
+import media.dee.dcms.websocket.Session;
+import media.dee.dcms.websocket.SessionManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
@@ -15,30 +17,35 @@ import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
 import java.io.IOException;
-import java.util.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
-@Component
-public class AdminCommunicationHandler implements CommunicationHandler {
+@Component(scope = ServiceScope.SINGLETON)
+public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final Set<Session> clientSessions = Collections.synchronizedSet(new HashSet<>());
-    private final AtomicReference<LogService> logRef = new AtomicReference<>();
+    private LogService logService;
     private final Map<String, WebComponent.Command> commandMap = new Hashtable<>();
-
-
 
     private final WebComponent.Command errorCommand = (JsonNode... arguments) ->
             objectMapper.createObjectNode()
                 .put("error", "not-fount");
+    private SessionManager sessionManager;
 
 
     @Reference
     void setLogService(LogService log) {
-        logRef.set(log);
+        this.logService = log;
     }
+
+    @Reference
+    void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
 
 
     private String getCommandName(WebComponent.Command command) {
@@ -61,7 +68,7 @@ public class AdminCommunicationHandler implements CommunicationHandler {
             String cmdName = getCommandName(command);
             WebComponent.Command cmd = this.commandMap.putIfAbsent(cmdName, command);
             if (cmd != null)
-                logRef.get().log(LogService.LOG_ERROR, String.format("Command[%s] is already registered", cmdName));
+                logService.log(LogService.LOG_ERROR, String.format("Command[%s] is already registered", cmdName));
         }
     }
 
@@ -73,33 +80,22 @@ public class AdminCommunicationHandler implements CommunicationHandler {
     }
 
 
+    @SuppressWarnings("unused")
     @Activate
-    public void activate(@SuppressWarnings("unused") ComponentContext ctx) {
-        LogService log = logRef.get();
-        log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
-    }
-
-    @Deactivate
-    public void deactivate(@SuppressWarnings("unused") ComponentContext ctx) {
+    public void activate(ComponentContext ctx) {
+        logService.log(LogService.LOG_INFO, "CMS WebSocket Activated");
     }
 
 
-    private void sendMessage(final Session session, final JsonNode message) {
+    private ObjectNode getHostInformation(){
         try {
-            session.getRemote().sendString( objectMapper.writeValueAsString(message) );
-        } catch (JsonProcessingException e) {
-            logRef.get().log(LogService.LOG_ERROR, String.format("Error Sending Message via Websocket to client: %s.", session.getRemoteAddress()));
-        } catch (IOException e) {
-            try{ session.close(); } catch (IOException ex){ /* ignore */}
-            logRef.get().log(LogService.LOG_ERROR, String.format("Error Sending Message via Websocket to client: %s.", session.getRemoteAddress()));
+            InetAddress localhost =  InetAddress.getLocalHost();
+            return objectMapper.createObjectNode()
+                    .put("hostname", localhost.getHostName() )
+                    .put("ip", localhost.getHostAddress());
+        } catch (UnknownHostException e) {
+            return objectMapper.createObjectNode();
         }
-    }
-
-
-    public void sendAll(JsonNode message) {
-        clientSessions
-                .parallelStream()
-                .forEach(session -> sendMessage(session, message));
     }
 
     private void sendWelcomeMessage(Session session) {
@@ -107,24 +103,36 @@ public class AdminCommunicationHandler implements CommunicationHandler {
         JsonNode jsonObject = objectMapper.createObjectNode()
                 .put("action", "system.info")
                 .put("SymbolicName", bundle.getSymbolicName())
-                .put("Version", bundle.getVersion().toString());
-        sendMessage(session, jsonObject);
+                .put("Version", bundle.getVersion().toString())
+                .set("Server-ID", getHostInformation() );
+        sessionManager.send(session, jsonObject);
+
+        /* test clustered socket */
+        try {
+            sessionManager.broadcast(
+                    objectMapper.createObjectNode()
+                        .put("action", "console.log")
+                        .put("message", String.format("Hi this is a message form host: %s", InetAddress.getLocalHost().getHostName() ))
+            );
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public void sessionConnected(org.eclipse.jetty.websocket.api.Session session) {
+        sendWelcomeMessage(sessionManager.sessionConnected(session));
     }
 
     @Override
-    public void registerConnection(Session session) {
-        clientSessions.add(session);
-        sendWelcomeMessage(session);
+    public void sessionClosed(org.eclipse.jetty.websocket.api.Session session) {
+        sessionManager.sessionClosed(session);
     }
 
     @Override
-    public void unregisterConnection(Session session) {
-        clientSessions.remove(session);
-    }
-
-
-    @Override
-    public void processCommand(Session session, String message) {
+    public void onMessage(org.eclipse.jetty.websocket.api.Session session, String message) {
+        Session sessionWrapper = sessionManager.get(session);
 
         CompletableFuture.runAsync(() -> {
 
@@ -153,7 +161,7 @@ public class AdminCommunicationHandler implements CommunicationHandler {
                 if (response instanceof ObjectNode) {
                     ObjectNode robj = (ObjectNode) response;
                     if (robj.has("action")) {
-                        sendMessage(session, robj);
+                        sessionManager.send(sessionWrapper, robj);
                         return;
                     }
                 }
@@ -161,10 +169,15 @@ public class AdminCommunicationHandler implements CommunicationHandler {
                 ObjectNode responseMsg = objectMapper.createObjectNode()
                         .put("action", String.format("response:data:%s", jsonMsg.get("requestID").asInt() ));
                 responseMsg.set("response", response);
-                sendMessage(session, responseMsg );
+                sessionManager.send(sessionWrapper, responseMsg );
             }
 
         });
 
+    }
+
+    @Override
+    public long send(JsonNode message) {
+        return sessionManager.send(message);
     }
 }

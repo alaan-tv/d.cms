@@ -1,12 +1,15 @@
-package media.dee.dcms.webapp.cms.internal;
+package media.dee.dcms.admin.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import media.dee.dcms.admin.internal.ComponentResourceServlet;
+import media.dee.dcms.admin.internal.ShortCommandName;
+import media.dee.dcms.admin.services.AdminWebsocketDispatcher;
+import media.dee.dcms.admin.services.ComponentService;
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.WebComponent;
-import org.eclipse.jetty.websocket.api.Session;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -20,19 +23,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Component(immediate = true)
+@Component(immediate = true, scope = ServiceScope.SINGLETON)
 @ShortCommandName("components/essential/bundles")
 @SuppressWarnings("unused")
-public class AdminComponentConnector implements ComponentConnector, WebComponent.Command {
+public class ComponentServiceImpl implements ComponentService, WebComponent.Command {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final AtomicReference<LogService> logRef = new AtomicReference<>();
-    private final AtomicReference<CommunicationHandler> communicationHandler = new AtomicReference<>();
+    private final AtomicReference<AdminWebsocketDispatcher> communicationHandler = new AtomicReference<>();
     private final List<WebComponent> guiComponents = new LinkedList<>();
     private final List<HttpService> httpServiceList = new LinkedList<>();
     private final Map<String, BiConsumer<JsonNode, Consumer<JsonNode>>> commands = new HashMap<>();
@@ -150,12 +152,12 @@ public class AdminComponentConnector implements ComponentConnector, WebComponent
 
 
     @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindCommunicationHandler", policy = ReferencePolicy.DYNAMIC)
-    public void bindCommunicationHandler(CommunicationHandler communicationHandler) {
-        this.communicationHandler.set(communicationHandler);
+    public void bindCommunicationHandler(AdminWebsocketDispatcher websocketDispatcher) {
+        this.communicationHandler.set(websocketDispatcher);
     }
 
-    public void unbindCommunicationHandler(CommunicationHandler communicationHandler) {
-        this.communicationHandler.compareAndSet(communicationHandler, null);
+    public void unbindCommunicationHandler(AdminWebsocketDispatcher websocketDispatcher) {
+        this.communicationHandler.compareAndSet(websocketDispatcher, null);
     }
 
 
@@ -199,7 +201,7 @@ public class AdminComponentConnector implements ComponentConnector, WebComponent
 
             if (adminModule.autoInstall())
 
-                communicationHandler.get().sendAll(getCommand(component, CommandType.Install));
+                communicationHandler.get().send(getCommand(component, CommandType.Install));
 
         }
     }
@@ -212,7 +214,7 @@ public class AdminComponentConnector implements ComponentConnector, WebComponent
             httpServiceList.parallelStream()
                     .forEach(httpService -> ModuleResourcesAction(component, ComponentResourcesAction.UnRegister));
 
-            communicationHandler.get().sendAll(getCommand(component, CommandType.Uninstall));
+            communicationHandler.get().send(getCommand(component, CommandType.Uninstall));
         }
     }
 

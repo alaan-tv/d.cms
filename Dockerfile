@@ -7,8 +7,7 @@ RUN wget http://www-us.apache.org/dist/karaf/${KARAF_VERSION}/apache-karaf-${KAR
     mkdir /opt/karaf; \
     tar --strip-components=1 -C /opt/karaf -xzf apache-karaf-${KARAF_VERSION}.tar.gz; \
     rm apache-karaf-${KARAF_VERSION}.tar.gz; \
-    mkdir /deploy; \
-    sed -i 's/^\(felix\.fileinstall\.dir\s*=\s*\).*$/\1\/deploy/' /opt/karaf/etc/org.apache.felix.fileinstall-deploy.cfg
+    mkdir /deploy;
 
 RUN bash /opt/karaf/bin/start
 
@@ -23,7 +22,7 @@ RUN bash /opt/karaf/bin/start
 
 
 VOLUME ["/deploy"]
-EXPOSE 1099 8101 44444
+EXPOSE 1099 8101 44444 5005
 ENTRYPOINT ["/opt/karaf/bin/karaf"]
 
 

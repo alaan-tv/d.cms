@@ -1,4 +1,4 @@
-package media.dee.dcms.webapp.cms.components;
+package media.dee.dcms.admin.components;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.UUID;

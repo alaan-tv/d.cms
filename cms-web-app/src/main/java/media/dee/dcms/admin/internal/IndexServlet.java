@@ -1,4 +1,4 @@
-package media.dee.dcms.webapp.cms.internal;
+package media.dee.dcms.admin.internal;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

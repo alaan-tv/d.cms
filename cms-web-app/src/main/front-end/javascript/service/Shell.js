@@ -5,7 +5,14 @@ import {request} from '../transport/Request';
 
 globalEmitter.addListener('ws:system.info', (command)=>{
     console.log(`%cSystem: ${command.SymbolicName} Version:${command.Version}`, 'color: red; font-size: 1.5em;');
+    console.log(`%cServer-ID: name:${command['Server-ID'].hostname} IP:${command['Server-ID'].ip}`, 'color: red; font-size: 1.5em;');
 });
+
+
+globalEmitter.addListener('ws:console.log', (command)=>{
+    console.log(`%c${command.message}`, 'color: blue; font-style: italic;');
+});
+
 
 const lb = (filter)=>{
     console.log(`%cSymbolicName\tVersion`, 'background: gray; color: white');

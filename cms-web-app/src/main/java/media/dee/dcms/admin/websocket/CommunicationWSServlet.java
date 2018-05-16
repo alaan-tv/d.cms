@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package media.dee.dcms.webapp.cms.internal.ws;
+package media.dee.dcms.admin.websocket;
 
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;

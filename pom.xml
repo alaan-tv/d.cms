@@ -17,6 +17,7 @@
 
 	<modules>
         <module>core</module>
+        <module>websocket</module>
         <module>bundle-manager</module>
         <module>file-bundle-manager</module>
         <module>cms-web-app</module>

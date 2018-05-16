@@ -1,4 +1,4 @@
-package media.dee.dcms.webapp.cms.internal;
+package media.dee.dcms.admin.internal;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

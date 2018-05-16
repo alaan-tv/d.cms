@@ -1,7 +1,8 @@
-package media.dee.dcms.webapp.cms.internal;
+package media.dee.dcms.admin.internal;
 
 import media.dee.dcms.components.AdminModule;
 import media.dee.dcms.components.WebComponent;
+import media.dee.dcms.admin.impl.ComponentServiceImpl;
 import org.osgi.framework.Bundle;
 
 import javax.servlet.ServletException;
@@ -22,14 +23,14 @@ public class ComponentResourceServlet extends HttpServlet {
 
     public ComponentResourceServlet(WebComponent webComponent){
         this.webComponent = webComponent;
-        this.bundle = AdminComponentConnector.getComponentBundle(webComponent);
-        this.adminModule = AdminComponentConnector.getAdminModule(webComponent);
+        this.bundle = ComponentServiceImpl.getComponentBundle(webComponent);
+        this.adminModule = ComponentServiceImpl.getAdminModule(webComponent);
     }
 
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        File mappedURL = AdminComponentConnector.getBundleWebAdminResrouceFile(webComponent);
+        File mappedURL = ComponentServiceImpl.getBundleWebAdminResrouceFile(webComponent);
         String resourcePath = req.getRequestURI().substring(mappedURL.getPath().length());
 
         URL url = bundle.getResource(new File(adminModule.resource(),resourcePath).getPath());

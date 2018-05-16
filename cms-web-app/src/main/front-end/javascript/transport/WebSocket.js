@@ -12,6 +12,10 @@ function init(callback) {
 
     socket.onopen = callback;
 
+    socket.onclose = ()=>{
+      setTimeout(init, 1000);
+    };
+
     window.onclose = (event)=>{
         socket.close(1, 'window closed');
     }

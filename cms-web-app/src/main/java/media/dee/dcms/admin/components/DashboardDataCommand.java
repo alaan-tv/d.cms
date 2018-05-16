@@ -1,9 +1,9 @@
-package media.dee.dcms.webapp.cms.components;
+package media.dee.dcms.admin.components;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import media.dee.dcms.components.WebComponent;
-import media.dee.dcms.webapp.cms.internal.ShortCommandName;
+import media.dee.dcms.admin.internal.ShortCommandName;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.Component;

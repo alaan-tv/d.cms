@@ -6,8 +6,8 @@
         <artifactId>dee-cms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>core</artifactId>
-    <name>DeeCMS Core</name>
+	<artifactId>websocket</artifactId>
+    <name>DeeCMS Websocket</name>
 	<packaging>bundle</packaging>
 
 	<properties>
@@ -22,6 +22,13 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>${osgi.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>${org.osgi.service.component.annotations}</version>
+            <scope>provided</scope>
         </dependency>
 
        <!-- OSGI LOG modules -->
@@ -45,6 +52,15 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson}</version>
+        </dependency>
+
+        <!-- hazelcast to synchronize websockets based on karaf hazelcast config -->
+
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+            <version>3.2.3</version>
+            <scope>provided</scope>
         </dependency>
 
 
@@ -84,9 +100,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-Category>d.CMS</Bundle-Category>
-                        <Export-Package>media.dee.dcms.*;version="${project.version}",
-                            media.dee.dcms.components.*;version="${project.version}"
-                        </Export-Package>
+                        <Export-Package>media.dee.dcms.websocket.*;version="${project.version}"</Export-Package>
+                        <Private-Package>media.dee.dcms.websocket.impl</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>

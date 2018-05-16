@@ -91,6 +91,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>websocket</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
 
     </dependencies>
 
@@ -152,9 +159,9 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>media.dee.dcms.webapp.cms.internal.CMSApplicationActivator</Bundle-Activator>
-                        <Export-Package>media.dee.dcms.webapp.cms.*;version="${project.version}"</Export-Package>
-                        <Private-Package>media.dee.dcms.webapp.cms.internal</Private-Package>
+                        <Bundle-Activator>media.dee.dcms.admin.internal.Activator</Bundle-Activator>
+                        <Export-Package>media.dee.dcms.admin.*;version="${project.version}"</Export-Package>
+                        <Private-Package>media.dee.dcms.admin.internal</Private-Package>
                         <Bundle-Category>d.CMS</Bundle-Category>
                         <Web-ContextPath>/cms</Web-ContextPath>
                         <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
