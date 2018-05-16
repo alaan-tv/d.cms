@@ -40,7 +40,7 @@
     * create directory to place d.cms modules, for example `/work/env/docker.deploy`
     * create container with name dcms1, command:<br/>
         ```bash
-        docker run -d -t --name dcms1 -p 1099:1099 -p 8181:8181 -p 44444:44444 -v /work/env/docker.deploy:/deploy dee/cms
+        docker run -d -t --name dcms1 -p 5005:5005 -p 1099:1099 -p 8181:8181 -p 44444:44444 -v /work/env/docker.deploy:/deploy dee/cms
         ```
     * start the container
         ```bash
@@ -56,8 +56,7 @@
                 ./opt/karaf/bin/client feature:repo-add cellar; \
                 ./opt/karaf/bin/client feature:install cellar; \
                 ./opt/karaf/bin/client feature:repo-add mvn:org.code-house.jackson/features/2.8.0/xml/features; \
-                ./opt/karaf/bin/client feature:install jackson-databind; \
-                ./opt/karaf/bin/client feature:repo-add cellar
+                ./opt/karaf/bin/client feature:install jackson-databind
         ```
     * build project and required plugins and place the output into `/work/env/docker.deploy`
     * navigate `http://localhost:8181/cms`
