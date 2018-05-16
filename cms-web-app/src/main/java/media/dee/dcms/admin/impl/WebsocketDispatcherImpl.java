@@ -84,6 +84,17 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
     @Activate
     public void activate(ComponentContext ctx) {
         logService.log(LogService.LOG_INFO, "CMS WebSocket Activated");
+
+        /* test clustered socket */
+        try {
+            sessionManager.broadcast(
+                    objectMapper.createObjectNode()
+                            .put("action", "console.log")
+                            .put("message", String.format("Hello! I'm `%s`, I've just joined the cluster :)", InetAddress.getLocalHost().getHostName() ))
+            );
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -106,17 +117,6 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
                 .put("Version", bundle.getVersion().toString())
                 .set("Server-ID", getHostInformation() );
         sessionManager.send(session, jsonObject);
-
-        /* test clustered socket */
-        try {
-            sessionManager.broadcast(
-                    objectMapper.createObjectNode()
-                        .put("action", "console.log")
-                        .put("message", String.format("Hi this is a message form host: %s", InetAddress.getLocalHost().getHostName() ))
-            );
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
     }
 
 
