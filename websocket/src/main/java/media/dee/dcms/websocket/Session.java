@@ -18,9 +18,10 @@
 
 package media.dee.dcms.websocket;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
 public interface Session {
@@ -63,52 +64,25 @@ public interface Session {
      */
     boolean isSecure();
 
-
     /**
-     * Send a binary message, returning when all bytes of the message has been transmitted.
+     * Send a Json message, blocking until all bytes of the message has been transmitted.
      * <p>
      * Note: this is a blocking call
      *
-     * @param data
-     *            the message to be sent
+     * @param json the json message
      */
-    void sendBytes(ByteBuffer data) throws IOException;
-
-
-    /**
-     * Initiates the asynchronous transmission of a binary message. This method returns before the message is transmitted. Developers may provide a callback to
-     * be notified when the message has been transmitted, or may use the returned Future object to track progress of the transmission. Errors in transmission
-     * are given to the developer in the WriteResult object in either case.
-     *
-     * @param data
-     *            the data being sent
-     * @return the Future object representing the send operation.
-     */
-    Future<Void> sendBytesByFuture(ByteBuffer data);
-
-
-    /**
-     * Send a text message, blocking until all bytes of the message has been transmitted.
-     * <p>
-     * Note: this is a blocking call
-     *
-     * @param text
-     *            the message to be sent
-     */
-    void sendString(String text) throws IOException;
+    void send(JsonNode json) throws IOException;
 
     /**
      * Initiates the asynchronous transmission of a text message. This method returns before the message is transmitted. Developers may provide a callback to be
      * notified when the message has been transmitted, or may use the returned Future object to track progress of the transmission. Errors in transmission are
      * given to the developer in the WriteResult object in either case.
      *
-     * @param text
+     * @param json the json message to  be sent to the client
      *            the text being sent
-     * @param completion
-     *            the handler which will be notified of progress
      * @return the Future object representing the send operation.
      */
-    Future<Void> sendStringByFuture(String text);
+    Future<Void> sendByFuture(JsonNode json);
 
 
 

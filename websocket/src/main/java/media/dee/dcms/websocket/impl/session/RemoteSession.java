@@ -1,25 +1,39 @@
 package media.dee.dcms.websocket.impl.session;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.hazelcast.core.ITopic;
 import media.dee.dcms.websocket.Session;
+import media.dee.dcms.websocket.SessionManager;
+import media.dee.dcms.websocket.impl.ClusterSessionManager;
 import media.dee.dcms.websocket.impl.messages.CloseSession;
 import media.dee.dcms.websocket.impl.messages.Message;
+import media.dee.dcms.websocket.impl.messages.SendMessage;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+/**
+ * Websocket session created in a different node of the cluster, all communcation to the client should be managed through cluster api ( Hazelcast ) to the connected node to delegate the communication to the client.
+ */
 public class RemoteSession implements Session,Serializable {
+    /**
+     * hazelcast topic to send messages to all cluster nodes
+     * transient to avoid serialization over the cluster api.
+     */
     private transient ITopic<Message> topic;
+    private transient ClusterSessionManager sessionManager;
     private String id;
     private String protocolVersion;
     private InetSocketAddress remoteAddress;
     private boolean secure;
 
-    public RemoteSession(ITopic<Message> topic, LocalSession session){
-        this.topic = topic;
+    public RemoteSession(ClusterSessionManager sessionManager, LocalSession session){
+        this.topic = sessionManager.getTopic();
+        this.sessionManager = sessionManager;
         this.id = session.getId();
         this.protocolVersion = session.getProtocolVersion();
         this.remoteAddress = session.getRemoteAddress();
@@ -52,25 +66,17 @@ public class RemoteSession implements Session,Serializable {
     }
 
     @Override
-    public void sendBytes(ByteBuffer data) throws IOException {
-        //TODO implement
+    public void send(JsonNode json) throws IOException {
+        topic.publish(new SendMessage(id, json));
     }
 
     @Override
-    public Future<Void> sendBytesByFuture(ByteBuffer data) {
-        //TODO implement
-        return null;
-    }
-
-    @Override
-    public void sendString(String text) throws IOException {
-        //TODO implement
-    }
-
-    @Override
-    public Future<Void> sendStringByFuture(String text) {
-        //TODO implement
-        return null;
+    public Future<Void> sendByFuture(JsonNode json) {
+        CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+        UUID uuid = UUID.randomUUID();
+        sessionManager.registerMessageCallback(uuid.toString(), completableFuture::complete);
+        topic.publish(new SendMessage(id, json,uuid ));
+        return completableFuture;
     }
 
     public void setTopic(ITopic<Message> topic) {

@@ -27,10 +27,7 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.instance.GroupProperties;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
-import media.dee.dcms.websocket.impl.messages.BroadcastMessage;
-import media.dee.dcms.websocket.impl.messages.Message;
-import media.dee.dcms.websocket.impl.messages.SessionClose;
-import media.dee.dcms.websocket.impl.messages.SessionConnected;
+import media.dee.dcms.websocket.impl.messages.*;
 import media.dee.dcms.websocket.impl.session.LocalSession;
 import media.dee.dcms.websocket.impl.session.RemoteSession;
 import org.osgi.framework.Bundle;
@@ -41,12 +38,19 @@ import org.osgi.service.log.LogService;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
+/**
+ * Session Manager Service implementation over Hazelcast lib to support clustered session websocket.
+ */
 @Component(scope = ServiceScope.PROTOTYPE)
 public class ClusterSessionManager implements SessionManager {
 
     private final Map<String, Session> sessionIndex = new HashMap<>();
     private final Map<org.eclipse.jetty.websocket.api.Session, Session> localSessions = new HashMap<>();
+    private final Map<String, Consumer<Void>> callbackMap = new HashMap<>();
     private LogService log;
     private HazelcastInstance hazelcastNode;
     private ITopic<Message> hazelcastTopic;
@@ -107,7 +111,7 @@ public class ClusterSessionManager implements SessionManager {
 
         LocalSession localSession = (LocalSession)sessionIndex.remove(sessionWrapper.getId());
         localSessions.remove(session);
-        hazelcastTopic.publish(new SessionClose(new RemoteSession( hazelcastTopic, localSession )));
+        hazelcastTopic.publish(new SessionClose(new RemoteSession( this, localSession )));
 
         return sessionWrapper;
 
@@ -144,7 +148,7 @@ public class ClusterSessionManager implements SessionManager {
     @Override
     public boolean send(Session session, JsonNode message){
         try {
-            session.sendString(message.toString());
+            session.send(message);
             return true;
         } catch (IOException e) {
             Session clusterSession = get(session.getId());
@@ -154,6 +158,22 @@ public class ClusterSessionManager implements SessionManager {
             }
             return false;
         }
+    }
+
+    @Override
+    public Future<Void> send(String sessionID, JsonNode message) {
+        /* dispachter of SendMessage, so only local session should be served, remote message is passed without errors. */
+        CompletableFuture<Void> future = new CompletableFuture<Void>();
+        Session session = get(sessionID);
+        if( session instanceof LocalSession){
+            if( send(session, message) )
+                future.complete(null);
+            else
+                future.obtrudeException(new IOException("Websocket IOException"));
+            return future;
+        }
+        future.complete(null);
+        return future;
     }
 
     @Override
@@ -191,5 +211,33 @@ public class ClusterSessionManager implements SessionManager {
 
     public ITopic<Message> getTopic() {
         return hazelcastTopic;
+    }
+
+    /**
+     * register a callback by id to be called when another node send a message.
+     * @param id: message id
+     * @param complete: callback when the another node finishes the job.
+     */
+    public void registerMessageCallback(String id, Consumer<Void> complete){
+        callbackMap.put(id, complete);
+    }
+
+    /**
+     * message acknowledge is triggered by remote node in the cluster
+     * @param id message id.
+     * */
+    public void messageAcknowledged(String id){
+        Consumer<Void> consumer = callbackMap.get(id);
+        if( consumer != null )
+            consumer.accept(null);
+
+    }
+
+    /**
+     * send acknowledgement message back to callee by message id
+     * @param id: message id that acknowledged
+     */
+    public void sendAcknowledgeMessage(String id){
+        this.hazelcastTopic.publish(new SendAcknowledgeMessage(id));
     }
 }

@@ -1,13 +1,16 @@
 package media.dee.dcms.websocket.impl.session;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
+/**
+ * Websocket session directly connected ( locally ), all communication to client can be done via Jetty Websocket session.
+ */
 public class LocalSession implements media.dee.dcms.websocket.Session {
 
     private transient Session session;
@@ -24,23 +27,13 @@ public class LocalSession implements media.dee.dcms.websocket.Session {
     }
 
     @Override
-    public void sendBytes(ByteBuffer byteBuffer) throws IOException {
-        this.session.getRemote().sendBytes(byteBuffer);
+    public void send(JsonNode json) throws IOException {
+        this.session.getRemote().sendString(json.toString());
     }
 
     @Override
-    public Future<Void> sendBytesByFuture(ByteBuffer byteBuffer) {
-        return this.session.getRemote().sendBytesByFuture(byteBuffer);
-    }
-
-    @Override
-    public void sendString(String string) throws IOException {
-        this.session.getRemote().sendString(string);
-    }
-
-    @Override
-    public Future<Void> sendStringByFuture(String string) {
-        return this.session.getRemote().sendStringByFuture(string);
+    public Future<Void> sendByFuture(JsonNode json) {
+        return this.session.getRemote().sendStringByFuture(json.toString());
     }
 
     @Override

@@ -21,6 +21,8 @@ package media.dee.dcms.websocket;
 import com.fasterxml.jackson.databind.JsonNode;
 import media.dee.dcms.websocket.impl.session.RemoteSession;
 
+import java.util.concurrent.Future;
+
 /**
  * Manages the sessions connected to the server and remote connections.
  */
@@ -76,6 +78,14 @@ public interface SessionManager{
     boolean send(Session session, JsonNode message);
 
     /**
+     * send a message to session identified by session id.
+     * @param sessionID  the session id of the websocket session to send the message to
+     * @param message the message to be sent to the client.
+     * @return Future to be called when the message is sent
+     */
+    Future<Void> send(String sessionID, JsonNode message);
+
+    /**
      * broadcast a message to all connected clients
      */
     void broadcast(JsonNode message);
@@ -91,4 +101,5 @@ public interface SessionManager{
      * @param session: remote session
      */
     boolean closeSession(RemoteSession session);
+
 }
