@@ -1,8 +1,8 @@
 package media.dee.dcms.admin.components;
 
-import media.dee.dcms.components.AdminModule;
-import media.dee.dcms.components.UUID;
-import media.dee.dcms.components.WebComponent;
+import media.dee.dcms.core.components.AdminModule;
+import media.dee.dcms.core.components.UUID;
+import media.dee.dcms.core.components.WebComponent;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;

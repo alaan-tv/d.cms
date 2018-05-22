@@ -1,4 +1,4 @@
-package media.dee.dcms.components;
+package media.dee.dcms.core.components;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

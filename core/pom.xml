@@ -84,8 +84,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-Category>d.CMS</Bundle-Category>
-                        <Export-Package>media.dee.dcms.*;version="${project.version}",
-                            media.dee.dcms.components.*;version="${project.version}"
+                        <Export-Package>media.dee.dcms.core.*;version="${project.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

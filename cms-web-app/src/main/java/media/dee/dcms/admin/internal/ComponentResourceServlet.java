@@ -1,7 +1,7 @@
 package media.dee.dcms.admin.internal;
 
-import media.dee.dcms.components.AdminModule;
-import media.dee.dcms.components.WebComponent;
+import media.dee.dcms.core.components.AdminModule;
+import media.dee.dcms.core.components.WebComponent;
 import media.dee.dcms.admin.impl.ComponentServiceImpl;
 import org.osgi.framework.Bundle;
 

@@ -1,4 +1,4 @@
-package media.dee.dcms.components;
+package media.dee.dcms.core.components;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AdminModule {
-    String value();
-    String resource();
-    boolean autoInstall();
+public @interface UUID {
+    public String value();
 }
