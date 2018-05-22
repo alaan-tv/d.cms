@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Session Manager Service implementation over Hazelcast lib to support clustered session websocket.
@@ -177,8 +179,8 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     @Override
-    public void broadcast(JsonNode message) {
-        hazelcastTopic.publish(new BroadcastMessage(message));
+    public void broadcast(JsonNode message, Predicate<Map<String, Object>> filter) {
+        hazelcastTopic.publish(new BroadcastMessage(message, filter));
     }
 
     @Override
@@ -200,10 +202,15 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     @Override
-    public long send(JsonNode message) {
-        return localSessions
+    public long send(JsonNode message, Predicate<Map<String, Object>> filter) {
+        Stream<Session> stream = localSessions
                 .values()
-                .parallelStream()
+                .parallelStream();
+
+        if( filter != null )
+            stream = stream.filter( s -> filter.test(s.getAttributes() ));
+
+        return stream
                 .map( s -> this.send( s, message) )
                 .filter( b -> b )
                 .count();

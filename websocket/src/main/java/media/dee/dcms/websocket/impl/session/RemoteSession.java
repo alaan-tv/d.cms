@@ -3,7 +3,6 @@ package media.dee.dcms.websocket.impl.session;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hazelcast.core.ITopic;
 import media.dee.dcms.websocket.Session;
-import media.dee.dcms.websocket.SessionManager;
 import media.dee.dcms.websocket.impl.ClusterSessionManager;
 import media.dee.dcms.websocket.impl.messages.CloseSession;
 import media.dee.dcms.websocket.impl.messages.Message;
@@ -12,7 +11,7 @@ import media.dee.dcms.websocket.impl.messages.SendMessage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -26,6 +25,8 @@ public class RemoteSession implements Session,Serializable {
      */
     private transient ITopic<Message> topic;
     private transient ClusterSessionManager sessionManager;
+
+    private final Map<String, Object> attributes = new HashMap<>();
     private String id;
     private String protocolVersion;
     private InetSocketAddress remoteAddress;
@@ -77,6 +78,23 @@ public class RemoteSession implements Session,Serializable {
         sessionManager.registerMessageCallback(uuid.toString(), completableFuture::complete);
         topic.publish(new SendMessage(id, json,uuid ));
         return completableFuture;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return new HashMap<>(attributes);
+    }
+
+    @Override
+    public void setAttributes(Map<String, Object> map){
+        List<Map.Entry<String, Map>> changes = new LinkedList<>();
+        synchronized (this.attributes ){
+            //TODO calculate changes
+            this.attributes.clear();
+            this.attributes.putAll(map);
+        }
+
+        //TODO send session's attribute changes message over the cluster to synchronize session attributes. avoid message cycling.
     }
 
     public void setTopic(ITopic<Message> topic) {

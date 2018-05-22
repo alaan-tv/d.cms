@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 public interface Session {
@@ -85,5 +86,15 @@ public interface Session {
     Future<Void> sendByFuture(JsonNode json);
 
 
+    /**
+     * get attributes attached to this session, attributes will be synchroinzed over the cluster nodes.
+     * @return map of attributes
+     */
+    Map<String,Object> getAttributes();
 
+    /**
+     * sets attributes attached to this session, attributes will be synchroinzed over the cluster nodes.
+     * @param  map of attributes
+     */
+    void setAttributes(Map<String, Object> map);
 }

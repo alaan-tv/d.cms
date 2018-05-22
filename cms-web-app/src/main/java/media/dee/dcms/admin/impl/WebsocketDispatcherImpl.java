@@ -90,6 +90,7 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
                 objectMapper.createObjectNode()
                         .put("action", "console.log")
                         .put("message", String.format("Hello! I'm `%s`, I've just joined the cluster :)", getHostInformation().get("ip") ))
+                , (map)-> Boolean.TRUE.equals(map.get("loggedIn"))
         );
 
     }
@@ -175,6 +176,6 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
 
     @Override
     public long send(JsonNode message) {
-        return sessionManager.send(message);
+        return sessionManager.send(message, null);
     }
 }

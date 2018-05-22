@@ -5,7 +5,7 @@ import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Future;
 
 /**
@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 public class LocalSession implements media.dee.dcms.websocket.Session {
 
     private transient Session session;
+    private final Map<String, Object> attributes = new HashMap<>();
     private String id;
 
     public LocalSession(Session session){
@@ -34,6 +35,23 @@ public class LocalSession implements media.dee.dcms.websocket.Session {
     @Override
     public Future<Void> sendByFuture(JsonNode json) {
         return this.session.getRemote().sendStringByFuture(json.toString());
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return new HashMap<>(attributes);
+    }
+
+    @Override
+    public void setAttributes(Map<String, Object> map){
+        List<Map.Entry<String, Map>> changes = new LinkedList<>();
+        synchronized (this.attributes ){
+            //TODO calculate changes
+            this.attributes.clear();
+            this.attributes.putAll(map);
+        }
+
+        //TODO send session's attribute changes message over the cluster to synchronize session attributes. avoid message cycling.
     }
 
     @Override
