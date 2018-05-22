@@ -86,15 +86,12 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
         logService.log(LogService.LOG_INFO, "CMS WebSocket Activated");
 
         /* test clustered socket */
-        try {
-            sessionManager.broadcast(
-                    objectMapper.createObjectNode()
-                            .put("action", "console.log")
-                            .put("message", String.format("Hello! I'm `%s`, I've just joined the cluster :)", InetAddress.getLocalHost().getHostName() ))
-            );
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        sessionManager.broadcast(
+                objectMapper.createObjectNode()
+                        .put("action", "console.log")
+                        .put("message", String.format("Hello! I'm `%s`, I've just joined the cluster :)", getHostInformation().get("ip") ))
+        );
+
     }
 
 
