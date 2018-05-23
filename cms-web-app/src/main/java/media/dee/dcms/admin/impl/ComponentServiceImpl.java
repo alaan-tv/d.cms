@@ -137,7 +137,7 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
     @Activate
     public void activate() {
         LogService log = logRef.get();
-        log.log(LogService.LOG_INFO, "CMS WebSocket Activated");
+        log.log(LogService.LOG_INFO, "CMS Component Service Activated");
     }
 
     @Reference
@@ -146,11 +146,12 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
     }
 
 
-    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE, unbind = "unbindCommunicationHandler", policy = ReferencePolicy.DYNAMIC)
+    @Override
     public void bindCommunicationHandler(AdminWebsocketDispatcher websocketDispatcher) {
         this.communicationHandler.set(websocketDispatcher);
     }
 
+    @Override
     public void unbindCommunicationHandler(AdminWebsocketDispatcher websocketDispatcher) {
         this.communicationHandler.compareAndSet(websocketDispatcher, null);
     }
@@ -194,7 +195,7 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
 
             AdminModule adminModule = getAdminModule(component);
 
-            if (adminModule.autoInstall())
+            if (adminModule.autoInstall() && communicationHandler.get() !=null )
 
                 communicationHandler.get().send(getCommand(component, CommandType.Install));
 
@@ -209,7 +210,8 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
             httpServiceList.parallelStream()
                     .forEach(httpService -> ModuleResourcesAction(component, ComponentResourcesAction.UnRegister));
 
-            communicationHandler.get().send(getCommand(component, CommandType.Uninstall));
+            if( communicationHandler.get() != null )
+                communicationHandler.get().send(getCommand(component, CommandType.Uninstall));
         }
     }
 

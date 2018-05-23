@@ -6,13 +6,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import media.dee.dcms.admin.internal.ShortCommandName;
 import media.dee.dcms.admin.services.AdminWebsocketDispatcher;
+import media.dee.dcms.admin.services.ComponentService;
 import media.dee.dcms.core.components.UUID;
 import media.dee.dcms.core.components.WebComponent;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
@@ -34,16 +34,22 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
             objectMapper.createObjectNode()
                 .put("error", "not-fount");
     private SessionManager sessionManager;
+    private ComponentService componentService;
 
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
     void setLogService(LogService log) {
         this.logService = log;
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
     void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
+    void setComponentService(ComponentService componentService) {
+        this.componentService = componentService;
     }
 
 
@@ -80,10 +86,11 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
     }
 
 
-    @SuppressWarnings("unused")
     @Activate
-    public void activate(ComponentContext ctx) {
+    public void activate() {
         logService.log(LogService.LOG_INFO, "CMS WebSocket Activated");
+
+        componentService.bindCommunicationHandler(this);
 
         /* test clustered socket */
         sessionManager.broadcast(
@@ -92,6 +99,12 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
                         .put("message", String.format("Hello! I'm `%s`, I've just joined the cluster :)", getHostInformation().get("ip") ))
         );
 
+    }
+
+
+    @Deactivate
+    public void deactivate(){
+        componentService.unbindCommunicationHandler(this);
     }
 
 
