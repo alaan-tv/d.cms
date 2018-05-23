@@ -18,36 +18,23 @@ public interface WebComponent {
     interface Command {
         JsonNode execute(JsonNode... arguments);
 
-        public enum CommandType {
+        enum CommandType {
             Uninstall,
-            Install; //note semicolon needed only when extending behavior
-
-            //overrides and additions go here, below the enum constants
-
-            @Override
-            public String toString() {
-                /*
-                 * Either name() or super.toString() may be called here.
-                 * name() is final, and always returns the exact name as specified in
-                 * declaration; toString() is not final, and is intended for presentation
-                 * to the user. It seems best to call name() here.
-                 */
-                return "bundle." + name();
-            }
+            Install
 
         }
 
-        public enum ComponentResourcesAction {
+        enum ComponentResourcesAction {
             Register,
-            UnRegister;//note semicolon needed only when extending behavior
+            UnRegister //note semicolon needed only when extending behavior
         }
 
         @Target(ElementType.TYPE)
         @Retention(RetentionPolicy.RUNTIME)
-        public @interface For {
+        @interface For {
             String value();
 
-            public Class<? extends WebComponent> component();
+            Class<? extends WebComponent> component();
         }
     }
 
