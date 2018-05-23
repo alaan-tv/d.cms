@@ -20,11 +20,8 @@
 package media.dee.dcms.websocket.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.hazelcast.config.Config;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.instance.GroupProperties;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
 import media.dee.dcms.websocket.impl.messages.*;
@@ -41,8 +38,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * Session Manager Service implementation over Hazelcast lib to support clustered session websocket.
@@ -63,30 +58,22 @@ public class ClusterSessionManager implements SessionManager {
         msg.dispatch(this);
     }
 
-    @Reference
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
     void setLogService(LogService log) {
         this.log = log;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
+    void setHazelcastNode(HazelcastInstance instance) {
+        this.hazelcastNode = instance;
     }
 
     @SuppressWarnings("unused")
     @Activate
     void activate(){
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-
-        Config config = new Config();
-        config.setProperty(GroupProperties.PROP_VERSION_CHECK_ENABLED, "false");
-        config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(true);
-        config.setClassLoader(this.getClass().getClassLoader());
-
-        hazelcastNode = Hazelcast.newHazelcastInstance(config);
         hazelcastTopic = hazelcastNode.getTopic(String.format("ws:%s-%s", bundle.getSymbolicName(), bundle.getVersion()));
         hazelcastTopic.addMessageListener( this::dispatchWSMessage );
-    }
-
-    @SuppressWarnings("unused")
-    @Deactivate
-    void deactivate(){
-        hazelcastNode.shutdown();
     }
 
 
@@ -165,7 +152,7 @@ public class ClusterSessionManager implements SessionManager {
     @Override
     public Future<Void> send(String sessionID, JsonNode message) {
         /* dispachter of SendMessage, so only local session should be served, remote message is passed without errors. */
-        CompletableFuture<Void> future = new CompletableFuture<Void>();
+        CompletableFuture<Void> future = new CompletableFuture<>();
         Session session = get(sessionID);
         if( session instanceof LocalSession){
             if( send(session, message) )
@@ -179,8 +166,8 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     @Override
-    public void broadcast(JsonNode message, Predicate<Map<String, Object>> filter) {
-        hazelcastTopic.publish(new BroadcastMessage(message, filter));
+    public void broadcast(JsonNode message) {
+        hazelcastTopic.publish(new BroadcastMessage(message));
     }
 
     @Override
@@ -202,15 +189,10 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     @Override
-    public long send(JsonNode message, Predicate<Map<String, Object>> filter) {
-        Stream<Session> stream = localSessions
+    public long send(JsonNode message) {
+        return localSessions
                 .values()
-                .parallelStream();
-
-        if( filter != null )
-            stream = stream.filter( s -> filter.test(s.getAttributes() ));
-
-        return stream
+                .parallelStream()
                 .map( s -> this.send( s, message) )
                 .filter( b -> b )
                 .count();
