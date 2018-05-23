@@ -19,13 +19,9 @@ import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 @Component(immediate = true, scope = ServiceScope.SINGLETON)
 @ShortCommandName("components/essential/bundles")
@@ -37,7 +33,6 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
     private final AtomicReference<AdminWebsocketDispatcher> communicationHandler = new AtomicReference<>();
     private final List<WebComponent> guiComponents = new LinkedList<>();
     private final List<HttpService> httpServiceList = new LinkedList<>();
-    private final Map<String, BiConsumer<JsonNode, Consumer<JsonNode>>> commands = new HashMap<>();
     private final LinkedList<String> registeredServlets = new LinkedList<>();
 
 
