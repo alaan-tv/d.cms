@@ -15,7 +15,7 @@ public class SessionConnected implements Message {
     @Override
     public void dispatch(SessionManager sessionManager) {
         ClusterSessionManager clusterSessionManager = (ClusterSessionManager) sessionManager;
-        this.session.setTopic( clusterSessionManager.getTopic() );
+        this.session.setSessionManager( clusterSessionManager );
         sessionManager.addSession( session );
     }
 }

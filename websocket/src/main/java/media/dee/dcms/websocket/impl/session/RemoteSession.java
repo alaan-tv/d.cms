@@ -109,7 +109,8 @@ public class RemoteSession implements Session,Serializable {
         //TODO send session's attribute changes message over the cluster to synchronize session attributes. avoid message cycling.
     }
 
-    public void setTopic(ITopic<Message> topic) {
-        this.topic = topic;
+    public void setSessionManager(ClusterSessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+        this.topic = sessionManager.getTopic();
     }
 }
