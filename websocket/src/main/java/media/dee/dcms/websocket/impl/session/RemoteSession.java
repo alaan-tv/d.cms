@@ -8,7 +8,6 @@ import media.dee.dcms.websocket.impl.messages.CloseSession;
 import media.dee.dcms.websocket.impl.messages.Message;
 import media.dee.dcms.websocket.impl.messages.SendMessage;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -41,6 +40,19 @@ public class RemoteSession implements Session,Serializable {
         this.secure = session.isSecure();
     }
 
+    /**
+     * construct a remote session from local session to be serialized over the cluster apis.
+     * @param session the local session to create a remote session from.
+     */
+    public RemoteSession(LocalSession session){
+        this.topic = null;
+        this.sessionManager = null;
+        this.id = session.getId();
+        this.protocolVersion = session.getProtocolVersion();
+        this.remoteAddress = session.getRemoteAddress();
+        this.secure = session.isSecure();
+    }
+
     @Override
     public String getId() {
         return this.id;
@@ -67,7 +79,7 @@ public class RemoteSession implements Session,Serializable {
     }
 
     @Override
-    public void send(JsonNode json) throws IOException {
+    public void send(JsonNode json){
         topic.publish(new SendMessage(id, json));
     }
 

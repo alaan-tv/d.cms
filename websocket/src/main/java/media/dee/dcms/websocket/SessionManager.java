@@ -21,9 +21,7 @@ package media.dee.dcms.websocket;
 import com.fasterxml.jackson.databind.JsonNode;
 import media.dee.dcms.websocket.impl.session.RemoteSession;
 
-import java.util.Map;
 import java.util.concurrent.Future;
-import java.util.function.Predicate;
 
 /**
  * Manages the sessions connected to the server and remote connections.
@@ -72,7 +70,7 @@ public interface SessionManager{
      * @param message message to be sent to client
      * @return number of sent messages
      */
-    long send(JsonNode message, Predicate<Map<String, Object>> filter);
+    long send(JsonNode message);
 
     /**
      * send a message to session
@@ -90,7 +88,7 @@ public interface SessionManager{
     /**
      * broadcast a message to all connected clients
      */
-    void broadcast(JsonNode message, Predicate<Map<String, Object>> filter);
+    void broadcast(JsonNode message);
 
     /**
      * add a remote session to the current node.

@@ -9,7 +9,7 @@ public class SessionConnected implements Message {
     private RemoteSession session;
 
     public SessionConnected(LocalSession session) {
-        this.session = new RemoteSession(null, session);
+        this.session = new RemoteSession(session);
     }
 
     @Override
