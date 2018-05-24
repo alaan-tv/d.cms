@@ -88,7 +88,7 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
 
     @Activate
     public void activate() {
-        logService.log(LogService.LOG_INFO, "CMS WebSocket Activated");
+        logService.log(LogService.LOG_INFO, "CMS WebSocketDispatcher Activated");
 
         componentService.bindCommunicationHandler(this);
 

@@ -112,21 +112,18 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
                         }
                         break;
                 }
-                System.out.printf("[%s]Resource of GUIComponent: %s%n\tMapping: %s --> [%s:%s]%s%n",
-                        resourcesAction, webComponent.getClass().getName(), path,
-                        bundle.getSymbolicName(), bundle.getVersion(), adminModule.resource());
+                logRef.get().log(LogService.LOG_DEBUG,
+                        String.format("[%s]Resource of GUIComponent: %s%n\tMapping: %s --> [%s:%s]%s%n",
+                            resourcesAction, webComponent.getClass().getName(), path,
+                            bundle.getSymbolicName(), bundle.getVersion(), adminModule.resource()));
             }
         } catch (Exception exception) {
             switch (resourcesAction){
                 case Register:
                     logRef.get().log(LogService.LOG_ERROR, String.format("Error while registering httpService Resource of GUIComponent: %s", webComponent.getClass().getName()), exception);
-                    System.err.printf("Error while registering httpService Resource of GUIComponent: %s%n", webComponent.getClass().getName());
-                    exception.printStackTrace(System.err);
                     break;
                 case UnRegister:
                     logRef.get().log(LogService.LOG_ERROR, String.format("Error while un-registering httpService Resource of GUIComponent: %s", webComponent.getClass().getName()), exception);
-                    System.err.printf("Error while un-registering httpService Resource of GUIComponent: %s%n", webComponent.getClass().getName());
-                    exception.printStackTrace(System.err);
                     break;
             }
         } finally {

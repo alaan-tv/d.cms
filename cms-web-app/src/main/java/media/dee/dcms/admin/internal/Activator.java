@@ -2,25 +2,39 @@ package media.dee.dcms.admin.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogService;
+
+import java.util.function.Consumer;
 
 public class Activator implements BundleActivator {
+    private BundleContext context;
 
-    public void start(BundleContext context) throws Exception {
-
-        System.out.printf("****************************************************************************%n");
-        System.out.printf("******************************** d.CMS Admin *******************************%n");
-        System.out.printf("****************************** %15s *****************************%n", context.getBundle().getVersion());
-        System.out.printf("****************************************************************************%n");
+    private void log(Consumer<LogService> logServiceConsumer){
+        ServiceReference<LogService> logServiceServiceReference = context.getServiceReference(LogService.class);
+        LogService logService = context.getService(logServiceServiceReference);
+        try{
+            logServiceConsumer.accept(logService);
+        } catch (Throwable th){
+            logService.log(LogService.LOG_ERROR, "Error while logging", th);
+        }finally {
+            context.ungetService(logServiceServiceReference);
+        }
 
     }
 
-    public void stop(BundleContext context) throws Exception {
+    public void start(BundleContext context) {
+        this.context = context;
+        log( log ->
+                log.log(LogService.LOG_INFO, String.format("Dee.CMS Admin - Version: %s\t Started.", context.getBundle().getVersion()))
+        );
 
-        System.out.println("****************************************************************************");
-        System.out.println("**************************** d.CMS Admin STOPPED ***************************");
-        System.out.printf("****************************** %15s *****************************%n", context.getBundle().getVersion());
-        System.out.println("****************************************************************************");
+    }
 
+    public void stop(BundleContext context) {
 
+        log( log ->
+                log.log(LogService.LOG_INFO, String.format("Dee.CMS Admin - Version: %s\t Stopped.", context.getBundle().getVersion()))
+        );
     }
 }
