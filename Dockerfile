@@ -9,16 +9,18 @@ RUN wget http://www-us.apache.org/dist/karaf/${KARAF_VERSION}/apache-karaf-${KAR
     rm apache-karaf-${KARAF_VERSION}.tar.gz; \
     mkdir /deploy;
 
-RUN bash /opt/karaf/bin/start
-
-#RUN sleep 10
+#RUN bash /opt/karaf/bin/start
 #
-#RUN bash /opt/karaf/bin/client feature:install feature:install war; \
-#    bash /opt/karaf/bin/client feature:repo-add cellar; \
-#    bash /opt/karaf/bin/client feature:install cellar; \
-#    bash /opt/karaf/bin/client feature:repo-add mvn:org.code-house.jackson/features/2.8.0/xml/features; \
-#    bash /opt/karaf/bin/client feature:install jackson-databind; \
-#    bash /opt/karaf/bin/client feature:repo-add cellar
+#RUN sleep 20
+#
+#RUN ps -aux
+#
+#RUN bash /opt/karaf/bin/client feature:install war
+#RUN bash /opt/karaf/bin/client feature:repo-add cellar
+#RUN bash /opt/karaf/bin/client feature:install cellar
+#RUN bash /opt/karaf/bin/client feature:repo-add mvn:org.code-house.jackson/features/2.8.0/xml/features
+#RUN bash /opt/karaf/bin/client feature:install jackson-databind
+#RUN bash /opt/karaf/bin/client feature:repo-add cellar
 
 
 VOLUME ["/deploy"]

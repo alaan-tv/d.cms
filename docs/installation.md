@@ -34,7 +34,7 @@
 * cd to {d.cms project}
 * run command:<br/>
     ```bash 
-        docker build dee/cms .
+        docker build -t dee/cms .
     ```
 * to create one docker container follow the following setps:
     * create directory to place d.cms modules, for example `/work/env/docker.deploy`
