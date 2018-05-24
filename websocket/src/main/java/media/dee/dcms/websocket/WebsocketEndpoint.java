@@ -27,6 +27,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 import java.util.function.Consumer;
 
@@ -34,11 +35,19 @@ public abstract class WebsocketEndpoint {
 
     private final BundleContext bundleContext;
     private final Class<? extends WebsocketDispatcher> serviceClass;
+    private final ServiceTracker<WebsocketDispatcher, WebsocketDispatcher> serviceTracker;
 
     public WebsocketEndpoint(Class<? extends WebsocketDispatcher> serviceClass) {
         this.serviceClass = serviceClass;
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
         this.bundleContext = bundle.getBundleContext();
+        this.serviceTracker = new ServiceTracker<>(this.bundleContext, this.serviceClass.getName(), null);
+        this.serviceTracker.open();
+    }
+
+    @Override
+    public void finalize(){
+        this.serviceTracker.close();
     }
 
     private void handle(Consumer<WebsocketDispatcher> consumer) {
@@ -50,17 +59,23 @@ public abstract class WebsocketEndpoint {
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
-        handle( (handler)-> handler.sessionConnected(session) );
+        if( this.serviceTracker.isEmpty() )
+            return;
+        this.serviceTracker.getService().sessionConnected(session);
     }
 
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        handle( (handler)-> handler.sessionClosed(session) );
+        if( this.serviceTracker.isEmpty() )
+            return;
+        this.serviceTracker.getService().sessionClosed(session);
     }
 
     @OnWebSocketMessage
     public void onText(Session session, String message) {
-        handle( (handler)-> handler.onMessage(session, message) );
+        if( this.serviceTracker.isEmpty() )
+            return;
+        this.serviceTracker.getService().onMessage(session, message);
     }
 
 }

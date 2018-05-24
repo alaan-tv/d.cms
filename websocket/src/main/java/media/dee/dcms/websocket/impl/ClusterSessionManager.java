@@ -94,8 +94,8 @@ public class ClusterSessionManager implements SessionManager {
 
         Session sessionWrapper = get(session);
         if( sessionWrapper == null ){
-            log.log(LogService.LOG_ERROR, String.format("Unsynchroinzed websocket session in %s", getClass().getName()));
-            throw new RuntimeException(String.format("Unsynchroinzed websocket session in %s", getClass().getName()));
+            log.log(LogService.LOG_ERROR, String.format("Asynchronized websocket session in %s", getClass().getName()));
+            throw new RuntimeException(String.format("Asynchronized websocket session in %s", getClass().getName()));
         }
 
         LocalSession localSession = (LocalSession)sessionIndex.remove(sessionWrapper.getId());
@@ -107,11 +107,6 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     public synchronized Session sessionClosed(RemoteSession session) {
-        if( !sessionIndex.containsKey(session.getId()) ){
-            log.log(LogService.LOG_ERROR, String.format("Unsynchroinzed cluster websocket session in %s, id:%s", getClass().getName(), session.getId()));
-            throw new RuntimeException(String.format("Unsynchroinzed cluster websocket session in %s, id:%s", getClass().getName(), session.getId()));
-        }
-
         Session clusterSession = sessionIndex.remove(session.getId());
 
         if( clusterSession instanceof LocalSession){
@@ -170,9 +165,17 @@ public class ClusterSessionManager implements SessionManager {
         hazelcastTopic.publish(new BroadcastMessage(message));
     }
 
+    /**
+     * add a remote session to the current node.
+     * @param session: remote session.
+     */
     @Override
     public void addSession(RemoteSession session) {
-        sessionIndex.put(session.getId(), session);
+        sessionIndex.computeIfPresent(session.getId(), (id, currentSession)->{
+            if( currentSession instanceof LocalSession)
+                return currentSession;
+            return session; //replace with new session.
+        });
     }
 
     @Override
