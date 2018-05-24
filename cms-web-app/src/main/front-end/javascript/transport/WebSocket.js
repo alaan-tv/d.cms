@@ -1,24 +1,52 @@
+let trial = 0;
+function reconnect() {
+    setTimeout(() => {
+        init(() => {} );
+    }, 1000);
+}
+
 function init(callback) {
     let socket = new WebSocket(`ws://${document.location.host}/cms/ws`);
-    socket.onmessage = (event) =>{
+    socket.onmessage = (event) => {
         let command = JSON.parse(event.data);
-
         globalEmitter.emit(`ws:${command.action}`, command);
     };
 
-    globalEmitter.addListener(`ws:request`, (...args)=>{
-        args.forEach( arg => socket.send(JSON.stringify(arg)) );
+    let subscription = globalEmitter.addListener(`ws:request`, (...args) => {
+        args.forEach(arg => socket.send(JSON.stringify(arg)));
     });
 
-    socket.onopen = callback;
-
-    socket.onclose = ()=>{
-      setTimeout(init, 1000);
+    socket.onopen = () => {
+        if(trial === 0 )
+            globalEmitter.emit(`ws:connection:connected`, {});
+        else
+            globalEmitter.emit(`ws:connection:reconnected`, {});
+        trial = 0;
+        callback();
     };
 
-    window.onclose = (event)=>{
+    socket.onclose = () => {
+        subscription.remove();
+        if( trial === 0 ) {
+            globalEmitter.emit(`ws:connection:closed`, {});
+        }
+        trial += 1;
+        reconnect();
+    };
+
+    window.onclose = (event) => {
         socket.close(1, 'window closed');
     }
 }
+
+globalEmitter.addListener(`ws:connection:closed`, ()=>
+    console.log(`%c[Websocket]%c Connectivity: %c[LOST]`, 'font-weight: bold;', '', 'color: red')
+);
+globalEmitter.addListener(`ws:connection:connected`, ()=>
+    console.log(`%c[Websocket]%c Connectivity: %c[OK]`, 'font-weight: bold;', '', 'color: green')
+);
+globalEmitter.addListener(`ws:connection:reconnected`, ()=>
+    console.log(`%c[Websocket]%c Connectivity: %c[RECONNECTED]`, 'font-weight: bold;', '', 'color: green')
+);
 
 export {init};
