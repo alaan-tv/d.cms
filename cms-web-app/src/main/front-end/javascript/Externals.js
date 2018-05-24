@@ -9,6 +9,7 @@ import * as MobxReact from 'mobx-react';
 import * as ReactBeautifulDND from 'react-beautiful-dnd'
 import * as Request from './transport/Request';
 import ComponentPlaceHolder from './components/ComponentPlaceHolder';
+import * as Auth from './service/Auth';
 
 //export as global variable
 window.React = React;
@@ -23,6 +24,7 @@ window.Mobx = Mobx;
 window.MobxReact = MobxReact;
 window.ReactBeautifulDND = ReactBeautifulDND;
 window.ComponentPlaceHolder = ComponentPlaceHolder;
+window.Auth = Auth;
 
 defineModule("react", [], () => {
   return React;
