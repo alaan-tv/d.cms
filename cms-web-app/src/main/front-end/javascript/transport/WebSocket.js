@@ -5,6 +5,17 @@ function reconnect() {
     }, 1000);
 }
 
+globalEmitter.addListener(`ws:connection:open`, ()=>{
+    let timer = setInterval(()=>{
+        globalEmitter.emit(`ws:request`, {action: 'ws.heartbeat'});
+    }, 2000);
+
+    globalEmitter.addListener(`ws:connection:closed`, ()=>{
+        clearInterval(timer);
+    });
+
+});
+
 function init(callback) {
     let socket = new WebSocket(`ws://${document.location.host}/cms/ws`);
     socket.onmessage = (event) => {
@@ -21,6 +32,7 @@ function init(callback) {
             globalEmitter.emit(`ws:connection:connected`, {});
         else
             globalEmitter.emit(`ws:connection:reconnected`, {});
+        globalEmitter.emit(`ws:connection:open`, {});
         trial = 0;
         callback();
     };

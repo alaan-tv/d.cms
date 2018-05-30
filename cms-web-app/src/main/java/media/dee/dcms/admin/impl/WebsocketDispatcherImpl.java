@@ -176,6 +176,9 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
                     }
                 }
 
+                if( !jsonMsg.has("requestID"))
+                    return;
+
                 ObjectNode responseMsg = objectMapper.createObjectNode()
                         .put("action", String.format("response:data:%s", jsonMsg.get("requestID").asInt() ));
                 responseMsg.set("response", response);
