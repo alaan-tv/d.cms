@@ -185,6 +185,10 @@ public class WebsocketDispatcherImpl implements AdminWebsocketDispatcher {
                 sessionManager.send(sessionWrapper, responseMsg );
             }
 
+        })
+        .exceptionally( (th)->{
+            logService.log(LogService.LOG_ERROR, th.getMessage(), th);
+            return null;
         });
 
     }

@@ -218,7 +218,9 @@ public class ComponentServiceImpl implements ComponentService, WebComponent.Comm
         final ArrayNode bundles = objectMapper.createArrayNode();
 
         guiComponents.stream()
-                .filter(guiComponent -> guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall())
+                .filter(guiComponent ->
+                        guiComponent.getClass().getAnnotation(AdminModule.class) != null &&
+                                guiComponent.getClass().getAnnotation(AdminModule.class).autoInstall())
                 .map(this::getBundleInfo)
                 .forEach(bundles::add);
         return bundles;
