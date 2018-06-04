@@ -18,8 +18,11 @@ package media.dee.dcms.core.services;
 
 import media.dee.dcms.core.db.GraphDatabaseService;
 import media.dee.dcms.core.layout.RenderException;
+import media.dee.dcms.core.layout.Template;
 
-public interface TemplateService {
+import java.io.OutputStream;
 
-    StringBuffer render(String html, GraphDatabaseService.GraphNode model) throws RenderException;
+public interface RenderService {
+    void render(OutputStream outputStream, GraphDatabaseService.GraphNode model) throws RenderException;
+    void render(OutputStream outputStream, Template template, GraphDatabaseService.GraphNode model) throws RenderException;
 }

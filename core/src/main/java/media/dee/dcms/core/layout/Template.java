@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package media.dee.dcms.core.services;
+package media.dee.dcms.core.layout;
 
-import media.dee.dcms.core.db.GraphDatabaseService;
-import media.dee.dcms.core.layout.RenderException;
-
-public interface TemplateService {
-
-    StringBuffer render(String html, GraphDatabaseService.GraphNode model) throws RenderException;
+public interface Template {
+    String getTemplate();
+    String getSyntax();
 }
