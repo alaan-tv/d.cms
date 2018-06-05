@@ -1,7 +1,7 @@
 package media.dee.dcms.core.services;
 
-import java.util.Map;
+import media.dee.dcms.core.db.Record;
 
 public interface ComponentService {
-    Map<String, Object> findComponentById(long componentId);
+    Record findComponentById(long componentId);
 }
