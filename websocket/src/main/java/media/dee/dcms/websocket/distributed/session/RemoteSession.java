@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
 import media.dee.dcms.websocket.distributed.AbstractTask;
-import media.dee.dcms.websocket.distributed.CloseSession;
+import media.dee.dcms.websocket.distributed.BackendSessionClose;
 import media.dee.dcms.websocket.distributed.SendMessage;
 import media.dee.dcms.websocket.impl.ClusterSessionManager;
 import media.dee.dcms.websocket.DistributedTaskService;
@@ -67,7 +67,7 @@ public class RemoteSession implements Session,Serializable {
 
     @Override
     public void close() {
-        AbstractTask task = new CloseSession(this);
+        AbstractTask task = new BackendSessionClose(this);
         Set<String> exclude = Collections.singleton(this.getMemberId());
         distributedTaskService.broadcast(task, exclude);
     }

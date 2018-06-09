@@ -107,7 +107,7 @@ public class ClusterSessionManager implements SessionManager {
         LocalSession localSession = (LocalSession)sessionIndex.remove(sessionWrapper.getId());
         localSessions.remove(session);
 
-        AbstractTask task = new SessionClose(new RemoteSession(this, localSession));
+        AbstractTask task = new FrontendSessionClose(new RemoteSession(this, localSession));
         Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
         distributedTaskService.broadcast(task, exclude);
 

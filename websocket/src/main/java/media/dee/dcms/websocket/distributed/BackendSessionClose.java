@@ -2,16 +2,19 @@ package media.dee.dcms.websocket.distributed;
 
 import media.dee.dcms.websocket.distributed.session.RemoteSession;
 
-public class SessionClose extends AbstractTask {
+/**
+ * Backend issued task to close session
+ */
+public class BackendSessionClose extends AbstractTask {
 
     private RemoteSession session;
 
-    public SessionClose(RemoteSession session) {
+    public BackendSessionClose(RemoteSession session) {
         this.session = session;
     }
 
     @Override
     public void run() {
-        getSessionManager().sessionClosed(this.session);
+        getSessionManager().closeSession(session);
     }
 }
