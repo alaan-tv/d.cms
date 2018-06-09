@@ -1,4 +1,4 @@
-package media.dee.dcms.websocket.impl.messages;
+package media.dee.dcms.websocket.distributed;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import media.dee.dcms.websocket.Session;
@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class SendMessage implements Message {
+public class SendMessage extends AbstractTask {
     private String sessionId;
     private JsonNode data;
     private UUID uuid;
@@ -26,14 +26,16 @@ public class SendMessage implements Message {
     }
 
     @Override
-    public void dispatch(SessionManager sessionManager) {
+    public void run() {
+        SessionManager sessionManager = getSessionManager();
         Future<Void> result = sessionManager.send(sessionId, data);
         try {
             result.get();
 
             //send acknowledge message to callee node.
-            if( uuid != null  && sessionManager instanceof ClusterSessionManager)
-                ((ClusterSessionManager)sessionManager).sendAcknowledgeMessage(this.uuid.toString() );
+            if (uuid != null && sessionManager instanceof ClusterSessionManager) {
+                ((ClusterSessionManager) sessionManager).sendAcknowledgeMessage(this.uuid.toString());
+            }
         } catch (InterruptedException e) {
             /* send is canceled, ignore the exception */
         } catch (ExecutionException e) {

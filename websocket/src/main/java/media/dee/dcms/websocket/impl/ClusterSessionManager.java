@@ -21,20 +21,23 @@ package media.dee.dcms.websocket.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Member;
+import media.dee.dcms.websocket.DistributedTaskService;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
-import media.dee.dcms.websocket.impl.messages.*;
-import media.dee.dcms.websocket.impl.session.LocalSession;
-import media.dee.dcms.websocket.impl.session.RemoteSession;
+import media.dee.dcms.websocket.distributed.*;
+import media.dee.dcms.websocket.distributed.session.LocalSession;
+import media.dee.dcms.websocket.distributed.session.RemoteSession;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -50,13 +53,8 @@ public class ClusterSessionManager implements SessionManager {
     private final Map<String, Consumer<Void>> callbackMap = new HashMap<>();
     private LogService log;
     private HazelcastInstance hazelcastNode;
-    private ITopic<Message> hazelcastTopic;
+    private DistributedTaskService distributedTaskService;
 
-
-    private void dispatchWSMessage(com.hazelcast.core.Message<Message> message){
-        Message msg = message.getMessageObject();
-        msg.dispatch(this);
-    }
 
     @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
     void setLogService(LogService log) {
@@ -68,23 +66,31 @@ public class ClusterSessionManager implements SessionManager {
         this.hazelcastNode = instance;
     }
 
+    @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
+    void setSessionManager(DistributedTaskService distributedTaskService) {
+        this.distributedTaskService = distributedTaskService;
+    }
+
     @SuppressWarnings("unused")
     @Activate
     void activate(){
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-        hazelcastTopic = hazelcastNode.getTopic(String.format("ws:%s-%s", bundle.getSymbolicName(), bundle.getVersion()));
-        hazelcastTopic.addMessageListener( this::dispatchWSMessage );
-    }
 
+        //will be used at AbstractTask
+        hazelcastNode.getUserContext().put(this.getClass().getName(), this);
+    }
 
     @Override
     public synchronized Session sessionConnected(org.eclipse.jetty.websocket.api.Session session) {
-        LocalSession sessionWrapper = new LocalSession(session);
+        Member member = hazelcastNode.getCluster().getLocalMember();
+        LocalSession sessionWrapper = new LocalSession(session, member);
 
         sessionIndex.put(sessionWrapper.getId(), sessionWrapper);
         localSessions.put(session, sessionWrapper);
 
-        hazelcastTopic.publish(new SessionConnected(sessionWrapper));
+        AbstractTask task = new SessionConnected(sessionWrapper);
+        Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
+        distributedTaskService.broadcast(task, exclude);
 
         return sessionWrapper;
     }
@@ -100,7 +106,10 @@ public class ClusterSessionManager implements SessionManager {
 
         LocalSession localSession = (LocalSession)sessionIndex.remove(sessionWrapper.getId());
         localSessions.remove(session);
-        hazelcastTopic.publish(new SessionClose(new RemoteSession( this, localSession )));
+
+        AbstractTask task = new SessionClose(new RemoteSession(this, localSession));
+        Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
+        distributedTaskService.broadcast(task, exclude);
 
         return sessionWrapper;
 
@@ -162,7 +171,8 @@ public class ClusterSessionManager implements SessionManager {
 
     @Override
     public void broadcast(JsonNode message) {
-        hazelcastTopic.publish(new BroadcastMessage(message));
+        AbstractTask task = new BroadcastMessage(message);
+        distributedTaskService.broadcast(task);
     }
 
     /**
@@ -201,8 +211,8 @@ public class ClusterSessionManager implements SessionManager {
                 .count();
     }
 
-    public ITopic<Message> getTopic() {
-        return hazelcastTopic;
+    public DistributedTaskService getDistributedTaskService() {
+        return distributedTaskService;
     }
 
     /**
@@ -230,6 +240,8 @@ public class ClusterSessionManager implements SessionManager {
      * @param id: message id that acknowledged
      */
     public void sendAcknowledgeMessage(String id){
-        this.hazelcastTopic.publish(new SendAcknowledgeMessage(id));
+        AbstractTask task = new SendAcknowledgeMessage(id);
+        Session session = sessionIndex.get(id);
+        distributedTaskService.sendToMember(task, session.getMemberId());
     }
 }

@@ -19,7 +19,7 @@
 package media.dee.dcms.websocket;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import media.dee.dcms.websocket.impl.session.RemoteSession;
+import media.dee.dcms.websocket.distributed.session.RemoteSession;
 
 import java.util.concurrent.Future;
 

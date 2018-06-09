@@ -1,6 +1,7 @@
-package media.dee.dcms.websocket.impl.session;
+package media.dee.dcms.websocket.distributed.session;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.hazelcast.core.Member;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
@@ -16,15 +17,22 @@ public class LocalSession implements media.dee.dcms.websocket.Session {
     private transient Session session;
     private final Map<String, Object> attributes = new HashMap<>();
     private String id;
+    private String memberId;
 
-    public LocalSession(Session session){
+    public LocalSession(Session session, Member member){
         this.session = session;
         this.id = UUID.randomUUID().toString();
+        this.memberId = member.getUuid();
     }
 
     @Override
     public String getId() {
         return this.id;
+    }
+
+    @Override
+    public String getMemberId() {
+        return memberId;
     }
 
     @Override

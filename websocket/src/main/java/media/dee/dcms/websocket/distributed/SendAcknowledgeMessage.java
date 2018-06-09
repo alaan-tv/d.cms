@@ -1,9 +1,9 @@
-package media.dee.dcms.websocket.impl.messages;
+package media.dee.dcms.websocket.distributed;
 
 import media.dee.dcms.websocket.SessionManager;
 import media.dee.dcms.websocket.impl.ClusterSessionManager;
 
-public class SendAcknowledgeMessage implements Message {
+public class SendAcknowledgeMessage extends AbstractTask {
     private String id;
 
 
@@ -12,7 +12,8 @@ public class SendAcknowledgeMessage implements Message {
     }
 
     @Override
-    public void dispatch(SessionManager sessionManager) {
+    public void run() {
+        SessionManager sessionManager = getSessionManager();
         if(sessionManager instanceof ClusterSessionManager)
             ((ClusterSessionManager)sessionManager).messageAcknowledged(id);
     }

@@ -1,12 +1,11 @@
-package media.dee.dcms.websocket.impl.messages;
+package media.dee.dcms.websocket.distributed;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import media.dee.dcms.websocket.SessionManager;
 
 import java.io.IOException;
 
-public class BroadcastMessage implements Message {
+public class BroadcastMessage extends AbstractTask {
     private String message;
 
 
@@ -15,10 +14,10 @@ public class BroadcastMessage implements Message {
     }
 
     @Override
-    public void dispatch(SessionManager sessionManager) {
+    public void run() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            sessionManager.send(mapper.readValue(message, JsonNode.class));
+            getSessionManager().send(mapper.readValue(message, JsonNode.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

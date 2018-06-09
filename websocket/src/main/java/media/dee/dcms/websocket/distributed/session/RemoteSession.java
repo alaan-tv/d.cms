@@ -1,12 +1,13 @@
-package media.dee.dcms.websocket.impl.session;
+package media.dee.dcms.websocket.distributed.session;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.hazelcast.core.ITopic;
 import media.dee.dcms.websocket.Session;
+import media.dee.dcms.websocket.SessionManager;
+import media.dee.dcms.websocket.distributed.AbstractTask;
+import media.dee.dcms.websocket.distributed.CloseSession;
+import media.dee.dcms.websocket.distributed.SendMessage;
 import media.dee.dcms.websocket.impl.ClusterSessionManager;
-import media.dee.dcms.websocket.impl.messages.CloseSession;
-import media.dee.dcms.websocket.impl.messages.Message;
-import media.dee.dcms.websocket.impl.messages.SendMessage;
+import media.dee.dcms.websocket.DistributedTaskService;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -19,22 +20,24 @@ import java.util.concurrent.Future;
  */
 public class RemoteSession implements Session,Serializable {
     /**
-     * hazelcast topic to send messages to all cluster nodes
+     * DistributedTaskService to send messages to all cluster nodes
      * transient to avoid serialization over the cluster api.
      */
-    private transient ITopic<Message> topic;
+    private transient DistributedTaskService distributedTaskService;
     private transient ClusterSessionManager sessionManager;
 
     private final Map<String, Object> attributes = new HashMap<>();
     private String id;
+    private String memberId;
     private String protocolVersion;
     private InetSocketAddress remoteAddress;
     private boolean secure;
 
     public RemoteSession(ClusterSessionManager sessionManager, LocalSession session){
-        this.topic = sessionManager.getTopic();
+        this.distributedTaskService = sessionManager.getDistributedTaskService();
         this.sessionManager = sessionManager;
         this.id = session.getId();
+        this.memberId = session.getMemberId();
         this.protocolVersion = session.getProtocolVersion();
         this.remoteAddress = session.getRemoteAddress();
         this.secure = session.isSecure();
@@ -45,7 +48,6 @@ public class RemoteSession implements Session,Serializable {
      * @param session the local session to create a remote session from.
      */
     public RemoteSession(LocalSession session){
-        this.topic = null;
         this.sessionManager = null;
         this.id = session.getId();
         this.protocolVersion = session.getProtocolVersion();
@@ -59,8 +61,15 @@ public class RemoteSession implements Session,Serializable {
     }
 
     @Override
+    public String getMemberId() {
+        return memberId;
+    }
+
+    @Override
     public void close() {
-        topic.publish(new CloseSession(this));
+        AbstractTask task = new CloseSession(this);
+        Set<String> exclude = Collections.singleton(this.getMemberId());
+        distributedTaskService.broadcast(task, exclude);
     }
 
     @Override
@@ -80,7 +89,9 @@ public class RemoteSession implements Session,Serializable {
 
     @Override
     public void send(JsonNode json){
-        topic.publish(new SendMessage(id, json));
+        AbstractTask task = new SendMessage(id, json);
+        Set<String> exclude = Collections.singleton(this.getMemberId());
+        distributedTaskService.broadcast(task, exclude);
     }
 
     @Override
@@ -88,7 +99,10 @@ public class RemoteSession implements Session,Serializable {
         CompletableFuture<Void> completableFuture = new CompletableFuture<>();
         UUID uuid = UUID.randomUUID();
         sessionManager.registerMessageCallback(uuid.toString(), completableFuture::complete);
-        topic.publish(new SendMessage(id, json,uuid ));
+
+        AbstractTask task = new SendMessage(id, json, uuid);
+        Set<String> exclude = Collections.singleton(this.getMemberId());
+        distributedTaskService.broadcast(task, exclude);
         return completableFuture;
     }
 
@@ -109,8 +123,9 @@ public class RemoteSession implements Session,Serializable {
         //TODO send session's attribute changes message over the cluster to synchronize session attributes. avoid message cycling.
     }
 
-    public void setSessionManager(ClusterSessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-        this.topic = sessionManager.getTopic();
+    public void setSessionManager(SessionManager sessionManager) {
+        // TODO: 6/9/18 we shouldn't use class cast here
+        this.sessionManager = (ClusterSessionManager) sessionManager;
+        this.distributedTaskService = this.sessionManager.getDistributedTaskService();
     }
 }

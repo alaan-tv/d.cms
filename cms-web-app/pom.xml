@@ -161,6 +161,11 @@
                     <instructions>
                         <Bundle-Activator>media.dee.dcms.admin.internal.Activator</Bundle-Activator>
                         <Export-Package>media.dee.dcms.admin.*;version="${project.version}"</Export-Package>
+                        <Import-Package>
+                            media.dee.dcms.websocket.distributed,
+                            media.dee.dcms.websocket.distributed.session,
+                            *
+                        </Import-Package>
                         <Private-Package>media.dee.dcms.admin.internal</Private-Package>
                         <Bundle-Category>d.CMS</Bundle-Category>
                         <Web-ContextPath>/cms</Web-ContextPath>

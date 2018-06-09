@@ -34,6 +34,13 @@ public interface Session {
     String getId();
 
     /**
+     * Get the identifier of the member where session is hosting
+     * TODO: check behaviour on one node fail scenario
+     * @return Id of the member
+     */
+    String getMemberId();
+
+    /**
      * Request a close of the current conversation with a normal status code and no reason phrase.
      * <p>
      * This will enqueue a graceful close to the remote endpoint.
