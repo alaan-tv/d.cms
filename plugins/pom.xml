@@ -11,7 +11,16 @@
       <osgi.version>5.0.0</osgi.version>
       <org.osgi.service.http>1.2.1</org.osgi.service.http>
       <org.osgi.service.component.annotations>1.3.0</org.osgi.service.component.annotations>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 
 	<distributionManagement>
 			<snapshotRepository>
