@@ -6,6 +6,8 @@ import java.util.Set;
 
 public interface DistributedTaskService {
 
+    String WS_EXECUTOR_SERVICE = "ws-sync";
+
     /**
      * Send distributed task to specified cluster member.
      *

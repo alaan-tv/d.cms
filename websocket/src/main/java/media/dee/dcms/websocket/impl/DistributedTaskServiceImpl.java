@@ -13,7 +13,7 @@ import java.util.Set;
 @Component
 public class DistributedTaskServiceImpl implements DistributedTaskService {
 
-    private static final String WS_EXECUTOR_SERVICE = "ws-sync";
+
     private LogService log;
     private HazelcastInstance hazelcastNode;
 
