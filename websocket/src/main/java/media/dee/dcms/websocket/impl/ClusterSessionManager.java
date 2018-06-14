@@ -28,8 +28,6 @@ import media.dee.dcms.websocket.SessionManager;
 import media.dee.dcms.websocket.distributed.*;
 import media.dee.dcms.websocket.distributed.session.LocalSession;
 import media.dee.dcms.websocket.distributed.session.RemoteSession;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
@@ -67,15 +65,13 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     @Reference(cardinality = ReferenceCardinality.AT_LEAST_ONE)
-    void setSessionManager(DistributedTaskService distributedTaskService) {
+    void setDistributedTaskService(DistributedTaskService distributedTaskService) {
         this.distributedTaskService = distributedTaskService;
     }
 
     @SuppressWarnings("unused")
     @Activate
     void activate(){
-        Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-
         //will be used at AbstractTask
         hazelcastNode.getUserContext().put(this.getClass().getName(), this);
     }
