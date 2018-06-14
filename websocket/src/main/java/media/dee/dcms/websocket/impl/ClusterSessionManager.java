@@ -100,8 +100,8 @@ public class ClusterSessionManager implements SessionManager {
 
         Session sessionWrapper = get(session);
         if( sessionWrapper == null ){
-            log.log(LogService.LOG_ERROR, String.format("Asynchronized websocket session in %s", getClass().getName()));
-            throw new RuntimeException(String.format("Asynchronized websocket session in %s", getClass().getName()));
+            log.log(LogService.LOG_DEBUG, String.format("Asynchronized websocket session in %s", getClass().getName()));
+            return null;
         }
 
         LocalSession localSession = (LocalSession)sessionIndex.remove(sessionWrapper.getId());
@@ -119,8 +119,8 @@ public class ClusterSessionManager implements SessionManager {
         Session clusterSession = sessionIndex.remove(session.getId());
 
         if( clusterSession instanceof LocalSession){
-            log.log(LogService.LOG_ERROR, String.format("Unauthorized session removal session id: %s", session.getId() ));
-            throw new RuntimeException(String.format("Unauthorized session removal session id: %s", session.getId() ));
+            log.log(LogService.LOG_DEBUG, String.format("Unauthorized session removal session id: %s", session.getId() ));
+            return null;
         }
 
         return session;
