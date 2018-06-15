@@ -15,5 +15,6 @@ COPY org.ops4j.pax.url.mvn.cfg /opt/karaf/etc/org.ops4j.pax.url.mvn.cfg
 RUN cat /opt/karaf/setup.karaf | /opt/karaf/bin/karaf
 
 
-EXPOSE 1099 8101 44444
-ENTRYPOINT ["/opt/karaf/bin/karaf"]
+VOLUME ["/deploy"]
+EXPOSE 1099 8101 44444 5005
+ENTRYPOINT ["/opt/karaf/bin/karaf", "debug"]

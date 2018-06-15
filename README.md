@@ -1,4 +1,4 @@
-[![Build Status](https://semaphoreci.com/api/v1/anasaswad/d-cms/branches/master/shields_badge.svg)](https://semaphoreci.com/anasaswad/d-cms)
+[![Build Status](https://semaphoreci.com/api/v1/dee-media/d-cms/branches/master/badge.svg)](https://semaphoreci.com/dee-media/d-cms)
 
 <p align="center">
     <img height="256" width="256" src="https://raw.githubusercontent.com/dee-media/d.admin.gui/master/src/main/javascript/public/logo.png">

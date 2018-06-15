@@ -20,10 +20,10 @@
     			<id>sonatype</id>
     			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
     		</snapshotRepository>
-				<repository>
-            <id>sonatype</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
+            <repository>
+                <id>sonatype</id>
+                <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            </repository>
   	</distributionManagement>
 
 	<modules>
@@ -46,7 +46,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.7.0</version>
 					<configuration>
 						<source>${jdk.version}</source>
 						<target>${jdk.version}</target>

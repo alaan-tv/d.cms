@@ -1,0 +1,17 @@
+feature:install webconsole
+feature:install war
+feature:repo-add cellar
+feature:install cellar
+feature:repo-add mvn:org.code-house.jackson/features/2.8.0/xml/features
+feature:install jackson-databind
+install mvn:org.neo4j.driver/neo4j-java-driver/1.4.4
+install mvn:org.freemarker/freemarker/2.3.28
+install mvn:org.jsoup/jsoup/1.10.2
+install mvn:media.dee.dcms/core/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/websocket/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/admin/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/admin.gui/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/freemarker-service/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/layout/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/neo4j-repository/0.0.1-SNAPSHOT
+install mvn:media.dee.dcms/user-profile/0.0.1-SNAPSHOT

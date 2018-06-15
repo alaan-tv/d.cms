@@ -31,32 +31,15 @@
 
 
 # Docker Installation
-* cd to {d.cms project}
-* run command:<br/>
-    ```bash 
-        docker build -t dee/cms .
-    ```
-* to create one docker container follow the following setps:
-    * create directory to place d.cms modules, for example `/work/env/docker.deploy`
-    * create container with name dcms1, command:<br/>
+- Developer Docker: for easier development we recommend docker for developers and we have prepared easy tools to start wording without obstacles, by following these steps:
+    - create a directory to place the build bundles
+    - Setup Your IDE to output bundles into the created folder.
+    - build docker image, setup a container, and enter container ssh by running the following command
         ```bash
-        docker run -d -t --name dcms1 -p 5005:5005 -p 1099:1099 -p 8181:8181 -p 44444:44444 -v /work/env/docker.deploy:/deploy dee/cms
+          ./docker/dev/build.sh <image_name> <container_name> <bundles directory>
         ```
-    * start the container
-        ```bash
-        docker start dcms1
-        ```
-    * connect to container ssh
+    - navigate `http://localhost:8080/cms` and `http://localhost:8080/system/console/bundles` to enter karaf webconsole.
+- For staging or production, use docker/Dockerfile which will contain all d.cms bundles, and you can run the bash command:
     ```bash
-    docker exec -it dcms1 bash
+      ./docker/dev/build.sh <image_name> <container_name>
     ```
-    * install karaf required features
-        ```bash
-            ./opt/karaf/bin/client feature:install war; \
-                ./opt/karaf/bin/client feature:repo-add cellar; \
-                ./opt/karaf/bin/client feature:install cellar; \
-                ./opt/karaf/bin/client feature:repo-add mvn:org.code-house.jackson/features/2.8.0/xml/features; \
-                ./opt/karaf/bin/client feature:install jackson-databind
-        ```
-    * build project and required plugins and place the output into `/work/env/docker.deploy`
-    * navigate `http://localhost:8181/cms`
