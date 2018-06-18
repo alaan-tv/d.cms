@@ -85,8 +85,7 @@ public class ClusterSessionManager implements SessionManager {
         locallyConnectedSessions.put(session, sessionWrapper);
 
         AbstractTask task = new SessionConnected(sessionWrapper);
-        Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
-        distributedTaskService.broadcast(task, exclude);
+        distributedTaskService.broadcast(task, sessionWrapper.getMemberId());
 
         return sessionWrapper;
     }
@@ -104,8 +103,7 @@ public class ClusterSessionManager implements SessionManager {
         locallyConnectedSessions.remove(session);
 
         AbstractTask task = new FrontendSessionClose(new RemoteSession(this, localSession));
-        Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
-        distributedTaskService.broadcast(task, exclude);
+        distributedTaskService.broadcast(task, sessionWrapper.getMemberId());
 
         return sessionWrapper;
 

@@ -89,8 +89,7 @@ public class RemoteSession implements Session,Serializable {
     @Override
     public void send(JsonNode json){
         AbstractTask task = new SendMessage(id, json);
-        Set<String> exclude = Collections.singleton(this.getMemberId());
-        distributedTaskService.broadcast(task, exclude);
+        distributedTaskService.broadcast(task, this.getMemberId());
     }
 
     @Override
@@ -100,8 +99,7 @@ public class RemoteSession implements Session,Serializable {
         sessionManager.registerMessageCallback(uuid.toString(), completableFuture::complete);
 
         AbstractTask task = new SendMessage(id, json, uuid);
-        Set<String> exclude = Collections.singleton(this.getMemberId());
-        distributedTaskService.broadcast(task, exclude);
+        distributedTaskService.broadcast(task, this.getMemberId());
         return completableFuture;
     }
 

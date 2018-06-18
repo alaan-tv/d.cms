@@ -25,6 +25,14 @@ public interface DistributedTaskService {
     void broadcast(AbstractTask task, Set<String> excludeMembersUuid);
 
     /**
+     * Broadcast distributed task to all member excluding specified.
+     *
+     * @param task               Task to be sent
+     * @param excludeMemberUuid Member IDs which will be excluded from broadcasting
+     */
+    void broadcast(AbstractTask task, String excludeMemberUuid);
+
+    /**
      * Broadcast distributed task to all cluster members
      *
      * @param task Task to be sent

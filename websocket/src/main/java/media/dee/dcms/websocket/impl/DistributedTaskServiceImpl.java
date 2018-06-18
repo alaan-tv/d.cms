@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.log.LogService;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -78,6 +79,12 @@ public class DistributedTaskServiceImpl implements DistributedTaskService {
                     });
             log.log(LogService.LOG_DEBUG, "Task [" + task + "] broadcasted excluding Uuid: " + excludeMembersUuid);
         }
+    }
+
+    @Override
+    public void broadcast(AbstractTask task, String excludeMemberUuid) {
+        Set<String> exclude = Collections.singleton(excludeMemberUuid);
+        this.broadcast(task, exclude);
     }
 
     @Override
