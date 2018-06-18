@@ -68,8 +68,7 @@ public class RemoteSession implements Session,Serializable {
     @Override
     public void close() {
         AbstractTask task = new BackendSessionClose(this);
-        Set<String> exclude = Collections.singleton(this.getMemberId());
-        distributedTaskService.broadcast(task, exclude);
+        distributedTaskService.broadcast(task);
     }
 
     @Override

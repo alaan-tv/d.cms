@@ -46,8 +46,8 @@ import java.util.function.Consumer;
 @Component(scope = ServiceScope.PROTOTYPE)
 public class ClusterSessionManager implements SessionManager {
 
-    private final Map<String, Session> sessionIndex = new HashMap<>();
-    private final Map<org.eclipse.jetty.websocket.api.Session, Session> localSessions = new HashMap<>();
+    private final Map<String, Session> clusterSessions = new HashMap<>();
+    private final Map<org.eclipse.jetty.websocket.api.Session, Session> locallyConnectedSessions = new HashMap<>();
     private final Map<String, Consumer<Void>> callbackMap = new HashMap<>();
     private LogService log;
     private HazelcastInstance hazelcastNode;
@@ -81,8 +81,8 @@ public class ClusterSessionManager implements SessionManager {
         Member member = hazelcastNode.getCluster().getLocalMember();
         LocalSession sessionWrapper = new LocalSession(session, member);
 
-        sessionIndex.put(sessionWrapper.getId(), sessionWrapper);
-        localSessions.put(session, sessionWrapper);
+        clusterSessions.put(sessionWrapper.getId(), sessionWrapper);
+        locallyConnectedSessions.put(session, sessionWrapper);
 
         AbstractTask task = new SessionConnected(sessionWrapper);
         Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
@@ -100,8 +100,8 @@ public class ClusterSessionManager implements SessionManager {
             return null;
         }
 
-        LocalSession localSession = (LocalSession)sessionIndex.remove(sessionWrapper.getId());
-        localSessions.remove(session);
+        LocalSession localSession = (LocalSession) clusterSessions.remove(sessionWrapper.getId());
+        locallyConnectedSessions.remove(session);
 
         AbstractTask task = new FrontendSessionClose(new RemoteSession(this, localSession));
         Set<String> exclude = Collections.singleton(sessionWrapper.getMemberId());
@@ -112,7 +112,7 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     public synchronized Session sessionClosed(RemoteSession session) {
-        Session clusterSession = sessionIndex.remove(session.getId());
+        Session clusterSession = clusterSessions.remove(session.getId());
 
         if( clusterSession instanceof LocalSession){
             log.log(LogService.LOG_DEBUG, String.format("Unauthorized session removal session id: %s", session.getId() ));
@@ -125,12 +125,12 @@ public class ClusterSessionManager implements SessionManager {
 
     @Override
     public synchronized Session get(org.eclipse.jetty.websocket.api.Session session) {
-        return localSessions.get(session);
+        return locallyConnectedSessions.get(session);
     }
 
     @Override
     public Session get(String id) {
-        return sessionIndex.get(id);
+        return clusterSessions.get(id);
     }
 
 
@@ -177,11 +177,14 @@ public class ClusterSessionManager implements SessionManager {
      */
     @Override
     public void addSession(RemoteSession session) {
-        sessionIndex.computeIfPresent(session.getId(), (id, currentSession)->{
+        Session s = clusterSessions.computeIfPresent(session.getId(), (id, currentSession)->{
             if( currentSession instanceof LocalSession)
                 return currentSession;
             return session; //replace with new session.
         });
+        if (s == null) {
+            clusterSessions.put(session.getId(), session);
+        }
     }
 
     @Override
@@ -192,14 +195,27 @@ public class ClusterSessionManager implements SessionManager {
             localSession.close();
             sessionClosed(localSession.getSession());
             return true;
+        } else if (clusterSession instanceof RemoteSession){
+            clusterSessions.remove(clusterSession.getId());
+            return true;
         }
 
         return false;
     }
 
     @Override
+    public Map<String, Session> getClusterSessions() {
+        return clusterSessions;
+    }
+
+    @Override
+    public Map<org.eclipse.jetty.websocket.api.Session, Session> getLocallyConnectedSessions() {
+        return locallyConnectedSessions;
+    }
+
+    @Override
     public long send(JsonNode message) {
-        return localSessions
+        return locallyConnectedSessions
                 .values()
                 .parallelStream()
                 .map( s -> this.send( s, message) )
@@ -237,7 +253,7 @@ public class ClusterSessionManager implements SessionManager {
      */
     public void sendAcknowledgeMessage(String id){
         AbstractTask task = new SendAcknowledgeMessage(id);
-        Session session = sessionIndex.get(id);
+        Session session = clusterSessions.get(id);
         distributedTaskService.sendToMember(task, session.getMemberId());
     }
 }

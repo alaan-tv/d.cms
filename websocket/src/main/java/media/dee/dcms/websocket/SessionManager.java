@@ -21,6 +21,7 @@ package media.dee.dcms.websocket;
 import com.fasterxml.jackson.databind.JsonNode;
 import media.dee.dcms.websocket.distributed.session.RemoteSession;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -101,5 +102,17 @@ public interface SessionManager{
      * @param session: remote session
      */
     boolean closeSession(RemoteSession session);
+
+    /**
+     * Get all sessions managed by cluster
+     * @return cluster sessions map
+     */
+    Map<String, Session> getClusterSessions();
+
+    /**
+     * Get all sessions managed locally
+     * @return locally connected sessions map
+     */
+    Map<org.eclipse.jetty.websocket.api.Session, Session> getLocallyConnectedSessions();
 
 }

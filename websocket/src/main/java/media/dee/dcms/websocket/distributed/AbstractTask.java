@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 public abstract class AbstractTask implements Runnable, Serializable, HazelcastInstanceAware {
 
-    private HazelcastInstance hazelcastNode;
+    private transient HazelcastInstance hazelcastNode;
 
     @Override
     public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
