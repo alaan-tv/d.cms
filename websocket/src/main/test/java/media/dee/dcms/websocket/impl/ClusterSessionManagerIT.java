@@ -12,11 +12,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 
-
+// TODO: 6/19/18 refactoring needed
 public class ClusterSessionManagerIT {
     private HazelcastInstance hazelcastInstance1;
     private HazelcastInstance hazelcastInstance2;
@@ -130,7 +132,7 @@ public class ClusterSessionManagerIT {
         Assert.assertEquals(clusterSessionsClosed3.size(), 0);
     }
 
-//    @Test
+    //    @Test
     public void testLocalSessionClose() throws Exception {
         //todo implement test with local session closing as LocalSession.close().
         //todo to implement this - close session message should be broadcasted from LocalSession.close() method

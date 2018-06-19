@@ -21,6 +21,7 @@ package media.dee.dcms.websocket;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -97,11 +98,21 @@ public interface Session {
      * get attributes attached to this session, attributes will be synchroinzed over the cluster nodes.
      * @return map of attributes
      */
-    Map<String,Object> getAttributes();
+    Map<String, Serializable> getAttributes();
 
     /**
-     * sets attributes attached to this session, attributes will be synchroinzed over the cluster nodes.
-     * @param  map of attributes
+     * Put attributes attached to this session, attributes will be synchroinzed over the cluster nodes.
+     * If the map previously contained a mapping for the key, the old value is replaced by the specified value.
+     *
+     * @param map Map of attributes
      */
-    void setAttributes(Map<String, Object> map);
+    void putAttributesWithSync(Map<String, Serializable> map);
+
+    /**
+     * Put attributes attached to this session, attributes will NOT be synchronized over the cluster.
+     * If the map previously contained a mapping for the key, the old value is replaced by the specified value.
+     *
+     * @param map Map of attributes
+     */
+    void putAttributes(Map<String, Serializable> map);
 }

@@ -104,6 +104,13 @@ public interface SessionManager{
     boolean closeSession(RemoteSession session);
 
     /**
+     * Update attributes of session.
+     *
+     * @param remoteSession
+     */
+    void changeSessionAttributes(RemoteSession remoteSession);
+
+    /**
      * Get all sessions managed by cluster
      * @return cluster sessions map
      */

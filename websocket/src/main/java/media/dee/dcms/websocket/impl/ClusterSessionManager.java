@@ -25,17 +25,23 @@ import com.hazelcast.core.Member;
 import media.dee.dcms.websocket.DistributedTaskService;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
-import media.dee.dcms.websocket.distributed.*;
+import media.dee.dcms.websocket.distributed.AbstractTask;
+import media.dee.dcms.websocket.distributed.BroadcastMessage;
+import media.dee.dcms.websocket.distributed.FrontendSessionClose;
+import media.dee.dcms.websocket.distributed.SendAcknowledgeMessage;
+import media.dee.dcms.websocket.distributed.SessionConnected;
 import media.dee.dcms.websocket.distributed.session.LocalSession;
 import media.dee.dcms.websocket.distributed.session.RemoteSession;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.log.LogService;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -79,7 +85,7 @@ public class ClusterSessionManager implements SessionManager {
     @Override
     public synchronized Session sessionConnected(org.eclipse.jetty.websocket.api.Session session) {
         Member member = hazelcastNode.getCluster().getLocalMember();
-        LocalSession sessionWrapper = new LocalSession(session, member);
+        LocalSession sessionWrapper = new LocalSession(session, member, this);
 
         clusterSessions.put(sessionWrapper.getId(), sessionWrapper);
         locallyConnectedSessions.put(session, sessionWrapper);
@@ -202,13 +208,21 @@ public class ClusterSessionManager implements SessionManager {
     }
 
     @Override
+    public void changeSessionAttributes(RemoteSession remoteSession) {
+        Session session = clusterSessions.get(remoteSession.getId());
+        if (session != null) {
+            session.putAttributes(remoteSession.getAttributes());
+        }
+    }
+
+    @Override
     public Map<String, Session> getClusterSessions() {
-        return clusterSessions;
+        return new HashMap<>(clusterSessions);
     }
 
     @Override
     public Map<org.eclipse.jetty.websocket.api.Session, Session> getLocallyConnectedSessions() {
-        return locallyConnectedSessions;
+        return new HashMap<>(locallyConnectedSessions);
     }
 
     @Override

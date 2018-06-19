@@ -1,17 +1,20 @@
 package media.dee.dcms.websocket.distributed.session;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import media.dee.dcms.websocket.DistributedTaskService;
 import media.dee.dcms.websocket.Session;
 import media.dee.dcms.websocket.SessionManager;
 import media.dee.dcms.websocket.distributed.AbstractTask;
 import media.dee.dcms.websocket.distributed.BackendSessionClose;
 import media.dee.dcms.websocket.distributed.SendMessage;
 import media.dee.dcms.websocket.impl.ClusterSessionManager;
-import media.dee.dcms.websocket.DistributedTaskService;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
@@ -26,7 +29,7 @@ public class RemoteSession implements Session,Serializable {
     private transient DistributedTaskService distributedTaskService;
     private transient ClusterSessionManager sessionManager;
 
-    private final Map<String, Object> attributes = new HashMap<>();
+    private Map<String, Serializable> attributes = Collections.synchronizedMap(new HashMap<>());
     private String id;
     private String memberId;
     private String protocolVersion;
@@ -53,6 +56,8 @@ public class RemoteSession implements Session,Serializable {
         this.protocolVersion = session.getProtocolVersion();
         this.remoteAddress = session.getRemoteAddress();
         this.secure = session.isSecure();
+        this.attributes = session.getAttributes();
+        this.memberId = session.getMemberId();
     }
 
     @Override
@@ -104,20 +109,18 @@ public class RemoteSession implements Session,Serializable {
     }
 
     @Override
-    public Map<String, Object> getAttributes() {
+    public Map<String, Serializable> getAttributes() {
         return new HashMap<>(attributes);
     }
 
     @Override
-    public void setAttributes(Map<String, Object> map){
-        List<Map.Entry<String, Map>> changes = new LinkedList<>();
-        synchronized (this.attributes ){
-            //TODO calculate changes
-            this.attributes.clear();
-            this.attributes.putAll(map);
-        }
+    public void putAttributesWithSync(Map<String, Serializable> map) {
+        throw new UnsupportedOperationException();
+    }
 
-        //TODO send session's attribute changes message over the cluster to synchronize session attributes. avoid message cycling.
+    @Override
+    public void putAttributes(Map<String, Serializable> map) {
+        this.attributes.putAll(map);
     }
 
     public void setSessionManager(SessionManager sessionManager) {

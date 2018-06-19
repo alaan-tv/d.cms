@@ -2,11 +2,19 @@ package media.dee.dcms.websocket.distributed.session;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.hazelcast.core.Member;
+import media.dee.dcms.websocket.DistributedTaskService;
+import media.dee.dcms.websocket.distributed.AbstractTask;
+import media.dee.dcms.websocket.distributed.SessionAttributesChanged;
+import media.dee.dcms.websocket.impl.ClusterSessionManager;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 /**
@@ -14,15 +22,18 @@ import java.util.concurrent.Future;
  */
 public class LocalSession implements media.dee.dcms.websocket.Session {
 
+    private transient DistributedTaskService distributedTaskService;
     private transient Session session;
-    private final Map<String, Object> attributes = new HashMap<>();
+
+    private Map<String, Serializable> attributes = Collections.synchronizedMap(new HashMap<>());
     private String id;
     private String memberId;
 
-    public LocalSession(Session session, Member member){
+    public LocalSession(Session session, Member member, ClusterSessionManager sessionManager){
         this.session = session;
         this.id = UUID.randomUUID().toString();
         this.memberId = member.getUuid();
+        distributedTaskService = sessionManager.getDistributedTaskService();
     }
 
     @Override
@@ -46,20 +57,22 @@ public class LocalSession implements media.dee.dcms.websocket.Session {
     }
 
     @Override
-    public Map<String, Object> getAttributes() {
+    public Map<String, Serializable> getAttributes() {
         return new HashMap<>(attributes);
     }
 
     @Override
-    public void setAttributes(Map<String, Object> map){
-        List<Map.Entry<String, Map>> changes = new LinkedList<>();
-        synchronized (this.attributes ){
-            //TODO calculate changes
-            this.attributes.clear();
-            this.attributes.putAll(map);
-        }
+    public void putAttributesWithSync(Map<String, Serializable> map) {
+        this.attributes.putAll(map);
 
-        //TODO send session's attribute changes message over the cluster to synchronize session attributes. avoid message cycling.
+        RemoteSession wrapper = new RemoteSession(this);
+        AbstractTask task = new SessionAttributesChanged(wrapper);
+        distributedTaskService.broadcast(task, this.getMemberId());
+    }
+
+    @Override
+    public void putAttributes(Map<String, Serializable> map) {
+        this.attributes.putAll(map);
     }
 
     @Override
