@@ -9,16 +9,14 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.osgi.service.log.LogService;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 
-// TODO: 6/19/18 refactoring needed
 public class ClusterSessionManagerIT {
     private HazelcastInstance hazelcastInstance1;
     private HazelcastInstance hazelcastInstance2;
@@ -74,32 +72,29 @@ public class ClusterSessionManagerIT {
         hazelcastInstance3.shutdown();
     }
 
+    @AfterMethod
+    public void cleanup() {
+        sessionManager1.getClusterSessions().clear();
+        sessionManager2.getClusterSessions().clear();
+        sessionManager3.getClusterSessions().clear();
+
+        sessionManager1.getLocallyConnectedSessions().clear();
+        sessionManager2.getLocallyConnectedSessions().clear();
+        sessionManager3.getLocallyConnectedSessions().clear();
+    }
+
     @Test
     public void testSessionsClustering() throws Exception {
         Session session = mock(Session.class);
         sessionManager1.sessionConnected(session);
         Thread.sleep(100);
 
-        Map<Session, media.dee.dcms.websocket.Session> localSessions = sessionManager1.getLocallyConnectedSessions();
-        Assert.assertEquals(localSessions.size(), 1);
-
-        Map<String, media.dee.dcms.websocket.Session> clusterSessions = sessionManager2.getClusterSessions();
-        Assert.assertEquals(clusterSessions.size(), 1);
-
-        Map<String, media.dee.dcms.websocket.Session> clusterSessions3 = sessionManager3.getClusterSessions();
-        Assert.assertEquals(clusterSessions3.size(), 1);
+        checkSessionExists();
 
         sessionManager1.sessionClosed(session);
         Thread.sleep(100);
 
-        Map<org.eclipse.jetty.websocket.api.Session, media.dee.dcms.websocket.Session> local = sessionManager1.getLocallyConnectedSessions();
-        Assert.assertEquals(local.size(), 0);
-
-        Map<String, media.dee.dcms.websocket.Session> clusterSessionsClosed2 = sessionManager2.getClusterSessions();
-        Assert.assertEquals(clusterSessionsClosed2.size(), 0);
-
-        Map<String, media.dee.dcms.websocket.Session> clusterSessionsClosed3 = sessionManager3.getClusterSessions();
-        Assert.assertEquals(clusterSessionsClosed3.size(), 0);
+        checkSessionNotExist();
     }
 
     @Test
@@ -108,6 +103,18 @@ public class ClusterSessionManagerIT {
         sessionManager1.sessionConnected(session);
         Thread.sleep(100);
 
+        checkSessionExists();
+
+        Map<Session, media.dee.dcms.websocket.Session> localSessions = sessionManager1.getLocallyConnectedSessions();
+        LocalSession localSession = (LocalSession) localSessions.get(session);
+        RemoteSession remoteSession = new RemoteSession(sessionManager1, localSession);
+        remoteSession.close();
+        Thread.sleep(100);
+
+        checkSessionNotExist();
+    }
+
+    private void checkSessionExists() {
         Map<Session, media.dee.dcms.websocket.Session> localSessions = sessionManager1.getLocallyConnectedSessions();
         Assert.assertEquals(localSessions.size(), 1);
 
@@ -116,12 +123,9 @@ public class ClusterSessionManagerIT {
 
         Map<String, media.dee.dcms.websocket.Session> clusterSessions3 = sessionManager3.getClusterSessions();
         Assert.assertEquals(clusterSessions3.size(), 1);
+    }
 
-        LocalSession localSession = (LocalSession) localSessions.get(session);
-        RemoteSession remoteSession = new RemoteSession(sessionManager1, localSession);
-        remoteSession.close();
-        Thread.sleep(100);
-
+    private void checkSessionNotExist() {
         Map<org.eclipse.jetty.websocket.api.Session, media.dee.dcms.websocket.Session> local = sessionManager1.getLocallyConnectedSessions();
         Assert.assertEquals(local.size(), 0);
 
@@ -130,11 +134,5 @@ public class ClusterSessionManagerIT {
 
         Map<String, media.dee.dcms.websocket.Session> clusterSessionsClosed3 = sessionManager3.getClusterSessions();
         Assert.assertEquals(clusterSessionsClosed3.size(), 0);
-    }
-
-    //    @Test
-    public void testLocalSessionClose() throws Exception {
-        //todo implement test with local session closing as LocalSession.close().
-        //todo to implement this - close session message should be broadcasted from LocalSession.close() method
     }
 }
