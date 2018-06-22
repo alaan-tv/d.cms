@@ -27,10 +27,12 @@
   ``bundle:install mvn:media.dee.dcms/core/0.0.1-SNAPSHOT``
 * install cms-web-app module, command:<br/>
     ``bundle:install mvn:media.dee.dcms/admin/0.0.1-SNAPSHOT``
-* install cms-web-app frontend fragment, command:</br>
+* install cms-web-app frontend fragment, command:<br/>
     ``bundle:install mvn:media.dee.dcms/admin.gui/0.0.1-SNAPSHOT``
-    * install websocket module, command:<br/>
-        ``bundle:install mvn:media.dee.dcms/websocket/0.0.1-SNAPSHOT``
+* install websocket module, command:<br/>
+    ``bundle:install mvn:media.dee.dcms/websocket/0.0.1-SNAPSHOT``
+* install user-profile module, command:<br/>
+    ``bundle:install mvn:media.dee.dcms/user-profile/0.0.1-SNAPSHOT``  
 * navigate 'http://localhost:{KARAF_HTTP:8181}/cms'
 
 
